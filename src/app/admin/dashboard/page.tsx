@@ -629,7 +629,13 @@ export default function AdminDashboardPage() {
                                     <p className="text-sm font-medium mb-2">Data Lama:</p>
                                     <div className="bg-slate-50 dark:bg-slate-800 rounded-md p-3 space-y-1 text-sm">
                                       {dataLama ? (
-                                        Object.entries(dataLama).map(([key, value]) => (
+                                        Object.entries(dataLama)
+                                          .filter(([key]) => {
+                                            // Filter out non-relevant fields for REKENING
+                                            const excludedFields = ['gajiPokok', 'pangkat', 'masaKerja']
+                                            return !excludedFields.includes(key)
+                                          })
+                                          .map(([key, value]) => (
                                           <div key={key} className="flex justify-between">
                                             <span className="text-muted-foreground capitalize">{key}:</span>
                                             <span className="font-medium">{String(value)}</span>
@@ -644,7 +650,13 @@ export default function AdminDashboardPage() {
                                   <div>
                                     <p className="text-sm font-medium mb-2">Data Baru:</p>
                                     <div className="bg-blue-50 dark:bg-blue-900/20 rounded-md p-3 space-y-1 text-sm">
-                                      {Object.entries(dataBaru).map(([key, value]) => (
+                                      {Object.entries(dataBaru)
+                                        .filter(([key]) => {
+                                          // Filter out non-relevant fields
+                                          const excludedFields = ['alasan', 'gajiPokok', 'pangkat', 'masaKerja']
+                                          return !excludedFields.includes(key)
+                                        })
+                                        .map(([key, value]) => (
                                         <div key={key} className="flex justify-between">
                                           <span className="text-muted-foreground capitalize">{key}:</span>
                                           <span className="font-medium text-blue-700 dark:text-blue-300">{String(value)}</span>
@@ -653,6 +665,29 @@ export default function AdminDashboardPage() {
                                     </div>
                                   </div>
                                 </div>
+
+                                {/* Alasan Perubahan (khusus REKENING) */}
+                                {p.jenisPengajuan === 'REKENING' && dataBaru.alasan && (
+                                  <div className="mt-3 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-md">
+                                    <p className="text-sm font-medium mb-1">Alasan Perubahan:</p>
+                                    <p className="text-sm text-amber-800 dark:text-amber-200">
+                                      {dataBaru.alasan === 'REKENING_BERMASALAH_DIBLOKIR' && 'Rekening Bermasalah/Diblokir'}
+                                      {dataBaru.alasan === 'KEAMANAN_SCAM_PHISHING' && 'Keamanan (Scam/Phishing)'}
+                                      {dataBaru.alasan === 'KETIDAKSESUAIAN_DATA' && 'Ketidaksesuaian Data'}
+                                      {dataBaru.alasan === 'GURU_MUTASI' && 'Guru Mutasi'}
+                                    </p>
+                                    <p className="text-xs text-muted-foreground mt-2">
+                                      {dataBaru.alasan === 'REKENING_BERMASALAH_DIBLOKIR' && 
+                                        'Rekening tidak aktif, dormant, atau diblokir oleh pihak bank.'}
+                                      {dataBaru.alasan === 'KEAMANAN_SCAM_PHISHING' && 
+                                        'Rekening terkena tindak kejahatan perbankan (penipuan, phishing, kartu ATM hilang/dicuri).'}
+                                      {dataBaru.alasan === 'KETIDAKSESUAIAN_DATA' && 
+                                        'Perbedaan nama antara data di SKTP/SKTK dengan nama pemilik di buku rekening/bank.'}
+                                      {dataBaru.alasan === 'GURU_MUTASI' && 
+                                        'Perubahan karena perpindahan tugas atau mutasi daerah.'}
+                                    </p>
+                                  </div>
+                                )}
 
                                 {p.dokumenPendukung && (
                                   <div className="space-y-2">

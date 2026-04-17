@@ -110,6 +110,14 @@ export default function GuruDashboard() {
         toast.error('Mohon lengkapi semua data rekening')
         return
       }
+      if (!formData.alasan) {
+        toast.error('Mohon pilih alasan perubahan')
+        return
+      }
+      if (!formData.dokumen) {
+        toast.error('Mohon upload dokumen pendukung')
+        return
+      }
     }
 
     setIsSubmitting(true)
@@ -600,6 +608,59 @@ export default function GuruDashboard() {
                                 onChange={(e) => setFormData({ ...formData, bank: e.target.value })}
                               />
                             </div>
+
+                            <div className="space-y-2">
+                              <Label>Alasan Perubahan *</Label>
+                              <Select
+                                value={formData.alasan || ''}
+                                onValueChange={(value) => setFormData({ ...formData, alasan: value })}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Pilih alasan perubahan" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="REKENING_BERMASALAH_DIBLOKIR">
+                                    Rekening Bermasalah/Diblokir
+                                  </SelectItem>
+                                  <SelectItem value="KEAMANAN_SCAM_PHISHING">
+                                    Keamanan (Scam/Phishing)
+                                  </SelectItem>
+                                  <SelectItem value="KETIDAKSESAUAIAN_DATA">
+                                    Ketidaksesuaian Data
+                                  </SelectItem>
+                                  <SelectItem value="GURU_MUTASI">
+                                    Guru Mutasi
+                                  </SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {formData.alasan === 'REKENING_BERMASALAH_DIBLOKIR' && 
+                                  'Rekening tidak aktif, dormant, atau diblokir oleh pihak bank.'}
+                                {formData.alasan === 'KEAMANAN_SCAM_PHISHING' && 
+                                  'Rekening terkena tindak kejahatan perbankan (penipuan, phishing, kartu ATM hilang/dicuri).'}
+                                {formData.alasan === 'KETIDAKSESAUAIAN_DATA' && 
+                                  'Perbedaan nama antara data di SKTP/SKTK dengan nama pemilik di buku rekening/bank.'}
+                                {formData.alasan === 'GURU_MUTASI' && 
+                                  'Perubahan karena perpindahan tugas atau mutasi daerah.'}
+                              </p>
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label>Upload Dokumen Pendukung *</Label>
+                              <Input
+                                type="file"
+                                accept=".pdf,.jpg,.jpeg,.png"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0]
+                                  if (file) {
+                                    setFormData({ ...formData, dokumen: file })
+                                  }
+                                }}
+                              />
+                              <p className="text-xs text-muted-foreground">
+                                Format yang diterima: PDF, JPG, PNG. Maksimal 5MB.
+                              </p>
+                            </div>
                           </div>
                         )}
                       </div>
@@ -619,7 +680,8 @@ export default function GuruDashboard() {
                           disabled={
                             !jenisPengajuan || 
                             isSubmitting || 
-                            (jenisPengajuan === 'GAJI_POKOK' && !formData.dokumen)
+                            (jenisPengajuan === 'GAJI_POKOK' && !formData.dokumen) ||
+                            (jenisPengajuan === 'REKENING' && (!formData.dokumen || !formData.alasan))
                           }
                         >
                           {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}

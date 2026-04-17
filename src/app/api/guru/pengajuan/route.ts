@@ -46,6 +46,12 @@ export async function POST(request: Request) {
       if (!dataBaru.namaPemilikRekening || !dataBaru.nomorRekening || !dataBaru.bank) {
         return NextResponse.json({ error: "Semua data rekening wajib diisi" }, { status: 400 })
       }
+      if (!dataBaru.alasan) {
+        return NextResponse.json({ error: "Mohon pilih alasan perubahan" }, { status: 400 })
+      }
+      if (!dokumen) {
+        return NextResponse.json({ error: "Dokumen pendukung wajib diupload" }, { status: 400 })
+      }
     }
 
     // Get current guru data
