@@ -6,14 +6,14 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { formatCurrency } from '@/lib/salary-calculator'
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 
@@ -29,7 +29,6 @@ import {
   Edit,
   Trash2,
   GraduationCap,
-  Wallet,
 } from 'lucide-react'
 
 interface Guru {
@@ -51,21 +50,19 @@ interface Guru {
   potonganJkn: number
   salurNetto: number
   statusSktp: string
-  pengajuanList?: any[]
 }
 
 interface Pengajuan {
   id: string
   guruId: string
   jenisPengajuan: string
-  dataLama?: string
+  dataLama: string
   dataBaru: string
-  dokumenPendukung?: string
   status: string
   catatan?: string
   tanggalDiajukan: string
   tanggalVerifikasi?: string
-  guru: Guru
+  guru: any
 }
 
 export default function AdminDashboardPage() {
@@ -81,16 +78,23 @@ export default function AdminDashboardPage() {
   const [filterStatus, setFilterStatus] = useState('')
 
   // Dialog states
-  const [showAddDialog, setShowAddDialog] = useState(false)
-  const [showEditDialog, setShowEditDialog] = useState(false)
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
-  const [showVerifikasiDialog, setShowVerifikasiDialog] = useState(false)
+  const [guruDialogOpen, setGuruDialogOpen] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [verifikasiDialogOpen, setVerifikasiDialogOpen] = useState(false)
   const [selectedGuru, setSelectedGuru] = useState<Guru | null>(null)
   const [selectedPengajuan, setSelectedPengajuan] = useState<Pengajuan | null>(null)
+  const [isEditing, setIsEditing] = useState(false)
 
-  // Form states
-  const [formData, setFormData] = useState<Partial<Guru>>({})
-  const [verifikasiData, setVerifikasiData] = useState({ status: '', catatan: '' })
+  // Form state
+  const [formData, setFormData] = useState<Partial<Guru>>({
+    salurBruto: 2000000,
+    statusSktp: 'BELUM',
+  })
+
+  const [verifikasiForm, setVerifikasiForm] = useState({
+    status: '',
+    catatan: '',
+  })
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
@@ -106,16 +110,18 @@ export default function AdminDashboardPage() {
   const fetchData = async () => {
     setLoading(true)
     try {
+      // Fetch gurus
       const gurusRes = await fetch('/api/admin/gurus')
       if (gurusRes.ok) {
         const gurusData = await gurusRes.json()
-        setGurus(gurusData)
+        setGurus(gurusData || [])
       }
 
+      // Fetch pengajuan
       const pengajuanRes = await fetch('/api/admin/pengajuan')
       if (pengajuanRes.ok) {
         const pengajuanData = await pengajuanRes.json()
-        setPengajuan(pengajuanData)
+        setPengajuan(pengajuanData || [])
       }
     } catch (error) {
       toast.error('Gagal memuat data')
@@ -125,16 +131,43 @@ export default function AdminDashboardPage() {
     }
   }
 
+  const filteredGurus = gurus.filter((guru) => {
+    const matchSearch =
+      filterSearch === '' ||
+      guru.nama.toLowerCase().includes(filterSearch.toLowerCase()) ||
+      guru.nip.includes(filterSearch)
+
+    const matchGolongan = filterGolongan === '' || guru.golongan === filterGolongan
+    const matchStatus = filterStatus === '' || guru.statusSktp === filterStatus
+
+    return matchSearch && matchGolongan && matchStatus
+  })
+
+  const handleExport = async () => {
+    try {
+      const params = new URLSearchParams()
+      if (filterGolongan) params.append('golongan', filterGolongan)
+      if (filterStatus) params.append('statusSktp', filterStatus)
+
+      window.open(`/api/admin/export?${params}`, '_blank')
+      toast.success('Data sedang diekspor')
+    } catch (error) {
+      toast.error('Gagal mengekspor data')
+    }
+  }
+
   const handleAddGuru = () => {
+    setIsEditing(false)
     setSelectedGuru(null)
     setFormData({
       salurBruto: 2000000,
       statusSktp: 'BELUM',
     })
-    setShowAddDialog(true)
+    setGuruDialogOpen(true)
   }
 
   const handleEditGuru = (guru: Guru) => {
+    setIsEditing(true)
     setSelectedGuru(guru)
     setFormData({
       nik: guru.nik,
@@ -151,15 +184,15 @@ export default function AdminDashboardPage() {
       salurBruto: guru.salurBruto,
       statusSktp: guru.statusSktp,
     })
-    setShowEditDialog(true)
+    setGuruDialogOpen(true)
   }
 
   const handleDeleteGuru = (guru: Guru) => {
     setSelectedGuru(guru)
-    setShowDeleteDialog(true)
+    setDeleteDialogOpen(true)
   }
 
-  const handleConfirmDelete = async () => {
+  const confirmDelete = async () => {
     if (!selectedGuru) return
 
     setIsSubmitting(true)
@@ -170,7 +203,7 @@ export default function AdminDashboardPage() {
 
       if (res.ok) {
         toast.success('Data guru berhasil dihapus')
-        setShowDeleteDialog(false)
+        setDeleteDialogOpen(false)
         fetchData()
       } else {
         toast.error('Gagal menghapus data guru')
@@ -183,7 +216,9 @@ export default function AdminDashboardPage() {
     }
   }
 
-  const handleSubmitGuru = async (isEdit: boolean) => {
+  const handleSubmitGuru = async (e: React.FormEvent) => {
+    e.preventDefault()
+
     if (!formData.nip || !formData.nama) {
       toast.error('NIP dan Nama harus diisi')
       return
@@ -191,10 +226,8 @@ export default function AdminDashboardPage() {
 
     setIsSubmitting(true)
     try {
-      const url = isEdit && selectedGuru
-        ? `/api/admin/gurus/${selectedGuru.id}`
-        : '/api/admin/gurus'
-      const method = isEdit ? 'PUT' : 'POST'
+      const url = isEditing && selectedGuru ? `/api/admin/gurus/${selectedGuru.id}` : '/api/admin/gurus'
+      const method = isEditing ? 'PUT' : 'POST'
 
       const res = await fetch(url, {
         method,
@@ -202,17 +235,16 @@ export default function AdminDashboardPage() {
         body: JSON.stringify(formData),
       })
 
-      if (res.ok) {
-        toast.success(isEdit ? 'Data guru berhasil diperbarui' : 'Data guru berhasil ditambahkan')
-        setShowAddDialog(false)
-        setShowEditDialog(false)
-        fetchData()
-      } else {
-        const error = await res.json()
-        toast.error(error.error || 'Gagal menyimpan data')
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || 'Submit failed')
       }
-    } catch (error) {
-      toast.error('Terjadi kesalahan')
+
+      toast.success(isEditing ? 'Data guru berhasil diperbarui' : 'Data guru berhasil ditambahkan')
+      setGuruDialogOpen(false)
+      fetchData()
+    } catch (error: any) {
+      toast.error(error.message || 'Gagal menyimpan data guru')
       console.error(error)
     } finally {
       setIsSubmitting(false)
@@ -221,12 +253,17 @@ export default function AdminDashboardPage() {
 
   const handleVerifikasi = (pengajuan: Pengajuan) => {
     setSelectedPengajuan(pengajuan)
-    setVerifikasiData({ status: '', catatan: '' })
-    setShowVerifikasiDialog(true)
+    setVerifikasiForm({
+      status: '',
+      catatan: '',
+    })
+    setVerifikasiDialogOpen(true)
   }
 
-  const handleSubmitVerifikasi = async () => {
-    if (!selectedPengajuan || !verifikasiData.status) {
+  const handleSubmitVerifikasi = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (!selectedPengajuan || !verifikasiForm.status) {
       toast.error('Silakan pilih status verifikasi')
       return
     }
@@ -238,78 +275,60 @@ export default function AdminDashboardPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           id: selectedPengajuan.id,
-          status: verifikasiData.status,
-          catatan: verifikasiData.catatan,
+          status: verifikasiForm.status,
+          catatan: verifikasiForm.catatan,
         }),
       })
 
-      if (res.ok) {
-        toast.success('Pengajuan berhasil diverifikasi')
-        setShowVerifikasiDialog(false)
-        fetchData()
-      } else {
-        toast.error('Gagal memverifikasi pengajuan')
+      if (!res.ok) {
+        throw new Error('Verifikasi failed')
       }
+
+      toast.success('Pengajuan berhasil diverifikasi')
+      setVerifikasiDialogOpen(false)
+      fetchData()
     } catch (error) {
-      toast.error('Terjadi kesalahan')
+      toast.error('Gagal memverifikasi pengajuan')
       console.error(error)
     } finally {
       setIsSubmitting(false)
     }
   }
 
-  const handleExport = async () => {
-    try {
-      const params = new URLSearchParams()
-      if (filterGolongan) params.append('golongan', filterGolongan)
-      if (filterStatus) params.append('statusSktp', filterStatus)
-
-      window.open(`/api/admin/export?${params}`, '_blank')
-      toast.success('Data sedang diekspor')
-    } catch (error) {
-      toast.error('Gagal mengekspor data')
-    }
-  }
-
-  const filteredGurus = gurus.filter((guru) => {
-    const matchSearch =
-      filterSearch === '' ||
-      guru.nama.toLowerCase().includes(filterSearch.toLowerCase()) ||
-      guru.nip.includes(filterSearch)
-    const matchGolongan = filterGolongan === '' || guru.golongan === filterGolongan
-    const matchStatus = filterStatus === '' || guru.statusSktp === filterStatus
-    return matchSearch && matchGolongan && matchStatus
-  })
-
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'TERBIT':
-      case 'DISETUJUI':
-        return <Badge className="bg-green-600"><CheckCircle className="w-3 h-3 mr-1" /> {status}</Badge>
+        return <Badge className="bg-green-600"><CheckCircle className="w-3 h-3 mr-1" /> TERBIT</Badge>
       case 'BELUM':
-      case 'PENDING':
-        return <Badge variant="secondary"><Clock className="w-3 h-3 mr-1" /> {status}</Badge>
+        return <Badge variant="secondary"><Clock className="w-3 h-3 mr-1" /> BELUM</Badge>
+      case 'DISETUJUI':
+        return <Badge className="bg-green-600"><CheckCircle className="w-3 h-3 mr-1" /> DISETUJUI</Badge>
       case 'DITOLAK':
-        return <Badge variant="destructive"><XCircle className="w-3 h-3 mr-1" /> {status}</Badge>
+        return <Badge variant="destructive"><XCircle className="w-3 h-3 mr-1" /> DITOLAK</Badge>
       default:
         return <Badge variant="secondary">{status}</Badge>
     }
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('id-ID', {
-      day: 'numeric',
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) {
+      return dateString
+    }
+    return date.toLocaleDateString('id-ID', {
+      day: '2-digit',
       month: 'long',
       year: 'numeric',
     })
   }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-      </div>
-    )
+  const formatJenisPengajuan = (jenis: string) => {
+    const types: Record<string, string> = {
+      PANGKAT: 'Perubahan Pangkat',
+      MASA_KERJA: 'Perubahan Masa Kerja',
+      REKENING: 'Perubahan Rekening',
+    }
+    return types[jenis] || jenis
   }
 
   const stats = {
@@ -320,21 +339,32 @@ export default function AdminDashboardPage() {
     totalSalurNetto: gurus.reduce((sum, g) => sum + g.salurNetto, 0),
   }
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       {/* Header */}
-      <header className="bg-white dark:bg-slate-800 shadow-sm border-b">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-primary">SIM Tunjangan Profesi</h1>
-            <p className="text-sm text-muted-foreground">Dashboard Admin</p>
+      <header className="bg-white dark:bg-slate-800 shadow-sm border-b sticky top-0 z-10">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <GraduationCap className="h-8 w-8 text-primary" />
+            <div>
+              <h1 className="text-xl font-bold">Admin Dashboard</h1>
+              <p className="text-sm text-muted-foreground">Sistem Tunjangan Profesi Guru</p>
+            </div>
           </div>
           <div className="flex items-center gap-4">
             <div className="text-right">
-              <p className="font-semibold">Administrator</p>
-              <p className="text-sm text-muted-foreground">{session?.user?.username}</p>
+              <p className="text-sm font-medium">{session?.user?.username || 'Admin'}</p>
+              <p className="text-xs text-muted-foreground">Administrator</p>
             </div>
-            <Button variant="outline" size="sm" onClick={() => signOut({ callbackUrl: '/login' })}>
+            <Button variant="outline" size="icon" onClick={() => signOut({ callbackUrl: '/login' })}>
               <LogOut className="h-4 w-4" />
             </Button>
           </div>
@@ -343,7 +373,7 @@ export default function AdminDashboardPage() {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
-        {/* Stats Cards */}
+        {/* Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <Card className="shadow-lg">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -352,6 +382,7 @@ export default function AdminDashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.totalGuru}</div>
+              <p className="text-xs text-muted-foreground">Guru terdaftar</p>
             </CardContent>
           </Card>
 
@@ -361,33 +392,36 @@ export default function AdminDashboardPage() {
               <CheckCircle className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">{stats.sktpTerbit}</div>
+              <div className="text-2xl font-bold">{stats.sktpTerbit}</div>
+              <p className="text-xs text-muted-foreground">Sudah memiliki SKTP</p>
             </CardContent>
           </Card>
 
           <Card className="shadow-lg">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">SKTP Belum</CardTitle>
-              <XCircle className="h-4 w-4 text-red-600" />
+              <Clock className="h-4 w-4 text-orange-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-red-600">{stats.sktpBelum}</div>
+              <div className="text-2xl font-bold">{stats.sktpBelum}</div>
+              <p className="text-xs text-muted-foreground">Belum memiliki SKTP</p>
             </CardContent>
           </Card>
 
           <Card className="shadow-lg">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Pending Pengajuan</CardTitle>
-              <Clock className="h-4 w-4 text-orange-600" />
+              <FileText className="h-4 w-4 text-orange-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-orange-600">{stats.pendingPengajuan}</div>
+              <div className="text-2xl font-bold">{stats.pendingPengajuan}</div>
+              <p className="text-xs text-muted-foreground">Menunggu verifikasi</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Tabs */}
-        <Tabs defaultValue="guru" className="space-y-6">
+        <Tabs defaultValue="guru" className="space-y-4">
           <TabsList className="grid w-full md:w-[400px] grid-cols-2">
             <TabsTrigger value="guru" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
@@ -458,7 +492,6 @@ export default function AdminDashboardPage() {
                         <TableHead className="sticky top-0 bg-slate-50 dark:bg-slate-800">No</TableHead>
                         <TableHead className="sticky top-0 bg-slate-50 dark:bg-slate-800">NIP</TableHead>
                         <TableHead className="sticky top-0 bg-slate-50 dark:bg-slate-800">Nama</TableHead>
-                        <TableHead className="sticky top-0 bg-slate-50 dark:bg-slate-800">Satuan Pendidikan</TableHead>
                         <TableHead className="sticky top-0 bg-slate-50 dark:bg-slate-800">Golongan</TableHead>
                         <TableHead className="sticky top-0 bg-slate-50 dark:bg-slate-800">Salur Netto</TableHead>
                         <TableHead className="sticky top-0 bg-slate-50 dark:bg-slate-800">Status</TableHead>
@@ -474,22 +507,19 @@ export default function AdminDashboardPage() {
                         </TableRow>
                       ) : (
                         filteredGurus.map((guru, index) => (
-                          <TableRow key={guru.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                          <TableRow key={guru.id}>
                             <TableCell>{index + 1}</TableCell>
                             <TableCell className="font-mono text-sm">{guru.nip}</TableCell>
                             <TableCell className="font-medium">{guru.nama}</TableCell>
-                            <TableCell className="max-w-[150px] truncate" title={guru.satuanPendidikan}>
-                              {guru.satuanPendidikan}
-                            </TableCell>
                             <TableCell>{guru.golongan}</TableCell>
                             <TableCell className="font-semibold">{formatCurrency(guru.salurNetto)}</TableCell>
                             <TableCell>{getStatusBadge(guru.statusSktp)}</TableCell>
                             <TableCell className="text-right">
                               <div className="flex justify-end gap-2">
-                                <Button variant="ghost" size="sm" onClick={() => handleEditGuru(guru)}>
+                                <Button variant="ghost" size="icon" onClick={() => handleEditGuru(guru)}>
                                   <Edit className="h-4 w-4" />
                                 </Button>
-                                <Button variant="ghost" size="sm" onClick={() => handleDeleteGuru(guru)}>
+                                <Button variant="ghost" size="icon" onClick={() => handleDeleteGuru(guru)}>
                                   <Trash2 className="h-4 w-4 text-red-600" />
                                 </Button>
                               </div>
@@ -504,7 +534,7 @@ export default function AdminDashboardPage() {
             </Card>
           </TabsContent>
 
-          {/* Verifikasi Tab */}
+          {/* Verifikasi Pengajuan Tab */}
           <TabsContent value="verifikasi">
             <Card className="shadow-lg">
               <CardHeader>
@@ -512,6 +542,9 @@ export default function AdminDashboardPage() {
                   <FileText className="h-5 w-5" />
                   Daftar Pengajuan Pending
                 </CardTitle>
+                <CardDescription>
+                  Daftar pengajuan yang menunggu verifikasi
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 {pengajuan.length === 0 ? (
@@ -522,8 +555,20 @@ export default function AdminDashboardPage() {
                 ) : (
                   <div className="space-y-4 max-h-[600px] overflow-y-auto">
                     {pengajuan.map((p) => {
-                      const dataBaru = JSON.parse(p.dataBaru)
-                      const dataLama = p.dataLama ? JSON.parse(p.dataLama) : null
+                      let dataBaru: any = {}
+                      let dataLama: any = null
+                      
+                      try {
+                        dataBaru = JSON.parse(p.dataBaru)
+                      } catch (e) {
+                        dataBaru = {}
+                      }
+                      
+                      try {
+                        dataLama = p.dataLama ? JSON.parse(p.dataLama) : null
+                      } catch (e) {
+                        // ignore
+                      }
 
                       return (
                         <Card key={p.id} className="border-l-4 border-l-orange-500">
@@ -532,18 +577,16 @@ export default function AdminDashboardPage() {
                               <div className="flex-1 space-y-4">
                                 <div>
                                   <h3 className="font-semibold text-lg mb-2">
-                                    {p.jenisPengajuan === 'PANGKAT' && 'Perubahan Pangkat/Golongan'}
-                                    {p.jenisPengajuan === 'MASA_KERJA' && 'Perubahan Masa Kerja'}
-                                    {p.jenisPengajuan === 'REKENING' && 'Perubahan Data Rekening'}
+                                    {formatJenisPengajuan(p.jenisPengajuan)}
                                   </h3>
                                   <p className="text-sm text-muted-foreground">
-                                    {p.guru.nama} - {p.guru.nip}
+                                    {p.guru?.nama || '-'} - {p.guru?.nip || '-'}
                                   </p>
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                   <div>
-                                    <p className="text-sm font-medium text-muted-foreground mb-2">Data Lama:</p>
+                                    <p className="text-sm font-medium mb-2">Data Lama:</p>
                                     <div className="bg-slate-50 dark:bg-slate-800 rounded-md p-3 space-y-1 text-sm">
                                       {dataLama ? (
                                         Object.entries(dataLama).map(([key, value]) => (
@@ -559,7 +602,7 @@ export default function AdminDashboardPage() {
                                   </div>
 
                                   <div>
-                                    <p className="text-sm font-medium text-muted-foreground mb-2">Data Baru:</p>
+                                    <p className="text-sm font-medium mb-2">Data Baru:</p>
                                     <div className="bg-blue-50 dark:bg-blue-900/20 rounded-md p-3 space-y-1 text-sm">
                                       {Object.entries(dataBaru).map(([key, value]) => (
                                         <div key={key} className="flex justify-between">
@@ -600,37 +643,39 @@ export default function AdminDashboardPage() {
       </main>
 
       {/* Add/Edit Guru Dialog */}
-      <Dialog open={showAddDialog || showEditDialog} onOpenChange={(open) => {
-        setShowAddDialog(open)
-        setShowEditDialog(false)
-      }}>
+      <Dialog open={guruDialogOpen} onOpenChange={setGuruDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{selectedGuru ? 'Edit Data Guru' : 'Tambah Guru Baru'}</DialogTitle>
+            <DialogTitle>{isEditing ? 'Edit Data Guru' : 'Tambah Guru Baru'}</DialogTitle>
             <DialogDescription>
-              {selectedGuru ? 'Perbarui data guru yang sudah ada.' : 'Isi form untuk menambahkan guru baru.'}
+              {isEditing ? 'Perbarui data guru yang sudah ada.' : 'Isi form untuk menambahkan guru baru.'}
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 py-4">
+          <form onSubmit={handleSubmitGuru} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label>NIK</Label>
+                <Label htmlFor="nik">NIK</Label>
                 <Input
+                  id="nik"
                   value={formData.nik || ''}
                   onChange={(e) => setFormData({ ...formData, nik: e.target.value })}
                 />
               </div>
+
               <div className="space-y-2">
-                <Label>NUPTK</Label>
+                <Label htmlFor="nuptk">NUPTK</Label>
                 <Input
+                  id="nuptk"
                   value={formData.nuptk || ''}
                   onChange={(e) => setFormData({ ...formData, nuptk: e.target.value })}
                 />
               </div>
+
               <div className="space-y-2">
-                <Label>NIP *</Label>
+                <Label htmlFor="nip">NIP *</Label>
                 <Input
+                  id="nip"
                   value={formData.nip || ''}
                   onChange={(e) => setFormData({ ...formData, nip: e.target.value })}
                   required
@@ -639,8 +684,9 @@ export default function AdminDashboardPage() {
             </div>
 
             <div className="space-y-2">
-              <Label>Nama Lengkap *</Label>
+              <Label htmlFor="nama">Nama Lengkap *</Label>
               <Input
+                id="nama"
                 value={formData.nama || ''}
                 onChange={(e) => setFormData({ ...formData, nama: e.target.value })}
                 required
@@ -649,20 +695,22 @@ export default function AdminDashboardPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Pangkat</Label>
+                <Label htmlFor="pangkat">Pangkat</Label>
                 <Input
+                  id="pangkat"
                   value={formData.pangkat || ''}
                   onChange={(e) => setFormData({ ...formData, pangkat: e.target.value })}
                 />
               </div>
+
               <div className="space-y-2">
-                <Label>Golongan</Label>
+                <Label htmlFor="golongan">Golongan</Label>
                 <Select
                   value={formData.golongan || ''}
                   onValueChange={(value) => setFormData({ ...formData, golongan: value })}
                 >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Pilih golongan" />
+                  <SelectTrigger id="golongan">
+                    <SelectValue placeholder="Pilih Golongan" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="III/a">III/a</SelectItem>
@@ -679,70 +727,80 @@ export default function AdminDashboardPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Masa Kerja (Tahun)</Label>
-                <Input
-                  type="number"
-                  min="0"
-                  max="40"
-                  value={formData.masaKerja || ''}
-                  onChange={(e) => setFormData({ ...formData, masaKerja: parseInt(e.target.value) || 0 })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Salur Bruto (Rp)</Label>
-                <Input
-                  type="number"
-                  value={formData.salurBruto || ''}
-                  onChange={(e) => setFormData({ ...formData, salurBruto: parseFloat(e.target.value) || 0 })}
-                />
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="masaKerja">Masa Kerja (Tahun)</Label>
+              <Input
+                id="masaKerja"
+                type="number"
+                min="0"
+                max="40"
+                value={formData.masaKerja || ''}
+                onChange={(e) => setFormData({ ...formData, masaKerja: parseInt(e.target.value) || 0 })}
+              />
             </div>
 
             <div className="space-y-2">
-              <Label>Satuan Pendidikan</Label>
+              <Label htmlFor="satuanPendidikan">Satuan Pendidikan</Label>
               <Input
+                id="satuanPendidikan"
                 value={formData.satuanPendidikan || ''}
                 onChange={(e) => setFormData({ ...formData, satuanPendidikan: e.target.value })}
+                placeholder="Contoh: SDN 1 Jakarta"
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="salurBruto">Salur Bruto (Rp)</Label>
+              <Input
+                id="salurBruto"
+                type="number"
+                value={formData.salurBruto || ''}
+                onChange={(e) => setFormData({ ...formData, salurBruto: parseFloat(e.target.value) || 0 })}
+              />
+              <p className="text-xs text-muted-foreground">Salur Bruto akan dikurangi PPH dan JKN untuk mendapatkan Salur Netto</p>
             </div>
 
             <div className="border-t pt-4">
               <h4 className="font-medium mb-3">Informasi Rekening</h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label>Nama Pemilik Rekening</Label>
+                  <Label htmlFor="namaPemilikRekening">Nama Pemilik Rekening</Label>
                   <Input
+                    id="namaPemilikRekening"
                     value={formData.namaPemilikRekening || ''}
                     onChange={(e) => setFormData({ ...formData, namaPemilikRekening: e.target.value })}
                   />
                 </div>
+
                 <div className="space-y-2">
-                  <Label>Nomor Rekening</Label>
+                  <Label htmlFor="nomorRekening">Nomor Rekening</Label>
                   <Input
+                    id="nomorRekening"
                     value={formData.nomorRekening || ''}
                     onChange={(e) => setFormData({ ...formData, nomorRekening: e.target.value })}
                   />
                 </div>
+
                 <div className="space-y-2">
-                  <Label>Bank</Label>
+                  <Label htmlFor="bank">Bank</Label>
                   <Input
+                    id="bank"
                     value={formData.bank || ''}
                     onChange={(e) => setFormData({ ...formData, bank: e.target.value })}
+                    placeholder="Contoh: BNI, BRI"
                   />
                 </div>
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label>Status SKTP</Label>
+              <Label htmlFor="statusSktp">Status SKTP</Label>
               <Select
                 value={formData.statusSktp || ''}
                 onValueChange={(value) => setFormData({ ...formData, statusSktp: value })}
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Pilih status" />
+                <SelectTrigger id="statusSktp">
+                  <SelectValue placeholder="Pilih Status" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="TERBIT">TERBIT</SelectItem>
@@ -750,37 +808,33 @@ export default function AdminDashboardPage() {
                 </SelectContent>
               </Select>
             </div>
-          </div>
 
-          <div className="flex gap-2 justify-end">
-            <Button variant="outline" onClick={() => {
-              setShowAddDialog(false)
-              setShowEditDialog(false)
-              setFormData({})
-            }}>
-              Batal
-            </Button>
-            <Button onClick={() => handleSubmitGuru(!!selectedGuru)} disabled={isSubmitting}>
-              {isSubmitting ? 'Memproses...' : (selectedGuru ? 'Simpan Perubahan' : 'Tambah Guru')}
-            </Button>
-          </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setGuruDialogOpen(false)}>
+                Batal
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? 'Memproses...' : (isEditing ? 'Simpan Perubahan' : 'Tambah Guru')}
+              </Button>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Hapus Data Guru</DialogTitle>
             <DialogDescription>
-              Apakah Anda yakin ingin menghapus data <strong>{selectedGuru?.nama}</strong>? Tindakan ini tidak dapat dibatalkan.
+              Apakah Anda yakin ingin menghapus data <strong>{selectedGuru?.nama || ''}</strong>? Tindakan ini tidak dapat dibatalkan.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
               Batal
             </Button>
-            <Button variant="destructive" onClick={handleConfirmDelete} disabled={isSubmitting}>
+            <Button variant="destructive" onClick={confirmDelete} disabled={isSubmitting}>
               {isSubmitting ? 'Memproses...' : 'Hapus'}
             </Button>
           </DialogFooter>
@@ -788,30 +842,28 @@ export default function AdminDashboardPage() {
       </Dialog>
 
       {/* Verifikasi Dialog */}
-      <Dialog open={showVerifikasiDialog} onOpenChange={setShowVerifikasiDialog}>
+      <Dialog open={verifikasiDialogOpen} onOpenChange={setVerifikasiDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Verifikasi Pengajuan</DialogTitle>
             <DialogDescription>
               {selectedPengajuan && (
                 <span>
-                  {selectedPengajuan.jenisPengajuan === 'PANGKAT' && 'Perubahan Pangkat/Golongan'}
-                  {selectedPengajuan.jenisPengajuan === 'MASA_KERJA' && 'Perubahan Masa Kerja'}
-                  {selectedPengajuan.jenisPengajuan === 'REKENING' && 'Perubahan Data Rekening'}
-                  {' '}oleh {selectedPengajuan.guru.nama}
+                  {formatJenisPengajuan(selectedPengajuan.jenisPengajuan)} oleh {selectedPengajuan.guru?.nama || '-'}
                 </span>
               )}
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 py-4">
+          <form onSubmit={handleSubmitVerifikasi} className="space-y-4">
             <div className="space-y-2">
-              <Label>Keputusan</Label>
+              <Label htmlFor="verifikasiStatus">Keputusan</Label>
               <Select
-                value={verifikasiData.status}
-                onValueChange={(value) => setVerifikasiData({ ...verifikasiData, status: value })}
+                value={verifikasiForm.status}
+                onValueChange={(value) => setVerifikasiForm({ ...verifikasiForm, status: value })}
+                required
               >
-                <SelectTrigger>
+                <SelectTrigger id="verifikasiStatus">
                   <SelectValue placeholder="Pilih keputusan" />
                 </SelectTrigger>
                 <SelectContent>
@@ -832,24 +884,25 @@ export default function AdminDashboardPage() {
             </div>
 
             <div className="space-y-2">
-              <Label>Catatan (Opsional)</Label>
+              <Label htmlFor="catatan">Catatan (Opsional)</Label>
               <Textarea
-                value={verifikasiData.catatan}
-                onChange={(e) => setVerifikasiData({ ...verifikasiData, catatan: e.target.value })}
+                id="catatan"
+                value={verifikasiForm.catatan}
+                onChange={(e) => setVerifikasiForm({ ...verifikasiForm, catatan: e.target.value })}
                 placeholder="Tambahkan catatan verifikasi..."
                 rows={3}
               />
             </div>
-          </div>
 
-          <div className="flex gap-2 justify-end">
-            <Button variant="outline" onClick={() => setShowVerifikasiDialog(false)}>
-              Batal
-            </Button>
-            <Button onClick={handleSubmitVerifikasi} disabled={!verifikasiData.status || isSubmitting}>
-              {isSubmitting ? 'Memproses...' : 'Simpan Keputusan'}
-            </Button>
-          </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setVerifikasiDialogOpen(false)}>
+                Batal
+              </Button>
+              <Button type="submit" disabled={!verifikasiForm.status || isSubmitting}>
+                {isSubmitting ? 'Memproses...' : 'Simpan Keputusan'}
+              </Button>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
     </div>
