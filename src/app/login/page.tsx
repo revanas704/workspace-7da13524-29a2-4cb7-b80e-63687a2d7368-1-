@@ -31,20 +31,14 @@ export default function LoginPage() {
 
       if (result?.error) {
         setError('Username atau password salah')
+        setIsLoading(false)
       } else {
-        // Redirect based on role
-        const response = await fetch('/api/auth/me')
-        const user = await response.json()
-
-        if (user.role === 'ADMIN') {
-          router.push('/admin/dashboard')
-        } else {
-          router.push('/guru/dashboard')
-        }
+        // Login successful, redirect to home page
+        // The home page will check the session and redirect to the appropriate dashboard
+        router.push('/')
       }
     } catch (err) {
       setError('Terjadi kesalahan. Silakan coba lagi.')
-    } finally {
       setIsLoading(false)
     }
   }

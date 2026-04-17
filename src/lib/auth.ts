@@ -77,12 +77,16 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async redirect({ url, baseUrl }) {
-      // Redirect to /login after logout
-      if (url.includes('/login') || url === baseUrl) {
-        return '/login'
+      // If the URL is relative, prepend base URL
+      if (url.startsWith('/')) {
+        return url
       }
-      // Allow other redirects
-      return url.startsWith(baseUrl) ? url : '/login'
+      // If URL is on same domain, return it
+      if (url.startsWith(baseUrl)) {
+        return url
+      }
+      // Default to home page
+      return baseUrl
     },
     async jwt({ token, user }) {
       if (user) {
