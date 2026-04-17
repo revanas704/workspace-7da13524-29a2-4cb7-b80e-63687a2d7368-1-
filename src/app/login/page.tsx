@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Loader2, GraduationCap, ShieldCheck } from 'lucide-react'
+import { Loader2, GraduationCap, ShieldCheck, Sparkles } from 'lucide-react'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -44,58 +44,66 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 p-4 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 via-orange-50 to-amber-50 p-4 relative overflow-hidden">
       {/* Decorative Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-emerald-200/30 dark:bg-emerald-500/10 rounded-full blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-teal-200/30 dark:bg-teal-500/10 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-200/20 dark:bg-cyan-500/5 rounded-full blur-3xl" />
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-red-200/30 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-amber-200/30 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-orange-200/20 rounded-full blur-3xl animate-pulse" />
       </div>
 
-      <div className="relative w-full max-w-md">
+      <div className="relative w-full max-w-md z-10">
         {/* Logo Section */}
-        <div className="text-center mb-6 animate-fade-in">
-          <div className="inline-flex items-center justify-center w-24 h-24 mb-4">
+        <div className="text-center mb-8 animate-fade-in">
+          <div className="inline-flex items-center justify-center w-28 h-28 mb-6 bg-gradient-to-br from-red-100 to-amber-100 rounded-full shadow-xl">
             <img
               src="/Kabupaten Blitar(1).png"
               alt="Logo Pemkab Blitar"
-              className="w-24 h-24 object-contain"
+              className="w-20 h-20 object-contain"
             />
           </div>
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-emerald-700 to-teal-700 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">
-            PEMERINTAH KABUPATEN BLITAR
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-100 to-amber-100 rounded-full mb-3">
+            <Sparkles className="w-4 h-4 text-amber-600" />
+            <span className="text-xs font-semibold text-amber-700">Pemerintah Kabupaten Blitar</span>
+          </div>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-red-700 to-amber-600 bg-clip-text text-transparent mb-2">
+            Dinas Pendidikan
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">Dinas Pendidikan</p>
+          <p className="text-sm text-slate-600">Kabupaten Blitar</p>
         </div>
 
-        <Card className="shadow-2xl border-0 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
-          <CardHeader className="space-y-3 text-center pb-4">
-            <div className="flex justify-center">
-              <div className="p-3 bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-900/30 dark:to-teal-900/30 rounded-2xl">
-                <GraduationCap className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
+        <Card className="shadow-2xl border-2 border-red-200/50 bg-white/90 backdrop-blur-sm overflow-hidden">
+          {/* Gradient Header */}
+          <div className="bg-gradient-to-r from-red-700 via-red-600 to-amber-600 px-6 py-8 text-center relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-bl-full" />
+            <div className="absolute bottom-0 left-0 w-16 h-16 bg-white/10 rounded-tr-full" />
+            <div className="relative z-10">
+              <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <GraduationCap className="h-9 w-9 text-white" />
               </div>
+              <CardTitle className="text-2xl font-bold text-white">
+                SIM Tunjangan Profesi
+              </CardTitle>
+              <CardDescription className="text-white/90 mt-2 text-base">
+                Sistem Informasi Manajemen Tunjangan Profesi Guru
+              </CardDescription>
             </div>
-            <CardTitle className="text-2xl font-bold bg-gradient-to-r from-emerald-700 to-teal-700 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">
-              SIM Tunjangan Profesi
-            </CardTitle>
-            <CardDescription className="text-base text-slate-600 dark:text-slate-300">
-              Sistem Informasi Manajemen Tunjangan Profesi Guru
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
+          </div>
+
+          <CardContent className="p-8">
+            <form onSubmit={handleSubmit} className="space-y-6">
               {error && (
-                <Alert variant="destructive" className="border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-900/20">
-                  <AlertDescription className="text-red-700 dark:text-red-300">{error}</AlertDescription>
+                <Alert variant="destructive" className="border-red-300 bg-red-50/90 backdrop-blur-sm">
+                  <AlertDescription className="text-red-800 font-medium">{error}</AlertDescription>
                 </Alert>
               )}
 
-              <div className="space-y-2">
-                <Label htmlFor="username" className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+              <div className="space-y-3">
+                <Label htmlFor="username" className="text-sm font-bold text-red-900">
                   Username / NIP
                 </Label>
                 <div className="relative">
-                  <ShieldCheck className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-red-400" />
                   <Input
                     id="username"
                     type="text"
@@ -104,13 +112,13 @@ export default function LoginPage() {
                     onChange={(e) => setUsername(e.target.value)}
                     required
                     disabled={isLoading}
-                    className="h-11 pl-10 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500 dark:border-slate-700 dark:focus:border-emerald-400 dark:focus:ring-emerald-400"
+                    className="h-12 pl-12 border-red-200 focus:border-red-500 focus:ring-red-500/50 bg-white/80 backdrop-blur-sm text-base"
                   />
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+              <div className="space-y-3">
+                <Label htmlFor="password" className="text-sm font-bold text-red-900">
                   Password
                 </Label>
                 <Input
@@ -121,18 +129,18 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   disabled={isLoading}
-                  className="h-11 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500 dark:border-slate-700 dark:focus:border-emerald-400 dark:focus:ring-emerald-400"
+                  className="h-12 border-red-200 focus:border-red-500 focus:ring-red-500/50 bg-white/80 backdrop-blur-sm text-base"
                 />
               </div>
 
               <Button
                 type="submit"
-                className="w-full h-11 text-base bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg hover:shadow-xl transition-all duration-200 font-semibold"
+                className="w-full h-12 text-base bg-gradient-to-r from-red-700 to-amber-600 hover:from-red-800 hover:to-amber-700 shadow-lg hover:shadow-xl transition-all duration-300 font-bold text-white"
                 disabled={isLoading}
               >
                 {isLoading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                     Memproses...
                   </>
                 ) : (
@@ -140,14 +148,22 @@ export default function LoginPage() {
                 )}
               </Button>
 
-              <div className="mt-6 p-4 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-slate-700/50 dark:to-slate-700/50 rounded-xl border border-emerald-100 dark:border-slate-600">
-                <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-300 mb-2 flex items-center gap-2">
-                  <ShieldCheck className="h-4 w-4" />
-                  Petunjuk Login
-                </p>
-                <div className="space-y-1 text-sm text-slate-700 dark:text-slate-300">
-                  <p>• Guru: Gunakan NIP sebagai username</p>
-                  <p>• Admin: Gunakan username admin</p>
+              <div className="mt-6 p-5 bg-gradient-to-r from-red-50 to-amber-50 rounded-xl border border-red-200/50">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="p-2 bg-gradient-to-br from-red-700 to-amber-600 rounded-lg">
+                    <ShieldCheck className="h-4 w-4 text-white" />
+                  </div>
+                  <p className="text-sm font-bold text-red-900">Petunjuk Login</p>
+                </div>
+                <div className="space-y-2 text-sm text-slate-700">
+                  <div className="flex items-start gap-2">
+                    <div className="w-1.5 h-1.5 bg-red-500 rounded-full mt-2 flex-shrink-0" />
+                    <p><strong>Guru:</strong> Gunakan NIP sebagai username</p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <div className="w-1.5 h-1.5 bg-amber-500 rounded-full mt-2 flex-shrink-0" />
+                    <p><strong>Admin:</strong> Gunakan username admin</p>
+                  </div>
                 </div>
               </div>
             </form>
@@ -155,9 +171,17 @@ export default function LoginPage() {
         </Card>
 
         {/* Footer */}
-        <div className="text-center mt-6 text-sm text-slate-600 dark:text-slate-400">
-          <p className="font-medium">© 2024 Pemerintah Kabupaten Blitar</p>
-          <p className="text-xs mt-1">Dinas Pendidikan</p>
+        <div className="text-center mt-8">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <img
+              src="/Kabupaten Blitar(1).png"
+              alt="Logo Pemkab Blitar"
+              className="w-6 h-6 object-contain"
+            />
+            <p className="text-sm font-semibold text-red-800">Pemerintah Kabupaten Blitar</p>
+          </div>
+          <p className="text-xs text-slate-600">Dinas Pendidikan</p>
+          <p className="text-xs text-slate-500 mt-1">&copy; 2024 Semua hak dilindungi.</p>
         </div>
       </div>
 
@@ -165,7 +189,7 @@ export default function LoginPage() {
         @keyframes fade-in {
           from {
             opacity: 0;
-            transform: translateY(-10px);
+            transform: translateY(-20px);
           }
           to {
             opacity: 1;
@@ -173,7 +197,7 @@ export default function LoginPage() {
           }
         }
         .animate-fade-in {
-          animation: fade-in 0.6s ease-out;
+          animation: fade-in 0.8s ease-out;
         }
       `}</style>
     </div>
