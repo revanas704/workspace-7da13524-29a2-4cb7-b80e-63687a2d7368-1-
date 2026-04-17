@@ -105,10 +105,10 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Ukuran file maksimal 5MB" }, { status: 400 })
       }
 
-      // Validate file type
-      const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png']
+      // Validate file type (only PDF)
+      const allowedTypes = ['application/pdf']
       if (!allowedTypes.includes(dokumen.type)) {
-        return NextResponse.json({ error: "Format file harus PDF, JPG, atau PNG" }, { status: 400 })
+        return NextResponse.json({ error: "Format file harus PDF" }, { status: 400 })
       }
 
       // Convert to base64

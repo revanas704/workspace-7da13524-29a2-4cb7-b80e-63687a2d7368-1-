@@ -585,7 +585,7 @@ export default function GuruDashboard() {
                               <Label>Upload SK Berkala / SK Pangkat *</Label>
                               <Input
                                 type="file"
-                                accept=".pdf,.jpg,.jpeg,.png"
+                                accept=".pdf"
                                 onChange={(e) => {
                                   const file = e.target.files?.[0]
                                   if (file) {
@@ -594,7 +594,7 @@ export default function GuruDashboard() {
                                 }}
                               />
                               <p className="text-xs text-muted-foreground">
-                                Format yang diterima: PDF, JPG, PNG. Maksimal 5MB.
+                                Format yang diterima: PDF. Maksimal 5MB.
                               </p>
                             </div>
                           </div>
@@ -722,7 +722,7 @@ export default function GuruDashboard() {
                               <Label>Upload Dokumen Pendukung *</Label>
                               <Input
                                 type="file"
-                                accept=".pdf,.jpg,.jpeg,.png"
+                                accept=".pdf"
                                 onChange={(e) => {
                                   const file = e.target.files?.[0]
                                   if (file) {
@@ -731,7 +731,7 @@ export default function GuruDashboard() {
                                 }}
                               />
                               <p className="text-xs text-muted-foreground">
-                                Format yang diterima: PDF, JPG, PNG. Maksimal 5MB.
+                                Format yang diterima: PDF. Maksimal 5MB.
                               </p>
                               {formData.alasan && (
                                 <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-md">
