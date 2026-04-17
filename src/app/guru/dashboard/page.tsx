@@ -302,7 +302,7 @@ export default function GuruDashboard() {
             </Card>
           </TabsContent>
 
-          {/* Tunjangan Tab */}
+              {/* Tunjangan Tab */}
           <TabsContent value="tunjangan">
             <div className="grid gap-6">
               <Card className="shadow-lg bg-primary/5">
@@ -329,7 +329,7 @@ export default function GuruDashboard() {
                     <div className="p-4 bg-white dark:bg-slate-800 rounded-lg">
                       <p className="text-sm text-muted-foreground mb-1">Salur Bruto</p>
                       <p className="text-2xl font-bold text-primary">
-                        {formatCurrency(guruData.salurBruto)}
+                        {formatCurrency(guruData.gajiPokok)}
                       </p>
                       <p className="text-xs text-muted-foreground mt-2">
                         Sama dengan Gaji Pokok
