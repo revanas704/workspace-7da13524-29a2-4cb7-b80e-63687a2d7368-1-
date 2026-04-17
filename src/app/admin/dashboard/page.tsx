@@ -17,6 +17,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 
 import {
   Users,
@@ -31,6 +32,7 @@ import {
   Trash2,
   GraduationCap,
   Search,
+  ChevronDown,
 } from 'lucide-react'
 
 interface Guru {
@@ -83,6 +85,7 @@ export default function AdminDashboardPage() {
   const [filterPengajuanSearch, setFilterPengajuanSearch] = useState('')
   const [filterJenisPengajuan, setFilterJenisPengajuan] = useState('')
   const [filterPengajuanStatus, setFilterPengajuanStatus] = useState('')
+  const [expandedPengajuanId, setExpandedPengajuanId] = useState<string | null>(null)
 
   // Dialog states
   const [guruDialogOpen, setGuruDialogOpen] = useState(false)
@@ -664,63 +667,105 @@ export default function AdminDashboardPage() {
                     <p className="text-muted-foreground">Tidak ada pengajuan yang perlu diverifikasi</p>
                   </div>
                 ) : (
-                  <div className="space-y-4 max-h-[600px] overflow-y-auto">
+                  <div className="space-y-2 max-h-[600px] overflow-y-auto">
                     {filteredPengajuan.map((p) => {
                       let dataBaru: any = {}
                       let dataLama: any = null
-                      
+
                       try {
                         dataBaru = JSON.parse(p.dataBaru)
                       } catch (e) {
                         dataBaru = {}
                       }
-                      
+
                       try {
                         dataLama = p.dataLama ? JSON.parse(p.dataLama) : null
                       } catch (e) {
                         // ignore
                       }
 
-                      return (
-                        <Card
-                          key={p.id}
-                          className={`border-l-4 ${
-                            p.status === 'BELUM_TERBACA_SIMTUN'
-                              ? 'border-l-orange-500'
-                              : p.status === 'PENDING'
-                              ? 'border-l-orange-500'
-                              : 'border-l-gray-500'
-                          }`}
-                        >
-                          <CardContent className="pt-6">
-                            <div className="flex flex-col lg:flex-row gap-6">
-                              <div className="flex-1 space-y-4">
-                                <div>
-                                  <h3 className="font-semibold text-lg mb-2">
-                                    {formatJenisPengajuan(p.jenisPengajuan)}
-                                  </h3>
-                                  <p className="text-sm text-muted-foreground">
-                                    {p.guru?.nama || '-'} - {p.guru?.nip || '-'}
-                                  </p>
-                                  <div className="mt-2">
-                                    {getStatusBadge(p.status)}
-                                  </div>
-                                </div>
+                      const isExpanded = expandedPengajuanId === p.id
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                  <div>
-                                    <p className="text-sm font-medium mb-2">Data Lama:</p>
-                                    <div className="bg-slate-50 dark:bg-slate-800 rounded-md p-3 space-y-1 text-sm">
-                                      {dataLama ? (
-                                        Object.entries(dataLama)
+                      return (
+                        <Collapsible key={p.id} open={isExpanded} onOpenChange={(open) => setExpandedPengajuanId(open ? p.id : null)}>
+                          <Card className="border-l-4 hover:shadow-md transition-shadow">
+                            <CollapsibleTrigger asChild>
+                              <CardContent className="py-3 cursor-pointer">
+                                <div className="flex items-center justify-between gap-4">
+                                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                                    <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${isExpanded ? 'rotate-0' : '-rotate-90'}`} />
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex items-center gap-2 mb-1">
+                                        <p className="font-medium text-sm truncate">{p.guru?.nama || '-'}</p>
+                                        <span className="text-xs text-muted-foreground truncate">({p.guru?.nip || '-'})</span>
+                                        {getStatusBadge(p.status)}
+                                      </div>
+                                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                        <span>{formatJenisPengajuan(p.jenisPengajuan)}</span>
+                                        <span>•</span>
+                                        <span>{formatDate(p.tanggalDiajukan)}</span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <Button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      handleVerifikasi(p)
+                                    }}
+                                    className="gap-1"
+                                    size="sm"
+                                  >
+                                    <CheckCircle className="h-3 w-3" />
+                                    Verifikasi
+                                  </Button>
+                                </div>
+                              </CardContent>
+                            </CollapsibleTrigger>
+
+                            <CollapsibleContent>
+                              <div className="px-6 pb-4 border-t">
+                                <div className="pt-4 space-y-4">
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                      <p className="text-sm font-medium mb-2">Data Lama:</p>
+                                      <div className="bg-slate-50 dark:bg-slate-800 rounded-md p-3 space-y-1 text-sm">
+                                        {dataLama ? (
+                                          Object.entries(dataLama)
+                                            .filter(([key]) => {
+                                              if (p.jenisPengajuan === 'GAJI_POKOK') {
+                                                return true
+                                              }
+                                              const excludedFields = ['gajiPokok', 'pangkat', 'masaKerja']
+                                              return !excludedFields.includes(key)
+                                            })
+                                            .map(([key, value]) => (
+                                            <div key={key} className="flex justify-between">
+                                              <span className="text-muted-foreground capitalize">
+                                                {key === 'gajiPokok' ? 'Gaji Pokok' :
+                                                 key === 'pangkat' ? 'Pangkat' :
+                                                 key === 'masaKerja' ? 'Masa Kerja' : key}:
+                                              </span>
+                                              <span className="font-medium">
+                                                {key === 'gajiPokok' ? formatCurrency(Number(value)) : String(value)}
+                                              </span>
+                                            </div>
+                                          ))
+                                        ) : (
+                                          <p className="text-muted-foreground italic">Tidak ada data</p>
+                                        )}
+                                      </div>
+                                    </div>
+
+                                    <div>
+                                      <p className="text-sm font-medium mb-2">Data Baru:</p>
+                                      <div className="bg-blue-50 dark:bg-blue-900/20 rounded-md p-3 space-y-1 text-sm">
+                                        {Object.entries(dataBaru)
                                           .filter(([key]) => {
-                                            // Filter out non-relevant fields
-                                            // For GAJI_POKOK, show gajiPokok, pangkat, masaKerja
-                                            // For REKENING, exclude gajiPokok, pangkat, masaKerja
                                             if (p.jenisPengajuan === 'GAJI_POKOK') {
-                                              return true
+                                              return !['alasan'].includes(key)
                                             }
-                                            const excludedFields = ['gajiPokok', 'pangkat', 'masaKerja']
+                                            const excludedFields = ['alasan', 'gajiPokok', 'pangkat', 'masaKerja']
                                             return !excludedFields.includes(key)
                                           })
                                           .map(([key, value]) => (
@@ -730,125 +775,77 @@ export default function AdminDashboardPage() {
                                                key === 'pangkat' ? 'Pangkat' :
                                                key === 'masaKerja' ? 'Masa Kerja' : key}:
                                             </span>
-                                            <span className="font-medium">
+                                            <span className="font-medium text-blue-700 dark:text-blue-300">
                                               {key === 'gajiPokok' ? formatCurrency(Number(value)) : String(value)}
                                             </span>
                                           </div>
-                                        ))
-                                      ) : (
-                                        <p className="text-muted-foreground italic">Tidak ada data</p>
-                                      )}
+                                        ))}
+                                      </div>
                                     </div>
                                   </div>
 
-                                  <div>
-                                    <p className="text-sm font-medium mb-2">Data Baru:</p>
-                                    <div className="bg-blue-50 dark:bg-blue-900/20 rounded-md p-3 space-y-1 text-sm">
-                                      {Object.entries(dataBaru)
-                                        .filter(([key]) => {
-                                          // Filter out non-relevant fields
-                                          // For GAJI_POKOK, show gajiPokok, pangkat, masaKerja
-                                          // For REKENING, exclude alasan, gajiPokok, pangkat, masaKerja
-                                          if (p.jenisPengajuan === 'GAJI_POKOK') {
-                                            return !['alasan'].includes(key)
-                                          }
-                                          const excludedFields = ['alasan', 'gajiPokok', 'pangkat', 'masaKerja']
-                                          return !excludedFields.includes(key)
-                                        })
-                                        .map(([key, value]) => (
-                                        <div key={key} className="flex justify-between">
-                                          <span className="text-muted-foreground capitalize">
-                                            {key === 'gajiPokok' ? 'Gaji Pokok' :
-                                             key === 'pangkat' ? 'Pangkat' :
-                                             key === 'masaKerja' ? 'Masa Kerja' : key}:
-                                          </span>
-                                          <span className="font-medium text-blue-700 dark:text-blue-300">
-                                            {key === 'gajiPokok' ? formatCurrency(Number(value)) : String(value)}
-                                          </span>
-                                        </div>
-                                      ))}
+                                  {/* Highlight salary difference for GAJI_POKOK */}
+                                  {p.jenisPengajuan === 'GAJI_POKOK' && dataLama?.gajiPokok && dataBaru.gajiPokok && (
+                                    <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-md">
+                                      <p className="text-sm font-medium mb-1">Perubahan Gaji Pokok:</p>
+                                      <div className="flex items-center gap-2 text-sm">
+                                        <span className="text-slate-600 dark:text-slate-400">
+                                          {formatCurrency(Number(dataLama.gajiPokok))}
+                                        </span>
+                                        <span className="text-green-600 font-semibold">→</span>
+                                        <span className="text-green-700 dark:text-green-300 font-bold">
+                                          {formatCurrency(Number(dataBaru.gajiPokok))}
+                                        </span>
+                                        <span className="text-green-600 text-xs font-semibold">
+                                          ({dataBaru.gajiPokok > dataLama.gajiPokok ? '+' : ''}
+                                          {formatCurrency(Number(dataBaru.gajiPokok) - Number(dataLama.gajiPokok))})
+                                        </span>
+                                      </div>
                                     </div>
-                                  </div>
-                                </div>
+                                  )}
 
-                                {/* Highlight salary difference for GAJI_POKOK */}
-                                {p.jenisPengajuan === 'GAJI_POKOK' && dataLama?.gajiPokok && dataBaru.gajiPokok && (
-                                  <div className="mt-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-md">
-                                    <p className="text-sm font-medium mb-1">Perubahan Gaji Pokok:</p>
-                                    <div className="flex items-center gap-2 text-sm">
-                                      <span className="text-slate-600 dark:text-slate-400">
-                                        {formatCurrency(Number(dataLama.gajiPokok))}
-                                      </span>
-                                      <span className="text-green-600 font-semibold">→</span>
-                                      <span className="text-green-700 dark:text-green-300 font-bold">
-                                        {formatCurrency(Number(dataBaru.gajiPokok))}
-                                      </span>
-                                      <span className="text-green-600 text-xs font-semibold">
-                                        ({dataBaru.gajiPokok > dataLama.gajiPokok ? '+' : ''}
-                                        {formatCurrency(Number(dataBaru.gajiPokok) - Number(dataLama.gajiPokok))})
-                                      </span>
+                                  {/* Alasan Perubahan (khusus REKENING) */}
+                                  {p.jenisPengajuan === 'REKENING' && dataBaru.alasan && (
+                                    <div className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-md">
+                                      <p className="text-sm font-medium mb-1">Alasan Perubahan:</p>
+                                      <p className="text-sm text-amber-800 dark:text-amber-200">
+                                        {dataBaru.alasan === 'REKENING_BERMASALAH_DIBLOKIR' && 'Rekening Bermasalah/Diblokir'}
+                                        {dataBaru.alasan === 'KEAMANAN_SCAM_PHISHING' && 'Keamanan (Scam/Phishing)'}
+                                        {dataBaru.alasan === 'KETIDAKSESUAIAN_DATA' && 'Ketidaksesuaian Data'}
+                                        {dataBaru.alasan === 'GURU_MUTASI' && 'Guru Mutasi'}
+                                      </p>
+                                      <p className="text-xs text-muted-foreground mt-2">
+                                        {dataBaru.alasan === 'REKENING_BERMASALAH_DIBLOKIR' &&
+                                          'Rekening tidak aktif, dormant, atau diblokir oleh pihak bank.'}
+                                        {dataBaru.alasan === 'KEAMANAN_SCAM_PHISHING' &&
+                                          'Rekening terkena tindak kejahatan perbankan (penipuan, phishing, kartu ATM hilang/dicuri).'}
+                                        {dataBaru.alasan === 'KETIDAKSESUAIAN_DATA' &&
+                                          'Perbedaan nama antara data di SKTP/SKTK dengan nama pemilik di buku rekening/bank.'}
+                                        {dataBaru.alasan === 'GURU_MUTASI' &&
+                                          'Perubahan karena perpindahan tugas atau mutasi daerah.'}
+                                      </p>
                                     </div>
-                                  </div>
-                                )}
+                                  )}
 
-                                {/* Alasan Perubahan (khusus REKENING) */}
-                                {p.jenisPengajuan === 'REKENING' && dataBaru.alasan && (
-                                  <div className="mt-3 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-md">
-                                    <p className="text-sm font-medium mb-1">Alasan Perubahan:</p>
-                                    <p className="text-sm text-amber-800 dark:text-amber-200">
-                                      {dataBaru.alasan === 'REKENING_BERMASALAH_DIBLOKIR' && 'Rekening Bermasalah/Diblokir'}
-                                      {dataBaru.alasan === 'KEAMANAN_SCAM_PHISHING' && 'Keamanan (Scam/Phishing)'}
-                                      {dataBaru.alasan === 'KETIDAKSESUAIAN_DATA' && 'Ketidaksesuaian Data'}
-                                      {dataBaru.alasan === 'GURU_MUTASI' && 'Guru Mutasi'}
-                                    </p>
-                                    <p className="text-xs text-muted-foreground mt-2">
-                                      {dataBaru.alasan === 'REKENING_BERMASALAH_DIBLOKIR' && 
-                                        'Rekening tidak aktif, dormant, atau diblokir oleh pihak bank.'}
-                                      {dataBaru.alasan === 'KEAMANAN_SCAM_PHISHING' && 
-                                        'Rekening terkena tindak kejahatan perbankan (penipuan, phishing, kartu ATM hilang/dicuri).'}
-                                      {dataBaru.alasan === 'KETIDAKSESUAIAN_DATA' && 
-                                        'Perbedaan nama antara data di SKTP/SKTK dengan nama pemilik di buku rekening/bank.'}
-                                      {dataBaru.alasan === 'GURU_MUTASI' && 
-                                        'Perubahan karena perpindahan tugas atau mutasi daerah.'}
-                                    </p>
-                                  </div>
-                                )}
-
-                                {p.dokumenPendukung && (
-                                  <div className="space-y-2">
-                                    <p className="text-sm font-medium">Dokumen Pendukung:</p>
-                                    <Button
-                                      type="button"
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={() => handleViewDocument(p.dokumenPendukung)}
-                                      className="gap-2"
-                                    >
-                                      <Download className="h-4 w-4" />
-                                      Lihat Dokumen
-                                    </Button>
-                                  </div>
-                                )}
-
-                                <div className="text-sm text-muted-foreground">
-                                  Tanggal Diajukan: {formatDate(p.tanggalDiajukan)}
+                                  {p.dokumenPendukung && (
+                                    <div className="flex items-center gap-2">
+                                      <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => handleViewDocument(p.dokumenPendukung)}
+                                        className="gap-2"
+                                      >
+                                        <Download className="h-4 w-4" />
+                                        Lihat Dokumen
+                                      </Button>
+                                    </div>
+                                  )}
                                 </div>
                               </div>
-
-                              <div className="lg:w-[200px] flex lg:flex-col gap-2">
-                                <Button
-                                  type="button"
-                                  onClick={() => handleVerifikasi(p)}
-                                  className="flex-1 gap-2"
-                                  size="sm"
-                                >
-                                  <CheckCircle className="h-4 w-4" />
-                                  Verifikasi
-                                </Button>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
+                            </CollapsibleContent>
+                          </Card>
+                        </Collapsible>
                       )
                     })}
                   </div>
