@@ -30,6 +30,7 @@ import {
   Edit,
   Trash2,
   GraduationCap,
+  Search,
 } from 'lucide-react'
 
 interface Guru {
@@ -77,6 +78,11 @@ export default function AdminDashboardPage() {
   const [filterSearch, setFilterSearch] = useState('')
   const [filterGolongan, setFilterGolongan] = useState('')
   const [filterStatus, setFilterStatus] = useState('')
+
+  // Filter states for verification
+  const [filterPengajuanSearch, setFilterPengajuanSearch] = useState('')
+  const [filterJenisPengajuan, setFilterJenisPengajuan] = useState('')
+  const [filterPengajuanStatus, setFilterPengajuanStatus] = useState('')
 
   // Dialog states
   const [guruDialogOpen, setGuruDialogOpen] = useState(false)
@@ -178,6 +184,18 @@ export default function AdminDashboardPage() {
     const matchStatus = filterStatus === '' || filterStatus === 'all' || guru.statusSktp === filterStatus
 
     return matchSearch && matchGolongan && matchStatus
+  })
+
+  const filteredPengajuan = pengajuan.filter((p) => {
+    const matchSearch =
+      filterPengajuanSearch === '' ||
+      (p.guru?.nama || '').toLowerCase().includes(filterPengajuanSearch.toLowerCase()) ||
+      (p.guru?.nip || '').includes(filterPengajuanSearch)
+
+    const matchJenis = filterJenisPengajuan === '' || filterJenisPengajuan === 'all' || p.jenisPengajuan === filterJenisPengajuan
+    const matchStatus = filterPengajuanStatus === '' || filterPengajuanStatus === 'all' || p.status === filterPengajuanStatus
+
+    return matchSearch && matchJenis && matchStatus
   })
 
   const handleExport = async () => {
@@ -594,23 +612,60 @@ export default function AdminDashboardPage() {
           <TabsContent value="verifikasi">
             <Card className="shadow-lg">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  Daftar Pengajuan Verifikasi
-                </CardTitle>
-                <CardDescription>
-                  Daftar pengajuan yang belum disetujui atau ditolak (PENDING dan BELUM TERBACA SIMTUN)
-                </CardDescription>
+                <div className="flex flex-col gap-4">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <FileText className="h-5 w-5" />
+                      Daftar Pengajuan Verifikasi
+                    </CardTitle>
+                    <CardDescription>
+                      Daftar pengajuan yang belum disetujui atau ditolak (PENDING dan BELUM TERBACA SIMTUN)
+                    </CardDescription>
+                  </div>
+                  <div className="flex-1 flex gap-2 items-start flex-wrap">
+                    <div className="relative flex-1 min-w-[200px]">
+                      <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Cari nama atau NIP..."
+                        className="pl-10"
+                        value={filterPengajuanSearch}
+                        onChange={(e) => setFilterPengajuanSearch(e.target.value)}
+                      />
+                    </div>
+                    <Select value={filterJenisPengajuan} onValueChange={setFilterJenisPengajuan}>
+                      <SelectTrigger className="w-[200px]">
+                        <SelectValue placeholder="Jenis Pengajuan" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Semua</SelectItem>
+                        <SelectItem value="GAJI_POKOK">Gaji Pokok</SelectItem>
+                        <SelectItem value="REKENING">Rekening</SelectItem>
+                        <SelectItem value="PANGKAT">Pangkat</SelectItem>
+                        <SelectItem value="MASA_KERJA">Masa Kerja</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Select value={filterPengajuanStatus} onValueChange={setFilterPengajuanStatus}>
+                      <SelectTrigger className="w-[150px]">
+                        <SelectValue placeholder="Status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Semua</SelectItem>
+                        <SelectItem value="PENDING">Pending</SelectItem>
+                        <SelectItem value="BELUM_TERBACA_SIMTUN">Belum Terbaca SIMTUN</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
-                {pengajuan.length === 0 ? (
+                {filteredPengajuan.length === 0 ? (
                   <div className="text-center py-12">
                     <Clock className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                     <p className="text-muted-foreground">Tidak ada pengajuan yang perlu diverifikasi</p>
                   </div>
                 ) : (
                   <div className="space-y-4 max-h-[600px] overflow-y-auto">
-                    {pengajuan.map((p) => {
+                    {filteredPengajuan.map((p) => {
                       let dataBaru: any = {}
                       let dataLama: any = null
                       
