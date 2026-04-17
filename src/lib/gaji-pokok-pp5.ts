@@ -423,7 +423,7 @@ export const PANGKAT_BY_GOLONGAN: { [key: string]: string } = {
 
   // Golongan IV
   'IV/a': 'Pembina',
-  'IV/b': 'Pembina Pratama',
+  'IV/b': 'Pembina Tingkat I',
   'IV/c': 'Pembina Utama Muda',
   'IV/d': 'Pembina Utama Madya',
   'IV/e': 'Pembina Utama',
