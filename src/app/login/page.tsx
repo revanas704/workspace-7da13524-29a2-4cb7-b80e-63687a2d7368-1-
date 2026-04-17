@@ -63,7 +63,7 @@ export default function LoginPage() {
         <div className="text-center mb-6 animate-fade-in">
           <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full shadow-2xl mb-4 ring-4 ring-white dark:ring-slate-700">
             <img
-              src="/upload/Kabupaten Blitar(1).png"
+              src="/Kabupaten Blitar(1).png"
               alt="Logo Pemkab Blitar"
               className="w-20 h-20 object-contain"
             />
