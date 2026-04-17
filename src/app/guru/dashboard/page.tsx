@@ -224,12 +224,14 @@ export default function GuruDashboard() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'DISETUJUI':
-        return <Badge variant="default" className="bg-green-600"><CheckCircle className="w-3 h-3 mr-1" /> Disetujui</Badge>
+        return <Badge variant="default" className="bg-green-600"><CheckCircle className="w-3 h-3 mr-1" /> DISETUJUI</Badge>
       case 'DITOLAK':
-        return <Badge variant="destructive"><XCircle className="w-3 h-3 mr-1" /> Ditolak</Badge>
+        return <Badge variant="destructive"><XCircle className="w-3 h-3 mr-1" /> DITOLAK</Badge>
+      case 'BELUM_TERBACA_SIMTUN':
+        return <Badge variant="outline" className="border-slate-400 text-slate-700"><Clock className="w-3 h-3 mr-1" /> BELUM TERBACA SIMTUN</Badge>
       case 'PENDING':
       default:
-        return <Badge variant="secondary"><Clock className="w-3 h-3 mr-1" /> Menunggu</Badge>
+        return <Badge variant="outline" className="border-orange-500 text-orange-700"><Clock className="w-3 h-3 mr-1" /> PENDING</Badge>
     }
   }
 
@@ -965,7 +967,7 @@ export default function GuruDashboard() {
                             <p>{pengajuan.catatan}</p>
                           </div>
                         )}
-                        {(pengajuan.status === 'PENDING' || pengajuan.status === 'DISETUJUI' || pengajuan.status === 'DITOLAK') && (
+                        {(pengajuan.status === 'PENDING' || pengajuan.status === 'BELUM_TERBACA_SIMTUN' || pengajuan.status === 'DISETUJUI' || pengajuan.status === 'DITOLAK') && (
                           <div className="mt-3 pt-3 border-t border-orange-200 dark:border-orange-800">
                             <Button
                               variant="outline"

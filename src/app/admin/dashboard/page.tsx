@@ -422,7 +422,7 @@ export default function AdminDashboardPage() {
       case 'DITOLAK':
         return <Badge variant="destructive"><XCircle className="w-3 h-3 mr-1" /> DITOLAK</Badge>
       case 'BELUM_TERBACA_SIMTUN':
-        return <Badge variant="secondary"><Clock className="w-3 h-3 mr-1" /> BELUM TERBACA SIMTUN</Badge>
+        return <Badge variant="outline" className="border-slate-400 text-slate-700"><Clock className="w-3 h-3 mr-1" /> BELUM TERBACA SIMTUN</Badge>
       case 'PENDING':
         return <Badge variant="outline" className="border-orange-500 text-orange-700"><Clock className="w-3 h-3 mr-1" /> PENDING</Badge>
       default:
