@@ -1,0 +1,63 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  password  String
+  role      String   // "ADMIN" or "GURU"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  guru      Guru?    @relation(fields: [guruId], references: [id])
+  guruId    String?  @unique
+}
+
+model Guru {
+  id                   String     @id @default(cuid())
+  nik                  String
+  nuptk                String
+  nip                  String     @unique
+  nama                 String
+  pangkat              String
+  golongan             String     // II, III, or IV
+  masaKerja            Int        // in years
+  namaPemilikRekening  String
+  nomorRekening        String
+  bank                 String
+  satuanPendidikan     String
+  gajiPokok            Float      // Auto-calculated based on PP No. 5 Tahun 2024
+  salurBruto           Float      // Allowance amount
+  pph                  Float      // Auto-calculated (0%, 5%, or 15%)
+  potonganJkn          Float      // Auto-calculated (1% of gajiPokok)
+  salurNetto           Float      // Auto-calculated
+  statusSktp           String     // "TERBIT" or "BELUM"
+  createdAt            DateTime   @default(now())
+  updatedAt            DateTime   @updatedAt
+  user                 User?
+  pengajuanList        Pengajuan[]
+}
+
+model Pengajuan {
+  id                  String     @id @default(cuid())
+  guruId              String
+  guru                Guru       @relation(fields: [guruId], references: [id])
+  jenisPengajuan      String     // "PANGKAT", "MASA_KERJA", "REKENING"
+  dataLama            String?    // JSON string of old data
+  dataBaru            String     // JSON string of new data
+  dokumenPendukung    String?    // Document path or base64
+  status              String     // "PENDING", "DISETUJUI", "DITOLAK"
+  catatan             String?    // Admin notes
+  tanggalDiajukan     DateTime   @default(now())
+  tanggalVerifikasi   DateTime?
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+}

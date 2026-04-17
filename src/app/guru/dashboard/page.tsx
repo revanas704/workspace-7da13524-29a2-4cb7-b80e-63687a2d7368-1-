@@ -1,0 +1,554 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
+import { toast } from 'sonner'
+import { 
+  User, 
+  Briefcase, 
+  DollarSign, 
+  FileText, 
+  LogOut,
+  CheckCircle,
+  XCircle,
+  Clock,
+  Loader2,
+  CreditCard,
+  Landmark,
+  GraduationCap,
+  Plus
+} from 'lucide-react'
+import { formatCurrency } from '@/lib/salary-calculator'
+
+interface GuruData {
+  id: string
+  nik: string
+  nuptk: string
+  nip: string
+  nama: string
+  pangkat: string
+  golongan: string
+  masaKerja: number
+  namaPemilikRekening: string
+  nomorRekening: string
+  bank: string
+  satuanPendidikan: string
+  gajiPokok: number
+  salurBruto: number
+  pph: number
+  potonganJkn: number
+  salurNetto: number
+  statusSktp: string
+  pengajuanList: Array<{
+    id: string
+    jenisPengajuan: string
+    status: string
+    tanggalDiajukan: string
+    tanggalVerifikasi?: string
+    catatan?: string
+  }>
+}
+
+export default function GuruDashboard() {
+  const { data: session, status } = useSession()
+  const router = useRouter()
+  const [guruData, setGuruData] = useState<GuruData | null>(null)
+  const [loading, setLoading] = useState(true)
+  
+  // Pengajuan dialog state
+  const [showPengajuanDialog, setShowPengajuanDialog] = useState(false)
+  const [jenisPengajuan, setJenisPengajuan] = useState('')
+  const [formData, setFormData] = useState<any>({})
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/login')
+    }
+  }, [status, router])
+
+  useEffect(() => {
+    fetchGuruData()
+  }, [status, session])
+
+  const handleLogout = async () => {
+    await router.push('/login')
+  }
+
+  const handlePengajuanSubmit = async () => {
+    setIsSubmitting(true)
+    try {
+      const response = await fetch('/api/guru/pengajuan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jenisPengajuan,
+          dataBaru: formData,
+        }),
+      })
+
+      if (response.ok) {
+        toast.success('Pengajuan berhasil dikirim')
+        setShowPengajuanDialog(false)
+        setJenisPengajuan('')
+        setFormData({})
+        fetchGuruData()
+      } else {
+        toast.error('Gagal mengirim pengajuan')
+      }
+    } catch (error) {
+      toast.error('Terjadi kesalahan')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const fetchGuruData = async () => {
+    if (status === 'authenticated' && session?.user?.role === 'GURU') {
+      try {
+        const response = await fetch('/api/guru/me')
+        if (response.ok) {
+          const data = await response.json()
+          setGuruData(data)
+        }
+      } catch (error) {
+        console.error('Error fetching guru data:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+  }
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'DISETUJUI':
+        return <Badge variant="default" className="bg-green-600"><CheckCircle className="w-3 h-3 mr-1" /> Disetujui</Badge>
+      case 'DITOLAK':
+        return <Badge variant="destructive"><XCircle className="w-3 h-3 mr-1" /> Ditolak</Badge>
+      case 'PENDING':
+      default:
+        return <Badge variant="secondary"><Clock className="w-3 h-3 mr-1" /> Menunggu</Badge>
+    }
+  }
+
+  if (loading || status === 'loading') {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
+
+  if (!guruData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Data tidak ditemukan</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+      {/* Header */}
+      <header className="bg-white dark:bg-slate-800 shadow-sm border-b">
+        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold text-primary">SIM Tunjangan Profesi</h1>
+            <p className="text-sm text-muted-foreground">Dashboard Guru</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="text-right">
+              <p className="font-semibold">{guruData.nama}</p>
+              <p className="text-sm text-muted-foreground">{guruData.nip}</p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleLogout}
+              className="gap-2"
+            >
+              <LogOut className="h-4 w-4" />
+              Keluar
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="container mx-auto px-4 py-8">
+        {/* Status SKTP */}
+        <Card className="mb-6 shadow-lg border-l-4 border-l-primary">
+          <CardHeader>
+            <div className="flex justify-between items-start">
+              <div>
+                <CardTitle className="text-2xl">Selamat Datang, {guruData.nama}</CardTitle>
+                <CardDescription>Status SKTP Anda saat ini</CardDescription>
+              </div>
+              {guruData.statusSktp === 'TERBIT' ? (
+                <Badge className="bg-green-600 text-lg px-4 py-2">
+                  <CheckCircle className="w-5 h-5 mr-2" />
+                  SKTP Terbit
+                </Badge>
+              ) : (
+                <Badge variant="destructive" className="text-lg px-4 py-2">
+                  <XCircle className="w-5 h-5 mr-2" />
+                  SKTP Belum Terbit
+                </Badge>
+              )}
+            </div>
+          </CardHeader>
+        </Card>
+
+        <Tabs defaultValue="profil" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="profil">Profil</TabsTrigger>
+            <TabsTrigger value="tunjangan">Tunjangan</TabsTrigger>
+            <TabsTrigger value="rekening">Rekening</TabsTrigger>
+            <TabsTrigger value="riwayat">Riwayat</TabsTrigger>
+          </TabsList>
+
+          {/* Profil Tab */}
+          <TabsContent value="profil">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="w-5 h-5" />
+                  Data Pribadi
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <p className="text-sm text-muted-foreground">NIK</p>
+                    <p className="font-semibold">{guruData.nik}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm text-muted-foreground">NUPTK</p>
+                    <p className="font-semibold">{guruData.nuptk}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm text-muted-foreground">NIP</p>
+                    <p className="font-semibold">{guruData.nip}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm text-muted-foreground">Nama</p>
+                    <p className="font-semibold">{guruData.nama}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm text-muted-foreground">Pangkat</p>
+                    <p className="font-semibold">{guruData.pangkat}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm text-muted-foreground">Golongan</p>
+                    <p className="font-semibold">{guruData.golongan}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm text-muted-foreground">Masa Kerja</p>
+                    <p className="font-semibold">{guruData.masaKerja} Tahun</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm text-muted-foreground">Satuan Pendidikan</p>
+                    <p className="font-semibold">{guruData.satuanPendidikan}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Tunjangan Tab */}
+          <TabsContent value="tunjangan">
+            <div className="grid gap-6">
+              <Card className="shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <GraduationCap className="w-5 h-5" />
+                    Gaji Pokok
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-3xl font-bold text-primary">
+                    {formatCurrency(guruData.gajiPokok)}
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Berdasarkan PP No. 5 Tahun 2024 - {guruData.pangkat} - Golongan {guruData.golongan} - {guruData.masaKerja} Tahun
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <DollarSign className="w-5 h-5" />
+                    Rincian Tunjangan Profesi
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex justify-between items-center p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                    <span className="text-lg">Salur Bruto</span>
+                    <span className="text-2xl font-bold">{formatCurrency(guruData.salurBruto)}</span>
+                  </div>
+                  
+                  <Separator />
+                  
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-2">
+                        <Briefcase className="w-4 h-4 text-muted-foreground" />
+                        <span>PPH ({guruData.golongan === 'II' ? '0%' : guruData.golongan === 'III' ? '5%' : '15%'})</span>
+                      </div>
+                      <span className="font-semibold text-red-600">-{formatCurrency(guruData.pph)}</span>
+                    </div>
+                    
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-2">
+                        <CreditCard className="w-4 h-4 text-muted-foreground" />
+                        <span>Potongan JKN (1% dari Gaji Pokok)</span>
+                      </div>
+                      <span className="font-semibold text-red-600">-{formatCurrency(guruData.potonganJkn)}</span>
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  <div className="flex justify-between items-center p-4 bg-primary/10 rounded-lg">
+                    <span className="text-xl font-bold">Salur Netto</span>
+                    <span className="text-3xl font-bold text-primary">{formatCurrency(guruData.salurNetto)}</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* Rekening Tab */}
+          <TabsContent value="rekening">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Landmark className="w-5 h-5" />
+                  Informasi Rekening
+                </CardTitle>
+                <CardDescription>
+                  Data rekening untuk pencairan tunjangan profesi
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Nama Pemilik Rekening</p>
+                  <p className="text-xl font-semibold">{guruData.namaPemilikRekening}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Nomor Rekening</p>
+                  <p className="text-xl font-semibold">{guruData.nomorRekening}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Bank</p>
+                  <p className="text-xl font-semibold">{guruData.bank}</p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Riwayat Tab */}
+          <TabsContent value="riwayat">
+            <Card>
+              <CardHeader>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <FileText className="w-5 h-5" />
+                      Riwayat Pengajuan
+                    </CardTitle>
+                    <CardDescription>
+                      Riwayat pengajuan perubahan data dan status verifikasi
+                    </CardDescription>
+                  </div>
+                  <Dialog open={showPengajuanDialog} onOpenChange={setShowPengajuanDialog}>
+                    <DialogTrigger asChild>
+                      <Button className="gap-2">
+                        <Plus className="w-4 h-4" />
+                        Ajukan Perubahan
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+                      <DialogHeader>
+                        <DialogTitle>Ajukan Perubahan Data</DialogTitle>
+                        <DialogDescription>
+                          Pilih jenis perubahan yang ingin diajukan
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="space-y-4 py-4">
+                        <div className="space-y-2">
+                          <Label>Jenis Pengajuan</Label>
+                          <Select
+                            value={jenisPengajuan}
+                            onValueChange={(value) => {
+                              setJenisPengajuan(value)
+                              setFormData({})
+                            }}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Pilih jenis pengajuan" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="PANGKAT">Perubahan Pangkat/Golongan</SelectItem>
+                              <SelectItem value="MASA_KERJA">Perubahan Masa Kerja</SelectItem>
+                              <SelectItem value="REKENING">Perubahan Data Rekening</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        {jenisPengajuan === 'PANGKAT' && (
+                          <div className="space-y-3">
+                            <div className="space-y-2">
+                              <Label>Pangkat Baru</Label>
+                              <Input
+                                value={formData.pangkat || ''}
+                                onChange={(e) => setFormData({ ...formData, pangkat: e.target.value })}
+                                placeholder="Contoh: Penata Muda Tk.I"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label>Golongan Baru</Label>
+                              <Select
+                                value={formData.golongan || ''}
+                                onValueChange={(value) => setFormData({ ...formData, golongan: value })}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Pilih golongan" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="III/a">III/a</SelectItem>
+                                  <SelectItem value="III/b">III/b</SelectItem>
+                                  <SelectItem value="III/c">III/c</SelectItem>
+                                  <SelectItem value="III/d">III/d</SelectItem>
+                                  <SelectItem value="IV/a">IV/a</SelectItem>
+                                  <SelectItem value="IV/b">IV/b</SelectItem>
+                                  <SelectItem value="IV/c">IV/c</SelectItem>
+                                  <SelectItem value="IV/d">IV/d</SelectItem>
+                                  <SelectItem value="IV/e">IV/e</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                        )}
+
+                        {jenisPengajuan === 'MASA_KERJA' && (
+                          <div className="space-y-2">
+                            <Label>Masa Kerja Baru (Tahun)</Label>
+                            <Input
+                              type="number"
+                              value={formData.masaKerja || ''}
+                              onChange={(e) => setFormData({ ...formData, masaKerja: parseInt(e.target.value) })}
+                              placeholder="Contoh: 15"
+                            />
+                          </div>
+                        )}
+
+                        {jenisPengajuan === 'REKENING' && (
+                          <div className="space-y-3">
+                            <div className="space-y-2">
+                              <Label>Nama Pemilik Rekening Baru</Label>
+                              <Input
+                                value={formData.namaPemilikRekening || ''}
+                                onChange={(e) => setFormData({ ...formData, namaPemilikRekening: e.target.value })}
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label>Nomor Rekening Baru</Label>
+                              <Input
+                                value={formData.nomorRekening || ''}
+                                onChange={(e) => setFormData({ ...formData, nomorRekening: e.target.value })}
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label>Bank Baru</Label>
+                              <Input
+                                value={formData.bank || ''}
+                                onChange={(e) => setFormData({ ...formData, bank: e.target.value })}
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex gap-2 justify-end">
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            setShowPengajuanDialog(false)
+                            setJenisPengajuan('')
+                            setFormData({})
+                          }}
+                        >
+                          Batal
+                        </Button>
+                        <Button
+                          onClick={handlePengajuanSubmit}
+                          disabled={!jenisPengajuan || isSubmitting}
+                        >
+                          {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                          Kirim Pengajuan
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {guruData.pengajuanList.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                    <p>Belum ada riwayat pengajuan</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {guruData.pengajuanList.map((pengajuan) => (
+                      <div
+                        key={pengajuan.id}
+                        className="border rounded-lg p-4 hover:shadow-md transition-shadow"
+                      >
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <p className="font-semibold">
+                              {pengajuan.jenisPengajuan === 'PANGKAT' && 'Perubahan Pangkat/Golongan'}
+                              {pengajuan.jenisPengajuan === 'MASA_KERJA' && 'Perubahan Masa Kerja'}
+                              {pengajuan.jenisPengajuan === 'REKENING' && 'Perubahan Data Rekening'}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              {new Date(pengajuan.tanggalDiajukan).toLocaleDateString('id-ID', {
+                                day: 'numeric',
+                                month: 'long',
+                                year: 'numeric',
+                              })}
+                            </p>
+                          </div>
+                          {getStatusBadge(pengajuan.status)}
+                        </div>
+                        {pengajuan.catatan && (
+                          <div className="mt-2 p-2 bg-slate-50 dark:bg-slate-800 rounded text-sm">
+                            <p className="font-semibold">Catatan:</p>
+                            <p>{pengajuan.catatan}</p>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </main>
+    </div>
+  )
+}
