@@ -15,11 +15,13 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 
-    const { searchParams } = new URL(request.url)
-    const status = searchParams.get('status') || 'PENDING'
-
+    // Get pengajuan that are NOT yet DISETUJUI or DITOLAK (still in verification)
     const pengajuan = await db.pengajuan.findMany({
-      where: { status },
+      where: {
+        status: {
+          notIn: ['DISETUJUI', 'DITOLAK']
+        }
+      },
       include: {
         guru: true,
       },
@@ -48,7 +50,7 @@ export async function PUT(request: Request) {
     const body = await request.json()
     const { id, status, catatan } = body
 
-    if (!['DISETUJUI', 'DITOLAK'].includes(status)) {
+    if (!['DISETUJUI', 'DITOLAK', 'BELUM_TERBACA_SIMTUN'].includes(status)) {
       return NextResponse.json({ error: "Invalid status" }, { status: 400 })
     }
 

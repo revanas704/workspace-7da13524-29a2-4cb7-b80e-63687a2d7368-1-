@@ -320,7 +320,11 @@ export default function AdminDashboardPage() {
         throw new Error(errorData.error || 'Verifikasi failed')
       }
 
-      toast.success('Pengajuan berhasil diverifikasi')
+      toast.success(
+        verifikasiForm.status === 'BELUM_TERBACA_SIMTUN'
+          ? 'Status pengajuan diubah ke Belum Terbaca SIMTUN'
+          : 'Pengajuan berhasil diverifikasi'
+      )
       setVerifikasiDialogOpen(false)
       fetchData()
     } catch (error: any) {
@@ -341,6 +345,10 @@ export default function AdminDashboardPage() {
         return <Badge className="bg-green-600"><CheckCircle className="w-3 h-3 mr-1" /> DISETUJUI</Badge>
       case 'DITOLAK':
         return <Badge variant="destructive"><XCircle className="w-3 h-3 mr-1" /> DITOLAK</Badge>
+      case 'BELUM_TERBACA_SIMTUN':
+        return <Badge variant="secondary"><Clock className="w-3 h-3 mr-1" /> BELUM TERBACA SIMTUN</Badge>
+      case 'PENDING':
+        return <Badge variant="outline" className="border-orange-500 text-orange-700"><Clock className="w-3 h-3 mr-1" /> PENDING</Badge>
       default:
         return <Badge variant="secondary">{status}</Badge>
     }
@@ -447,12 +455,12 @@ export default function AdminDashboardPage() {
 
           <Card className="shadow-lg">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pending Pengajuan</CardTitle>
+              <CardTitle className="text-sm font-medium">Pengajuan Verifikasi</CardTitle>
               <FileText className="h-4 w-4 text-orange-600" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.pendingPengajuan}</div>
-              <p className="text-xs text-muted-foreground">Menunggu verifikasi</p>
+              <p className="text-xs text-muted-foreground">Perlu verifikasi</p>
             </CardContent>
           </Card>
         </div>
@@ -581,17 +589,17 @@ export default function AdminDashboardPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <FileText className="h-5 w-5" />
-                  Daftar Pengajuan Pending
+                  Daftar Pengajuan Verifikasi
                 </CardTitle>
                 <CardDescription>
-                  Daftar pengajuan yang menunggu verifikasi
+                  Daftar pengajuan yang belum disetujui atau ditolak (PENDING dan BELUM TERBACA SIMTUN)
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 {pengajuan.length === 0 ? (
                   <div className="text-center py-12">
                     <Clock className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                    <p className="text-muted-foreground">Tidak ada pengajuan yang menunggu verifikasi</p>
+                    <p className="text-muted-foreground">Tidak ada pengajuan yang perlu diverifikasi</p>
                   </div>
                 ) : (
                   <div className="space-y-4 max-h-[600px] overflow-y-auto">
@@ -612,7 +620,16 @@ export default function AdminDashboardPage() {
                       }
 
                       return (
-                        <Card key={p.id} className="border-l-4 border-l-orange-500">
+                        <Card
+                          key={p.id}
+                          className={`border-l-4 ${
+                            p.status === 'BELUM_TERBACA_SIMTUN'
+                              ? 'border-l-orange-500'
+                              : p.status === 'PENDING'
+                              ? 'border-l-orange-500'
+                              : 'border-l-gray-500'
+                          }`}
+                        >
                           <CardContent className="pt-6">
                             <div className="flex flex-col lg:flex-row gap-6">
                               <div className="flex-1 space-y-4">
@@ -623,6 +640,9 @@ export default function AdminDashboardPage() {
                                   <p className="text-sm text-muted-foreground">
                                     {p.guru?.nama || '-'} - {p.guru?.nip || '-'}
                                   </p>
+                                  <div className="mt-2">
+                                    {getStatusBadge(p.status)}
+                                  </div>
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1052,6 +1072,12 @@ export default function AdminDashboardPage() {
                   <SelectValue placeholder="Pilih keputusan" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="BELUM_TERBACA_SIMTUN">
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-orange-600" />
+                      Belum Terbaca SIMTUN
+                    </div>
+                  </SelectItem>
                   <SelectItem value="DISETUJUI">
                     <div className="flex items-center gap-2">
                       <CheckCircle className="h-4 w-4 text-green-600" />
