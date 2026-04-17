@@ -28,17 +28,17 @@ model Guru {
   nip                  String     @unique
   nama                 String
   pangkat              String
-  golongan             String     // II, III, or IV
+  golongan             String     // Golongan pegawai (I/a, II/b, III/c, IV/d, etc.)
   masaKerja            Int        // in years
   namaPemilikRekening  String
   nomorRekening        String
   bank                 String
   satuanPendidikan     String
   gajiPokok            Float      // Auto-calculated based on PP No. 5 Tahun 2024
-  salurBruto           Float      // Allowance amount
-  pph                  Float      // Auto-calculated (0%, 5%, or 15%)
+  salurBruto           Float      // Always equals gajiPokok (Salur Bruto = Gaji Pokok)
+  pph                  Float      // Auto-calculated (0%, 5%, or 15% based on golongan)
   potonganJkn          Float      // Auto-calculated (1% of gajiPokok)
-  salurNetto           Float      // Auto-calculated
+  salurNetto           Float      // Auto-calculated: gajiPokok - pph - potonganJkn
   statusSktp           String     // "TERBIT" or "BELUM"
   createdAt            DateTime   @default(now())
   updatedAt            DateTime   @updatedAt

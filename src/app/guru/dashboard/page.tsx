@@ -305,20 +305,42 @@ export default function GuruDashboard() {
           {/* Tunjangan Tab */}
           <TabsContent value="tunjangan">
             <div className="grid gap-6">
-              <Card className="shadow-lg">
+              <Card className="shadow-lg bg-primary/5">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <GraduationCap className="w-5 h-5" />
-                    Gaji Pokok
+                    Gaji Pokok & Salur Bruto
                   </CardTitle>
+                  <CardDescription>
+                    Berdasarkan PP No. 5 Tahun 2024
+                  </CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-3xl font-bold text-primary">
-                    {formatCurrency(guruData.gajiPokok)}
-                  </p>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    Berdasarkan PP No. 5 Tahun 2024 - {guruData.pangkat} - Golongan {guruData.golongan} - {guruData.masaKerja} Tahun
-                  </p>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="p-4 bg-white dark:bg-slate-800 rounded-lg">
+                      <p className="text-sm text-muted-foreground mb-1">Gaji Pokok</p>
+                      <p className="text-2xl font-bold text-primary">
+                        {formatCurrency(guruData.gajiPokok)}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        {guruData.pangkat} - Golongan {guruData.golongan} - {guruData.masaKerja} Tahun
+                      </p>
+                    </div>
+                    <div className="p-4 bg-white dark:bg-slate-800 rounded-lg">
+                      <p className="text-sm text-muted-foreground mb-1">Salur Bruto</p>
+                      <p className="text-2xl font-bold text-primary">
+                        {formatCurrency(guruData.salurBruto)}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        Sama dengan Gaji Pokok
+                      </p>
+                    </div>
+                  </div>
+                  <div className="p-3 bg-primary/10 rounded-lg text-center">
+                    <p className="text-sm font-medium">
+                      ✓ Salur Bruto = Gaji Pokok = {formatCurrency(guruData.gajiPokok)}
+                    </p>
+                  </div>
                 </CardContent>
               </Card>
 
@@ -326,18 +348,13 @@ export default function GuruDashboard() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <DollarSign className="w-5 h-5" />
-                    Rincian Tunjangan Profesi
+                    Rincian Potongan & Salur Netto
                   </CardTitle>
+                  <CardDescription>
+                    Potongan PPH dan JKN dari Tunjangan Profesi
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="flex justify-between items-center p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
-                    <span className="text-lg">Salur Bruto</span>
-                    <span className="text-2xl font-bold">{formatCurrency(guruData.salurBruto)}</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground text-center">Salur Bruto sama dengan Gaji Pokok</p>
-
-                  <Separator />
-
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-2">
@@ -365,7 +382,9 @@ export default function GuruDashboard() {
                     <span className="text-xl font-bold">Salur Netto</span>
                     <span className="text-3xl font-bold text-primary">{formatCurrency(guruData.salurNetto)}</span>
                   </div>
-                  <p className="text-xs text-muted-foreground text-center">Gaji Pokok - PPH - Potongan JKN</p>
+                  <p className="text-xs text-muted-foreground text-center">
+                    Gaji Pokok - PPH - Potongan JKN = {formatCurrency(guruData.gajiPokok - guruData.pph - guruData.potonganJkn)}
+                  </p>
                 </CardContent>
               </Card>
             </div>
