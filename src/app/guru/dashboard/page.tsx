@@ -406,23 +406,14 @@ export default function GuruDashboard() {
                               <SelectValue placeholder="Pilih jenis pengajuan" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="PANGKAT">Perubahan Pangkat/Golongan</SelectItem>
-                              <SelectItem value="MASA_KERJA">Perubahan Masa Kerja</SelectItem>
-                              <SelectItem value="REKENING">Perubahan Data Rekening</SelectItem>
+                              <SelectItem value="GAJI_POKOK">Perubahan Gaji Pokok</SelectItem>
+                              <SelectItem value="REKENING">Perubahan Rekening</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
 
-                        {jenisPengajuan === 'PANGKAT' && (
+                        {jenisPengajuan === 'GAJI_POKOK' && (
                           <div className="space-y-3">
-                            <div className="space-y-2">
-                              <Label>Pangkat Baru</Label>
-                              <Input
-                                value={formData.pangkat || ''}
-                                onChange={(e) => setFormData({ ...formData, pangkat: e.target.value })}
-                                placeholder="Contoh: Penata Muda Tk.I"
-                              />
-                            </div>
                             <div className="space-y-2">
                               <Label>Golongan Baru</Label>
                               <Select
@@ -433,30 +424,42 @@ export default function GuruDashboard() {
                                   <SelectValue placeholder="Pilih golongan" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="III/a">III/a</SelectItem>
-                                  <SelectItem value="III/b">III/b</SelectItem>
-                                  <SelectItem value="III/c">III/c</SelectItem>
-                                  <SelectItem value="III/d">III/d</SelectItem>
-                                  <SelectItem value="IV/a">IV/a</SelectItem>
-                                  <SelectItem value="IV/b">IV/b</SelectItem>
-                                  <SelectItem value="IV/c">IV/c</SelectItem>
-                                  <SelectItem value="IV/d">IV/d</SelectItem>
-                                  <SelectItem value="IV/e">IV/e</SelectItem>
+                                  {/* Golongan I - Juru */}
+                                  <SelectItem value="I/a">I/a - Juru Muda</SelectItem>
+                                  <SelectItem value="I/b">I/b - Juru Muda Tingkat I</SelectItem>
+                                  <SelectItem value="I/c">I/c - Juru</SelectItem>
+                                  <SelectItem value="I/d">I/d - Juru Tingkat I</SelectItem>
+                                  
+                                  {/* Golongan II - Pengatur */}
+                                  <SelectItem value="II/a">II/a - Pengatur Muda</SelectItem>
+                                  <SelectItem value="II/b">II/b - Pengatur Muda Tingkat I</SelectItem>
+                                  <SelectItem value="II/c">II/c - Pengatur</SelectItem>
+                                  <SelectItem value="II/d">II/d - Pengatur Tingkat I</SelectItem>
+                                  
+                                  {/* Golongan III - Penata */}
+                                  <SelectItem value="III/a">III/a - Penata Muda</SelectItem>
+                                  <SelectItem value="III/b">III/b - Penata Muda Tingkat I</SelectItem>
+                                  <SelectItem value="III/c">III/c - Penata</SelectItem>
+                                  <SelectItem value="III/d">III/d - Penata Tingkat I</SelectItem>
+                                  
+                                  {/* Golongan IV - Pembina */}
+                                  <SelectItem value="IV/a">IV/a - Pembina</SelectItem>
+                                  <SelectItem value="IV/b">IV/b - Pembina Tingkat I</SelectItem>
+                                  <SelectItem value="IV/c">IV/c - Pembina Utama Muda</SelectItem>
+                                  <SelectItem value="IV/d">IV/d - Pembina Utama Madya</SelectItem>
+                                  <SelectItem value="IV/e">IV/e - Pembina Utama</SelectItem>
                                 </SelectContent>
                               </Select>
                             </div>
-                          </div>
-                        )}
-
-                        {jenisPengajuan === 'MASA_KERJA' && (
-                          <div className="space-y-2">
-                            <Label>Masa Kerja Baru (Tahun)</Label>
-                            <Input
-                              type="number"
-                              value={formData.masaKerja || ''}
-                              onChange={(e) => setFormData({ ...formData, masaKerja: parseInt(e.target.value) })}
-                              placeholder="Contoh: 15"
-                            />
+                            <div className="space-y-2">
+                              <Label>Masa Kerja Baru (Tahun)</Label>
+                              <Input
+                                type="number"
+                                value={formData.masaKerja || ''}
+                                onChange={(e) => setFormData({ ...formData, masaKerja: parseInt(e.target.value) })}
+                                placeholder="Contoh: 15"
+                              />
+                            </div>
                           </div>
                         )}
 
@@ -525,9 +528,8 @@ export default function GuruDashboard() {
                         <div className="flex justify-between items-start mb-2">
                           <div>
                             <p className="font-semibold">
-                              {pengajuan.jenisPengajuan === 'PANGKAT' && 'Perubahan Pangkat/Golongan'}
-                              {pengajuan.jenisPengajuan === 'MASA_KERJA' && 'Perubahan Masa Kerja'}
-                              {pengajuan.jenisPengajuan === 'REKENING' && 'Perubahan Data Rekening'}
+                              {pengajuan.jenisPengajuan === 'GAJI_POKOK' && 'Perubahan Gaji Pokok'}
+                              {pengajuan.jenisPengajuan === 'REKENING' && 'Perubahan Rekening'}
                             </p>
                             <p className="text-sm text-muted-foreground">
                               {new Date(pengajuan.tanggalDiajukan).toLocaleDateString('id-ID', {

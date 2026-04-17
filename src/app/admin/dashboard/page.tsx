@@ -359,9 +359,10 @@ export default function AdminDashboardPage() {
 
   const formatJenisPengajuan = (jenis: string) => {
     const types: Record<string, string> = {
+      GAJI_POKOK: 'Perubahan Gaji Pokok',
+      REKENING: 'Perubahan Rekening',
       PANGKAT: 'Perubahan Pangkat',
       MASA_KERJA: 'Perubahan Masa Kerja',
-      REKENING: 'Perubahan Rekening',
     }
     return types[jenis] || jenis
   }
