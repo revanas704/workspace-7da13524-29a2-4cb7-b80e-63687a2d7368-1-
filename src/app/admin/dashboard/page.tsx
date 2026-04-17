@@ -652,14 +652,25 @@ export default function AdminDashboardPage() {
                                       {dataLama ? (
                                         Object.entries(dataLama)
                                           .filter(([key]) => {
-                                            // Filter out non-relevant fields for REKENING
+                                            // Filter out non-relevant fields
+                                            // For GAJI_POKOK, show gajiPokok, pangkat, masaKerja
+                                            // For REKENING, exclude gajiPokok, pangkat, masaKerja
+                                            if (p.jenisPengajuan === 'GAJI_POKOK') {
+                                              return true
+                                            }
                                             const excludedFields = ['gajiPokok', 'pangkat', 'masaKerja']
                                             return !excludedFields.includes(key)
                                           })
                                           .map(([key, value]) => (
                                           <div key={key} className="flex justify-between">
-                                            <span className="text-muted-foreground capitalize">{key}:</span>
-                                            <span className="font-medium">{String(value)}</span>
+                                            <span className="text-muted-foreground capitalize">
+                                              {key === 'gajiPokok' ? 'Gaji Pokok' :
+                                               key === 'pangkat' ? 'Pangkat' :
+                                               key === 'masaKerja' ? 'Masa Kerja' : key}:
+                                            </span>
+                                            <span className="font-medium">
+                                              {key === 'gajiPokok' ? formatCurrency(Number(value)) : String(value)}
+                                            </span>
                                           </div>
                                         ))
                                       ) : (
@@ -674,18 +685,49 @@ export default function AdminDashboardPage() {
                                       {Object.entries(dataBaru)
                                         .filter(([key]) => {
                                           // Filter out non-relevant fields
+                                          // For GAJI_POKOK, show gajiPokok, pangkat, masaKerja
+                                          // For REKENING, exclude alasan, gajiPokok, pangkat, masaKerja
+                                          if (p.jenisPengajuan === 'GAJI_POKOK') {
+                                            return !['alasan'].includes(key)
+                                          }
                                           const excludedFields = ['alasan', 'gajiPokok', 'pangkat', 'masaKerja']
                                           return !excludedFields.includes(key)
                                         })
                                         .map(([key, value]) => (
                                         <div key={key} className="flex justify-between">
-                                          <span className="text-muted-foreground capitalize">{key}:</span>
-                                          <span className="font-medium text-blue-700 dark:text-blue-300">{String(value)}</span>
+                                          <span className="text-muted-foreground capitalize">
+                                            {key === 'gajiPokok' ? 'Gaji Pokok' :
+                                             key === 'pangkat' ? 'Pangkat' :
+                                             key === 'masaKerja' ? 'Masa Kerja' : key}:
+                                          </span>
+                                          <span className="font-medium text-blue-700 dark:text-blue-300">
+                                            {key === 'gajiPokok' ? formatCurrency(Number(value)) : String(value)}
+                                          </span>
                                         </div>
                                       ))}
                                     </div>
                                   </div>
                                 </div>
+
+                                {/* Highlight salary difference for GAJI_POKOK */}
+                                {p.jenisPengajuan === 'GAJI_POKOK' && dataLama?.gajiPokok && dataBaru.gajiPokok && (
+                                  <div className="mt-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-md">
+                                    <p className="text-sm font-medium mb-1">Perubahan Gaji Pokok:</p>
+                                    <div className="flex items-center gap-2 text-sm">
+                                      <span className="text-slate-600 dark:text-slate-400">
+                                        {formatCurrency(Number(dataLama.gajiPokok))}
+                                      </span>
+                                      <span className="text-green-600 font-semibold">→</span>
+                                      <span className="text-green-700 dark:text-green-300 font-bold">
+                                        {formatCurrency(Number(dataBaru.gajiPokok))}
+                                      </span>
+                                      <span className="text-green-600 text-xs font-semibold">
+                                        ({dataBaru.gajiPokok > dataLama.gajiPokok ? '+' : ''}
+                                        {formatCurrency(Number(dataBaru.gajiPokok) - Number(dataLama.gajiPokok))})
+                                      </span>
+                                    </div>
+                                  </div>
+                                )}
 
                                 {/* Alasan Perubahan (khusus REKENING) */}
                                 {p.jenisPengajuan === 'REKENING' && dataBaru.alasan && (
