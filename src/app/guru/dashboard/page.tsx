@@ -124,13 +124,6 @@ export default function GuruDashboard() {
         return
       }
 
-      // Set default bank to BPD JAWA TIMUR
-      const finalFormData = {
-        ...formData,
-        bank: formData.bank || 'BPD JAWA TIMUR'
-      }
-      setFormData(finalFormData)
-
       if (!formData.alasan) {
         toast.error('Mohon pilih alasan perubahan')
         return
@@ -148,7 +141,11 @@ export default function GuruDashboard() {
       formDataToSend.append('jenisPengajuan', jenisPengajuan)
       
       // Prepare dataBaru (exclude the file object)
-      const dataBaru = { ...formData }
+      const dataBaru = {
+        ...formData,
+        // Ensure bank is set to BPD JAWA TIMUR for REKENING
+        bank: formData.bank || (jenisPengajuan === 'REKENING' ? 'BPD JAWA TIMUR' : undefined)
+      }
       delete dataBaru.dokumen
       formDataToSend.append('dataBaru', JSON.stringify(dataBaru))
       
