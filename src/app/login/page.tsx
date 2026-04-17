@@ -9,7 +9,6 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Loader2, GraduationCap, ShieldCheck } from 'lucide-react'
-import Image from 'next/image'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -63,13 +62,10 @@ export default function LoginPage() {
         {/* Logo Section */}
         <div className="text-center mb-6 animate-fade-in">
           <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full shadow-2xl mb-4 ring-4 ring-white dark:ring-slate-700">
-            <Image
+            <img
               src="https://upload.wikimedia.org/wikipedia/commons/2/23/Lambang_Kabupaten_Blitar.png"
               alt="Logo Pemkab Blitar"
-              width={80}
-              height={80}
-              className="object-contain"
-              priority
+              className="w-20 h-20 object-contain"
             />
           </div>
           <h1 className="text-2xl font-bold bg-gradient-to-r from-emerald-700 to-teal-700 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">
