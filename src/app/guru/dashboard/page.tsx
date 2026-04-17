@@ -526,12 +526,19 @@ export default function GuruDashboard() {
                         Ajukan Perubahan
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
-                      <DialogHeader>
-                        <DialogTitle>Ajukan Perubahan Data</DialogTitle>
-                        <DialogDescription>
-                          Pilih jenis perubahan yang ingin diajukan
-                        </DialogDescription>
+                    <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto border-2 border-red-200 dark:border-red-800 shadow-2xl">
+                      <DialogHeader className="bg-gradient-to-r from-red-600 to-amber-600 text-white -mx-8 -mt-6 px-8 pt-8 pb-4 rounded-t-lg">
+                        <div className="flex items-center gap-3">
+                          <div className="bg-white/20 p-2 rounded-lg backdrop-blur-sm">
+                            <Plus className="h-6 w-6" />
+                          </div>
+                          <div>
+                            <DialogTitle className="text-white text-xl font-semibold">Ajukan Perubahan Data</DialogTitle>
+                            <DialogDescription className="text-red-100 text-sm">
+                              Pilih jenis perubahan yang ingin diajukan
+                            </DialogDescription>
+                          </div>
+                        </div>
                       </DialogHeader>
                       <div className="space-y-4 py-4">
                         <div className="space-y-2">
@@ -807,7 +814,7 @@ export default function GuruDashboard() {
                           </div>
                         )}
                       </div>
-                      <div className="flex gap-2 justify-end">
+                      <div className="flex gap-3 justify-end pt-6">
                         <Button
                           variant="outline"
                           onClick={() => {
@@ -815,7 +822,7 @@ export default function GuruDashboard() {
                             setJenisPengajuan('')
                             setFormData({})
                           }}
-                          className="border-slate-300"
+                          className="border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800"
                         >
                           Batal
                         </Button>
@@ -840,45 +847,60 @@ export default function GuruDashboard() {
 
               {/* Delete Confirmation Dialog */}
               <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-                <DialogContent className="max-w-sm">
-                  <DialogHeader>
-                    <DialogTitle className="text-red-600 flex items-center gap-2">
-                      <Trash2 className="w-5 h-5" />
-                      Hapus Pengajuan
-                    </DialogTitle>
-                    <DialogDescription>
-                      {selectedPengajuanToDelete?.status === 'DISETUJUI' ? (
-                        <>
-                          Apakah Anda yakin ingin menghapus pengajuan <strong className="text-red-600">yang sudah disetujui</strong>? Tindakan ini tidak dapat dibatalkan.
-                        </>
-                      ) : selectedPengajuanToDelete?.status === 'DITOLAK' ? (
-                        <>
-                          Apakah Anda yakin ingin menghapus pengajuan yang <strong className="text-red-600">ditolak</strong>? Tindakan ini tidak dapat dibatalkan.
-                        </>
-                      ) : (
-                        <>
-                          Apakah Anda yakin ingin menghapus pengajuan ini? Tindakan ini tidak dapat dibatalkan.
-                        </>
-                      )}
-                    </DialogDescription>
+                <DialogContent className="max-w-md border-2 border-red-300 dark:border-red-800 shadow-2xl">
+                  <DialogHeader className="bg-gradient-to-r from-red-700 to-orange-600 text-white -mx-8 -mt-6 px-8 pt-8 pb-4 rounded-t-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="bg-white/20 p-2 rounded-lg backdrop-blur-sm">
+                        <Trash2 className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <DialogTitle className="text-white text-xl font-semibold">Hapus Pengajuan</DialogTitle>
+                        <DialogDescription className="text-red-100 text-sm">
+                          Konfirmasi penghapusan pengajuan
+                        </DialogDescription>
+                      </div>
+                    </div>
                   </DialogHeader>
-                  <div className="flex gap-2 justify-end pt-4">
+                  <div className="py-6">
+                    <div className="bg-red-50 dark:bg-red-950/20 border-2 border-red-200 dark:border-red-800 rounded-lg p-6">
+                      <p className="text-center text-base">
+                        {selectedPengajuanToDelete?.status === 'DISETUJUI' ? (
+                          <>
+                            Apakah Anda yakin ingin menghapus pengajuan <strong className="text-red-700 dark:text-red-400">yang sudah disetujui</strong>?
+                          </>
+                        ) : selectedPengajuanToDelete?.status === 'DITOLAK' ? (
+                          <>
+                            Apakah Anda yakin ingin menghapus pengajuan yang <strong className="text-red-700 dark:text-red-400">ditolak</strong>?
+                          </>
+                        ) : (
+                          <>
+                            Apakah Anda yakin ingin menghapus pengajuan ini?
+                          </>
+                        )}
+                      </p>
+                      <p className="text-center text-sm text-red-600 dark:text-red-300 mt-3">
+                        ⚠️ Tindakan ini tidak dapat dibatalkan
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3 justify-end pt-4">
                     <Button
                       variant="outline"
                       onClick={() => {
                         setShowDeleteDialog(false)
                         setSelectedPengajuanToDelete(null)
                       }}
+                      className="border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800"
                     >
                       Batal
                     </Button>
                     <Button
                       onClick={handleDeletePengajuan}
                       disabled={isDeleting}
-                      className="bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700"
+                      className="bg-gradient-to-r from-red-700 to-orange-600 hover:from-red-800 hover:to-orange-700 shadow-lg"
                     >
                       {isDeleting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                      Ya, Hapus
+                      Hapus
                     </Button>
                   </div>
                 </DialogContent>

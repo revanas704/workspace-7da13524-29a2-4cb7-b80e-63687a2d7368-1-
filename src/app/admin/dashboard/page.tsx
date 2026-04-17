@@ -922,12 +922,19 @@ export default function AdminDashboardPage() {
 
       {/* Add/Edit Guru Dialog */}
       <Dialog open={guruDialogOpen} onOpenChange={setGuruDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{isEditing ? 'Edit Data Guru' : 'Tambah Guru Baru'}</DialogTitle>
-            <DialogDescription>
-              {isEditing ? 'Perbarui data guru yang sudah ada.' : 'Isi form untuk menambahkan guru baru.'}
-            </DialogDescription>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto border-2 border-red-200 dark:border-red-800 shadow-2xl">
+          <DialogHeader className="bg-gradient-to-r from-red-700 to-amber-600 text-white -mx-8 -mt-6 px-8 pt-8 pb-4 rounded-t-lg">
+            <div className="flex items-center gap-3">
+              <div className="bg-white/20 p-2 rounded-lg backdrop-blur-sm">
+                <GraduationCap className="h-6 w-6" />
+              </div>
+              <div>
+                <DialogTitle className="text-white text-xl font-semibold">{isEditing ? 'Edit Data Guru' : 'Tambah Guru Baru'}</DialogTitle>
+                <DialogDescription className="text-red-100 text-sm">
+                  {isEditing ? 'Perbarui data guru yang sudah ada.' : 'Isi form untuk menambahkan guru baru.'}
+                </DialogDescription>
+              </div>
+            </div>
           </DialogHeader>
 
           <form onSubmit={handleSubmitGuru} className="space-y-4">
@@ -1171,11 +1178,20 @@ export default function AdminDashboardPage() {
               </Select>
             </div>
 
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setGuruDialogOpen(false)}>
+            <DialogFooter className="gap-3 pt-6">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => setGuruDialogOpen(false)}
+                className="border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800"
+              >
                 Batal
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button 
+                type="submit" 
+                disabled={isSubmitting}
+                className="bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-700 hover:to-amber-700 shadow-lg"
+              >
                 {isSubmitting ? 'Memproses...' : (isEditing ? 'Simpan Perubahan' : 'Tambah Guru')}
               </Button>
             </DialogFooter>
@@ -1185,18 +1201,46 @@ export default function AdminDashboardPage() {
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Hapus Data Guru</DialogTitle>
-            <DialogDescription>
-              Apakah Anda yakin ingin menghapus data <strong>{selectedGuru?.nama || ''}</strong>? Tindakan ini tidak dapat dibatalkan.
-            </DialogDescription>
+        <DialogContent className="max-w-md border-2 border-red-300 dark:border-red-800 shadow-2xl">
+          <DialogHeader className="bg-gradient-to-r from-red-700 to-orange-600 text-white -mx-8 -mt-6 px-8 pt-8 pb-4 rounded-t-lg">
+            <div className="flex items-center gap-3">
+              <div className="bg-white/20 p-2 rounded-lg backdrop-blur-sm">
+                <Trash2 className="h-6 w-6" />
+              </div>
+              <div>
+                <DialogTitle className="text-white text-xl font-semibold">Hapus Data Guru</DialogTitle>
+                <DialogDescription className="text-red-100 text-sm">
+                  Konfirmasi penghapusan data guru
+                </DialogDescription>
+              </div>
+            </div>
           </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+          <div className="py-6">
+            <div className="bg-red-50 dark:bg-red-950/20 border-2 border-red-200 dark:border-red-800 rounded-lg p-6">
+              <p className="text-center text-lg">
+                Apakah Anda yakin ingin menghapus data{' '}
+                <strong className="text-red-700 dark:text-red-400">{selectedGuru?.nama || ''}</strong>
+                ?
+              </p>
+              <p className="text-center text-sm text-red-600 dark:text-red-300 mt-2">
+                ⚠️ Tindakan ini tidak dapat dibatalkan
+              </p>
+            </div>
+          </div>
+          <DialogFooter className="gap-3">
+            <Button 
+              variant="outline" 
+              onClick={() => setDeleteDialogOpen(false)}
+              className="border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800"
+            >
               Batal
             </Button>
-            <Button variant="destructive" onClick={confirmDelete} disabled={isSubmitting}>
+            <Button 
+              variant="destructive" 
+              onClick={confirmDelete} 
+              disabled={isSubmitting}
+              className="bg-gradient-to-r from-red-700 to-orange-600 hover:from-red-800 hover:to-orange-700 shadow-lg"
+            >
               {isSubmitting ? 'Memproses...' : 'Hapus'}
             </Button>
           </DialogFooter>
@@ -1205,17 +1249,34 @@ export default function AdminDashboardPage() {
 
       {/* Verifikasi Dialog */}
       <Dialog open={verifikasiDialogOpen} onOpenChange={setVerifikasiDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Verifikasi Pengajuan</DialogTitle>
-            <DialogDescription>
-              {selectedPengajuan && (
-                <span>
-                  {formatJenisPengajuan(selectedPengajuan.jenisPengajuan)} oleh {selectedPengajuan.guru?.nama || '-'}
-                </span>
-              )}
-            </DialogDescription>
+        <DialogContent className="max-w-md border-2 border-amber-200 dark:border-amber-800 shadow-2xl">
+          <DialogHeader className="bg-gradient-to-r from-amber-600 to-orange-500 text-white -mx-8 -mt-6 px-8 pt-8 pb-4 rounded-t-lg">
+            <div className="flex items-center gap-3">
+              <div className="bg-white/20 p-2 rounded-lg backdrop-blur-sm">
+                <CheckCircle className="h-6 w-6" />
+              </div>
+              <div>
+                <DialogTitle className="text-white text-xl font-semibold">Verifikasi Pengajuan</DialogTitle>
+                <DialogDescription className="text-amber-100 text-sm">
+                  {selectedPengajuan && (
+                    <span>
+                      {formatJenisPengajuan(selectedPengajuan.jenisPengajuan)}
+                    </span>
+                  )}
+                </DialogDescription>
+              </div>
+            </div>
           </DialogHeader>
+          {selectedPengajuan && (
+            <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 mb-4">
+              <p className="text-sm text-amber-800 dark:text-amber-200">
+                <strong>Guru:</strong> {selectedPengajuan.guru?.nama || '-'}
+              </p>
+              <p className="text-sm text-amber-800 dark:text-amber-200">
+                <strong>NIP:</strong> {selectedPengajuan.guru?.nip || '-'}
+              </p>
+            </div>
+          )}
 
           <form onSubmit={handleSubmitVerifikasi} className="space-y-4">
             <div className="space-y-2">
@@ -1262,11 +1323,20 @@ export default function AdminDashboardPage() {
               />
             </div>
 
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setVerifikasiDialogOpen(false)}>
+            <DialogFooter className="gap-3 pt-6">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => setVerifikasiDialogOpen(false)}
+                className="border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800"
+              >
                 Batal
               </Button>
-              <Button type="submit" disabled={!verifikasiForm.status || isSubmitting}>
+              <Button 
+                type="submit" 
+                disabled={!verifikasiForm.status || isSubmitting}
+                className="bg-gradient-to-r from-amber-600 to-orange-500 hover:from-amber-700 hover:to-orange-600 shadow-lg"
+              >
                 {isSubmitting ? 'Memproses...' : 'Simpan Keputusan'}
               </Button>
             </DialogFooter>
@@ -1276,14 +1346,21 @@ export default function AdminDashboardPage() {
 
       {/* View Document Dialog */}
       <Dialog open={documentDialogOpen} onOpenChange={setDocumentDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Lihat Dokumen Pendukung</DialogTitle>
-            <DialogDescription>
-              Dokumen pendukung untuk verifikasi pengajuan
-            </DialogDescription>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto border-2 border-red-200 dark:border-red-800 shadow-2xl">
+          <DialogHeader className="bg-gradient-to-r from-red-600 to-amber-600 text-white -mx-8 -mt-6 px-8 pt-8 pb-4 rounded-t-lg">
+            <div className="flex items-center gap-3">
+              <div className="bg-white/20 p-2 rounded-lg backdrop-blur-sm">
+                <FileText className="h-6 w-6" />
+              </div>
+              <div>
+                <DialogTitle className="text-white text-xl font-semibold">Lihat Dokumen Pendukung</DialogTitle>
+                <DialogDescription className="text-red-100 text-sm">
+                  Dokumen pendukung untuk verifikasi pengajuan
+                </DialogDescription>
+              </div>
+            </div>
           </DialogHeader>
-          <div className="w-full h-[70vh]">
+          <div className="w-full h-[70vh] bg-slate-50 dark:bg-slate-900/50 rounded-lg overflow-hidden border-2 border-slate-200 dark:border-slate-700">
             {selectedDocument && (
               <iframe
                 src={selectedDocument}
@@ -1292,8 +1369,13 @@ export default function AdminDashboardPage() {
               />
             )}
           </div>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setDocumentDialogOpen(false)}>
+          <DialogFooter className="gap-3 pt-6">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => setDocumentDialogOpen(false)}
+              className="border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800"
+            >
               Tutup
             </Button>
           </DialogFooter>
@@ -1302,23 +1384,30 @@ export default function AdminDashboardPage() {
 
       {/* Import Excel Dialog */}
       <Dialog open={importDialogOpen} onOpenChange={setImportDialogOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Import Data Guru dari Excel</DialogTitle>
-            <DialogDescription>
-              Unggah file Excel (.xlsx) untuk mengimpor data guru secara massal
-            </DialogDescription>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={handleDownloadTemplate}
-              className="w-full mt-2 gap-2 border-amber-300 hover:bg-amber-50 dark:border-amber-700 dark:hover:bg-amber-900/20"
-            >
-              <Download className="h-4 w-4" />
-              Download Template Excel
-            </Button>
+        <DialogContent className="max-w-md border-2 border-green-200 dark:border-green-800 shadow-2xl">
+          <DialogHeader className="bg-gradient-to-r from-green-600 to-emerald-500 text-white -mx-8 -mt-6 px-8 pt-8 pb-4 rounded-t-lg">
+            <div className="flex items-center gap-3">
+              <div className="bg-white/20 p-2 rounded-lg backdrop-blur-sm">
+                <Upload className="h-6 w-6" />
+              </div>
+              <div>
+                <DialogTitle className="text-white text-xl font-semibold">Import Data Guru dari Excel</DialogTitle>
+                <DialogDescription className="text-green-100 text-sm">
+                  Unggah file Excel (.xlsx) untuk mengimpor data guru secara massal
+                </DialogDescription>
+              </div>
+            </div>
           </DialogHeader>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleDownloadTemplate}
+            className="w-full mt-4 gap-2 border-green-300 hover:bg-green-50 dark:border-green-700 dark:hover:bg-green-900/20"
+          >
+            <Download className="h-4 w-4" />
+            Download Template Excel
+          </Button>
           <form onSubmit={handleImport} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="importFile">File Excel</Label>
@@ -1337,18 +1426,18 @@ export default function AdminDashboardPage() {
                 Format yang diterima: .xlsx atau .xls
               </p>
             </div>
-            <div className="bg-amber-50 dark:bg-amber-950/20 p-4 rounded-lg border border-amber-200 dark:border-amber-800">
-              <p className="text-sm text-amber-800 dark:text-amber-200 font-medium mb-2">
+            <div className="bg-green-50 dark:bg-green-950/20 p-4 rounded-lg border-2 border-green-200 dark:border-green-800">
+              <p className="text-sm text-green-800 dark:text-green-200 font-medium mb-2">
                 <strong>Panduan:</strong>
               </p>
-              <ul className="text-xs text-amber-700 dark:text-amber-300 space-y-1 list-disc list-inside">
+              <ul className="text-xs text-green-700 dark:text-green-300 space-y-1 list-disc list-inside">
                 <li>Download template Excel terlebih dahulu</li>
                 <li>Isi data sesuai format yang telah ditentukan</li>
                 <li>Pastikan NIP bersifat unik (tidak boleh ada duplikat)</li>
                 <li>Status SKTP: isi dengan "TERBIT" atau "BELUM"</li>
               </ul>
             </div>
-            <DialogFooter className="gap-2">
+            <DialogFooter className="gap-3 pt-6">
               <Button
                 type="button"
                 variant="outline"
@@ -1356,13 +1445,14 @@ export default function AdminDashboardPage() {
                   setImportDialogOpen(false)
                   setImportFile(null)
                 }}
+                className="border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800"
               >
                 Batal
               </Button>
               <Button
                 type="submit"
                 disabled={!importFile || isSubmitting}
-                className="bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-700 hover:to-amber-700"
+                className="bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-700 hover:to-emerald-600 shadow-lg"
               >
                 {isSubmitting ? 'Mengimpor...' : 'Import'}
               </Button>
