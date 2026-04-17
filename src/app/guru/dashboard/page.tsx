@@ -186,6 +186,7 @@ export default function GuruDashboard() {
     try {
       const response = await fetch(`/api/guru/pengajuan/${selectedPengajuanToDelete.id}`, {
         method: 'DELETE',
+        credentials: 'include',
       })
 
       if (response.ok) {
@@ -195,7 +196,7 @@ export default function GuruDashboard() {
         fetchGuruData()
       } else {
         const error = await response.json()
-        toast.error(error.message || 'Gagal menghapus pengajuan')
+        toast.error(error.error || error.message || 'Gagal menghapus pengajuan')
       }
     } catch (error) {
       toast.error('Terjadi kesalahan')

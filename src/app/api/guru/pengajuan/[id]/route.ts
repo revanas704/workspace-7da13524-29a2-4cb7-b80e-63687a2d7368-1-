@@ -1,33 +1,39 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
+import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
+import { db } from '@/lib/db'
 
 export async function DELETE(
-  request: NextRequest,
+  _request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
     const session = await getServerSession(authOptions)
 
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // Cari guru berdasarkan email
-    const guru = await db.guru.findUnique({
-      where: { email: session.user.email }
+    console.log('DELETE - Session:', {
+      hasSession: !!session,
+      hasUser: !!session?.user,
+      role: session?.user?.role,
+      guruId: session?.user?.guruId
     })
 
-    if (!guru) {
-      return NextResponse.json({ error: 'Guru tidak ditemukan' }, { status: 404 })
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized - No session found' }, { status: 401 })
+    }
+
+    if (session.user.role !== 'GURU') {
+      return NextResponse.json({ error: 'Forbidden - Invalid role' }, { status: 403 })
+    }
+
+    if (!session.user.guruId) {
+      return NextResponse.json({ error: 'Unauthorized - No guruId in session' }, { status: 401 })
     }
 
     // Cari pengajuan yang akan dihapus
     const pengajuan = await db.pengajuan.findFirst({
       where: {
         id: params.id,
-        guruId: guru.id
+        guruId: session.user.guruId
       }
     })
 
@@ -35,14 +41,22 @@ export async function DELETE(
       return NextResponse.json({ error: 'Pengajuan tidak ditemukan' }, { status: 404 })
     }
 
+    console.log('Deleting pengajuan:', {
+      id: params.id,
+      guruId: session.user.guruId,
+      found: !!pengajuan
+    })
+
     // Hapus pengajuan (boleh untuk semua status termasuk disetujui)
     await db.pengajuan.delete({
       where: { id: params.id }
     })
 
-    return NextResponse.json({ 
-      success: true, 
-      message: 'Pengajuan berhasil dihapus' 
+    console.log('Successfully deleted pengajuan:', params.id)
+
+    return NextResponse.json({
+      success: true,
+      message: 'Pengajuan berhasil dihapus'
     })
   } catch (error) {
     console.error('Error deleting pengajuan:', error)
