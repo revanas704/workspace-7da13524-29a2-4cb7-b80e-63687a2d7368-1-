@@ -316,14 +316,15 @@ export default function AdminDashboardPage() {
       })
 
       if (!res.ok) {
-        throw new Error('Verifikasi failed')
+        const errorData = await res.json()
+        throw new Error(errorData.error || 'Verifikasi failed')
       }
 
       toast.success('Pengajuan berhasil diverifikasi')
       setVerifikasiDialogOpen(false)
       fetchData()
-    } catch (error) {
-      toast.error('Gagal memverifikasi pengajuan')
+    } catch (error: any) {
+      toast.error(error?.message || 'Gagal memverifikasi pengajuan')
       console.error(error)
     } finally {
       setIsSubmitting(false)
