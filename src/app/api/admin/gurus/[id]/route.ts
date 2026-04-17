@@ -21,14 +21,17 @@ export async function PUT(
     const { id } = await params
     const body = await request.json()
 
-    // Recalculate salary details
+    // Recalculate salary details based on golongan and masa kerja
     const { calculateSalaries } = await import('@/lib/salary-calculator')
     const salaryData = calculateSalaries(
       body.pangkat,
       body.golongan,
       body.masaKerja,
-      body.salurBruto
+      0 // salurBruto parameter is not used anymore
     )
+
+    // Salur Bruto = Gaji Pokok
+    const salurBruto = salaryData.gajiPokok
 
     const guru = await db.guru.update({
       where: { id },
@@ -45,7 +48,7 @@ export async function PUT(
         bank: body.bank,
         satuanPendidikan: body.satuanPendidikan,
         gajiPokok: salaryData.gajiPokok,
-        salurBruto: body.salurBruto,
+        salurBruto: salurBruto, // Same as gajiPokok
         pph: salaryData.pph,
         potonganJkn: salaryData.potonganJkn,
         salurNetto: salaryData.salurNetto,

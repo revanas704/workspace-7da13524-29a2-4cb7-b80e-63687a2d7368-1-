@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { formatCurrency } from '@/lib/salary-calculator'
+import { formatCurrency, calculatePph, calculatePotonganJkn } from '@/lib/salary-calculator'
 import { getGajiPokok } from '@/lib/gaji-pokok-pp5'
 
 // Mapping Golongan ke Pangkat (PP 5 Tahun 2024)
@@ -101,7 +101,6 @@ export default function AdminDashboardPage() {
 
   // Form state
   const [formData, setFormData] = useState<Partial<Guru>>({
-    salurBruto: 2000000,
     statusSktp: 'BELUM',
   })
 
@@ -121,7 +120,7 @@ export default function AdminDashboardPage() {
     }
   }, [status, session, router])
 
-  // Auto fill pangkat AND gajiPokok based on golongan AND masa kerja (PP 5 Tahun 2024)
+  // Auto fill pangkat, gajiPokok, salurBruto, pph, potonganJkn, salurNetto based on golongan AND masa kerja (PP 5 Tahun 2024)
   useEffect(() => {
     if (formData.golongan && !isEditing) {
       // Auto fill pangkat based on golongan
@@ -129,12 +128,29 @@ export default function AdminDashboardPage() {
 
       // Auto fill gajiPokok based on golongan and masa kerja
       const masaKerja = formData.masaKerja || 0
-      const gaji = getGajiPokok(formData.golongan, masaKerja)
+      const gajiPokok = getGajiPokok(formData.golongan, masaKerja)
+
+      // Salur Bruto = Gaji Pokok (same value)
+      const salurBruto = gajiPokok
+
+      // Calculate PPH based on golongan
+      const pphRate = calculatePph(formData.golongan)
+      const pph = gajiPokok * pphRate
+
+      // Calculate Potongan JKN (1% of gaji pokok)
+      const potonganJkn = calculatePotonganJkn(gajiPokok)
+
+      // Calculate Salur Netto
+      const salurNetto = salurBruto - pph - potonganJkn
 
       setFormData((prev) => ({
         ...prev,
         pangkat,
-        gajiPokok: gaji,
+        gajiPokok,
+        salurBruto,
+        pph,
+        potonganJkn,
+        salurNetto,
       }))
     }
   }, [formData.golongan, formData.masaKerja, isEditing])
@@ -783,12 +799,71 @@ export default function AdminDashboardPage() {
                 id="gajiPokok"
                 type="number"
                 value={formData.gajiPokok || ''}
-                onChange={(e) => setFormData({ ...formData, gajiPokok: parseFloat(e.target.value) || 0 })}
-                placeholder="Otomatis terisi berdasarkan golongan dan masa kerja (PP 5 Tahun 2024)"
+                disabled
+                className="bg-muted"
               />
               <p className="text-xs text-muted-foreground">
-                Gaji Pokok sesuai PP 5 Tahun 2024. Akan otomatis terisi berdasarkan <strong>Golongan</strong> dan <strong>Masa Kerja</strong> yang dipilih.
+                Otomatis berdasarkan <strong>Golongan</strong> dan <strong>Masa Kerja</strong> (PP 5 Tahun 2024)
               </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="salurBruto">Salur Bruto (Rp)</Label>
+              <Input
+                id="salurBruto"
+                type="number"
+                value={formData.salurBruto || ''}
+                disabled
+                className="bg-muted"
+              />
+              <p className="text-xs text-muted-foreground">
+                Otomatis sama dengan <strong>Gaji Pokok</strong>
+              </p>
+            </div>
+
+            {/* Rincian Potongan */}
+            <div className="border-t pt-4 space-y-4">
+              <h4 className="font-medium">Rincian Potongan</h4>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="pph">PPH (Rp)</Label>
+                  <Input
+                    id="pph"
+                    type="number"
+                    value={formData.pph || ''}
+                    disabled
+                    className="bg-muted"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    {formData.golongan?.startsWith('III') ? '5%' : formData.golongan?.startsWith('IV') ? '15%' : '0%'} dari Gaji Pokok
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="potonganJkn">Potongan JKN (Rp)</Label>
+                  <Input
+                    id="potonganJkn"
+                    type="number"
+                    value={formData.potonganJkn || ''}
+                    disabled
+                    className="bg-muted"
+                  />
+                  <p className="text-xs text-muted-foreground">1% dari Gaji Pokok</p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="salurNetto">Salur Netto (Rp)</Label>
+                  <Input
+                    id="salurNetto"
+                    type="number"
+                    value={formData.salurNetto || ''}
+                    disabled
+                    className="bg-muted font-semibold"
+                  />
+                  <p className="text-xs text-muted-foreground">Gaji Pokok - PPH - Potongan JKN</p>
+                </div>
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -799,17 +874,6 @@ export default function AdminDashboardPage() {
                 onChange={(e) => setFormData({ ...formData, satuanPendidikan: e.target.value })}
                 placeholder="Contoh: SDN 1 Jakarta"
               />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="salurBruto">Salur Bruto (Rp)</Label>
-              <Input
-                id="salurBruto"
-                type="number"
-                value={formData.salurBruto || ''}
-                onChange={(e) => setFormData({ ...formData, salurBruto: parseFloat(e.target.value) || 0 })}
-              />
-              <p className="text-xs text-muted-foreground">Salur Bruto akan dikurangi PPH dan JKN untuk mendapatkan Salur Netto</p>
             </div>
 
             <div className="border-t pt-4">

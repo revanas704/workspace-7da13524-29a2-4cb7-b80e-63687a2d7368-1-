@@ -69,14 +69,17 @@ export async function POST(request: Request) {
 
     const body = await request.json()
 
-    // Calculate salary details
+    // Calculate salary details based on golongan and masa kerja
     const { calculateSalaries } = await import('@/lib/salary-calculator')
     const salaryData = calculateSalaries(
       body.pangkat,
       body.golongan,
       body.masaKerja,
-      body.salurBruto || 2000000
+      0 // salurBruto parameter is not used anymore, will be set to gajiPokok
     )
+
+    // Salur Bruto = Gaji Pokok
+    const salurBruto = salaryData.gajiPokok
 
     const guru = await db.guru.create({
       data: {
@@ -92,7 +95,7 @@ export async function POST(request: Request) {
         bank: body.bank,
         satuanPendidikan: body.satuanPendidikan,
         gajiPokok: salaryData.gajiPokok,
-        salurBruto: body.salurBruto || 2000000,
+        salurBruto: salurBruto, // Same as gajiPokok
         pph: salaryData.pph,
         potonganJkn: salaryData.potonganJkn,
         salurNetto: salaryData.salurNetto,

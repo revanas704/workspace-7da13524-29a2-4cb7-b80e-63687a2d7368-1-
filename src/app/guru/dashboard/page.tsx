@@ -298,18 +298,19 @@ export default function GuruDashboard() {
                     <span className="text-lg">Salur Bruto</span>
                     <span className="text-2xl font-bold">{formatCurrency(guruData.salurBruto)}</span>
                   </div>
-                  
+                  <p className="text-xs text-muted-foreground text-center">Salur Bruto sama dengan Gaji Pokok</p>
+
                   <Separator />
-                  
+
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-2">
                         <Briefcase className="w-4 h-4 text-muted-foreground" />
-                        <span>PPH ({guruData.golongan === 'II' ? '0%' : guruData.golongan === 'III' ? '5%' : '15%'})</span>
+                        <span>PPH ({guruData.golongan === 'II' ? '0%' : guruData.golongan === 'III' ? '5%' : '15%'} dari Gaji Pokok)</span>
                       </div>
                       <span className="font-semibold text-red-600">-{formatCurrency(guruData.pph)}</span>
                     </div>
-                    
+
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-2">
                         <CreditCard className="w-4 h-4 text-muted-foreground" />
@@ -325,6 +326,7 @@ export default function GuruDashboard() {
                     <span className="text-xl font-bold">Salur Netto</span>
                     <span className="text-3xl font-bold text-primary">{formatCurrency(guruData.salurNetto)}</span>
                   </div>
+                  <p className="text-xs text-muted-foreground text-center">Gaji Pokok - PPH - Potongan JKN</p>
                 </CardContent>
               </Card>
             </div>

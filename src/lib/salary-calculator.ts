@@ -44,9 +44,9 @@ export function calculateSalaries(
 ): SalaryCalculation {
   const gajiPokok = calculateGajiPokok(pangkat, golongan, masaKerja)
   const pphRate = calculatePph(golongan)
-  const pph = salurBruto * pphRate
+  const pph = gajiPokok * pphRate // PPH calculated from gajiPokok
   const potonganJkn = calculatePotonganJkn(gajiPokok)
-  const salurNetto = salurBruto - pph - potonganJkn
+  const salurNetto = gajiPokok - pph - potonganJkn // Netto from gajiPokok
 
   return {
     gajiPokok,
