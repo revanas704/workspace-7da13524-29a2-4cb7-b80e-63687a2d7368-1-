@@ -1,52 +1,54 @@
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
-import { db } from "@/lib/db"
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from 'next/server'
+import { db } from '@/lib/db'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 
 export async function DELETE(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
     const session = await getServerSession(authOptions)
 
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    if (session.user.role !== 'GURU') {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    // Cari guru berdasarkan email
+    const guru = await db.guru.findUnique({
+      where: { email: session.user.email }
+    })
+
+    if (!guru) {
+      return NextResponse.json({ error: 'Guru tidak ditemukan' }, { status: 404 })
     }
 
-    const pengajuanId = params.id
-
-    // Get the pengajuan to check ownership
-    const pengajuan = await db.pengajuan.findUnique({
-      where: { id: pengajuanId },
+    // Cari pengajuan yang akan dihapus
+    const pengajuan = await db.pengajuan.findFirst({
+      where: {
+        id: params.id,
+        guruId: guru.id
+      }
     })
 
     if (!pengajuan) {
-      return NextResponse.json({ error: "Pengajuan not found" }, { status: 404 })
+      return NextResponse.json({ error: 'Pengajuan tidak ditemukan' }, { status: 404 })
     }
 
-    // Check if the pengajuan belongs to the logged-in guru
-    if (pengajuan.guruId !== session.user.guruId) {
-      return NextResponse.json({ error: "Forbidden - You can only delete your own pengajuan" }, { status: 403 })
-    }
-
-    // Only allow deletion of PENDING pengajuan
-    if (pengajuan.status !== 'PENDING') {
-      return NextResponse.json({ error: "Can only delete pending pengajuan" }, { status: 400 })
-    }
-
-    // Delete the pengajuan
+    // Hapus pengajuan (boleh untuk semua status termasuk disetujui)
     await db.pengajuan.delete({
-      where: { id: pengajuanId },
+      where: { id: params.id }
     })
 
-    return NextResponse.json({ message: "Pengajuan berhasil dihapus" })
+    return NextResponse.json({ 
+      success: true, 
+      message: 'Pengajuan berhasil dihapus' 
+    })
   } catch (error) {
     console.error('Error deleting pengajuan:', error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    return NextResponse.json(
+      { error: 'Gagal menghapus pengajuan' },
+      { status: 500 }
+    )
   }
 }

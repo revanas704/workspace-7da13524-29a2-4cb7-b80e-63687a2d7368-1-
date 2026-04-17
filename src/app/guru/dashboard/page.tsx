@@ -839,7 +839,19 @@ export default function GuruDashboard() {
                       Hapus Pengajuan
                     </DialogTitle>
                     <DialogDescription>
-                      Apakah Anda yakin ingin menghapus pengajuan ini? Tindakan ini tidak dapat dibatalkan.
+                      {selectedPengajuanToDelete?.status === 'DISETUJUI' ? (
+                        <>
+                          Apakah Anda yakin ingin menghapus pengajuan <strong className="text-red-600">yang sudah disetujui</strong>? Tindakan ini tidak dapat dibatalkan.
+                        </>
+                      ) : selectedPengajuanToDelete?.status === 'DITOLAK' ? (
+                        <>
+                          Apakah Anda yakin ingin menghapus pengajuan yang <strong className="text-red-600">ditolak</strong>? Tindakan ini tidak dapat dibatalkan.
+                        </>
+                      ) : (
+                        <>
+                          Apakah Anda yakin ingin menghapus pengajuan ini? Tindakan ini tidak dapat dibatalkan.
+                        </>
+                      )}
                     </DialogDescription>
                   </DialogHeader>
                   <div className="flex gap-2 justify-end pt-4">
@@ -920,7 +932,7 @@ export default function GuruDashboard() {
                             <p>{pengajuan.catatan}</p>
                           </div>
                         )}
-                        {pengajuan.status === 'PENDING' && (
+                        {(pengajuan.status === 'PENDING' || pengajuan.status === 'DISETUJUI' || pengajuan.status === 'DITOLAK') && (
                           <div className="mt-3 pt-3 border-t border-orange-200 dark:border-orange-800">
                             <Button
                               variant="outline"
