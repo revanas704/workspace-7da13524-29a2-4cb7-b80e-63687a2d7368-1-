@@ -444,7 +444,12 @@ export default function AdminDashboardPage() {
               <p className="text-sm font-medium text-white">{session?.user?.username || 'Admin'}</p>
               <p className="text-xs text-red-100">Administrator</p>
             </div>
-            <Button variant="secondary" size="icon" onClick={() => signOut({ callbackUrl: '/login' })} className="bg-white/20 hover:bg-white/30 text-white border-0">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => signOut({ callbackUrl: '/login' })}
+              className="text-white hover:bg-white/20"
+            >
               <LogOut className="h-4 w-4" />
             </Button>
           </div>
