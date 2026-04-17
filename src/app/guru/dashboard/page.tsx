@@ -247,21 +247,31 @@ export default function GuruDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-slate-900 dark:via-purple-900/20 dark:to-indigo-900/20">
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-amber-50 dark:from-slate-900 dark:via-red-950/20 dark:to-amber-950/20 relative overflow-hidden">
+      {/* Decorative Background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-200/30 dark:bg-red-500/10 rounded-full blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-amber-200/30 dark:bg-amber-500/10 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-orange-200/20 dark:bg-orange-500/5 rounded-full blur-3xl" />
+      </div>
+
       {/* Header */}
-      <header className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 shadow-lg border-b backdrop-blur-sm bg-opacity-95">
+      <header className="bg-gradient-to-r from-red-700 to-amber-600 shadow-lg border-b backdrop-blur-sm bg-opacity-95">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-              <GraduationCap className="w-7 h-7" />
-              SIM Tunjangan Profesi
-            </h1>
-            <p className="text-sm text-white/80">Dashboard Guru</p>
+          <div className="flex items-center gap-3">
+            <img src="/Kabupaten Blitar(1).png" alt="Logo Blitar" className="h-10 w-10 object-contain" />
+            <div>
+              <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+                <GraduationCap className="w-7 h-7" />
+                SIM Tunjangan Profesi
+              </h1>
+              <p className="text-sm text-red-100">Pemerintah Kabupaten Blitar - Dashboard Guru</p>
+            </div>
           </div>
           <div className="flex items-center gap-4">
             <div className="text-right">
               <p className="font-semibold text-white">{guruData.nama}</p>
-              <p className="text-sm text-white/70">{guruData.nip}</p>
+              <p className="text-sm text-red-100">{guruData.nip}</p>
             </div>
             <Button
               variant="secondary"
@@ -279,7 +289,7 @@ export default function GuruDashboard() {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         {/* Status SKTP */}
-        <Card className="mb-6 shadow-xl border-0 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white overflow-hidden relative">
+        <Card className="mb-6 shadow-xl border-0 bg-gradient-to-r from-red-600 via-orange-500 to-amber-500 text-white overflow-hidden relative">
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-32 translate-x-32"></div>
           <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-24 -translate-x-24"></div>
           <CardHeader className="relative z-10">
@@ -294,12 +304,12 @@ export default function GuruDashboard() {
                 <CardDescription className="text-white/80">Status SKTP Anda saat ini</CardDescription>
               </div>
               {guruData.statusSktp === 'TERBIT' ? (
-                <Badge className="bg-emerald-500 hover:bg-emerald-600 text-lg px-5 py-3 shadow-lg border-2 border-white/30 backdrop-blur-sm">
+                <Badge className="bg-amber-500 hover:bg-amber-600 text-lg px-5 py-3 shadow-lg border-2 border-white/30 backdrop-blur-sm">
                   <CheckCircle className="w-5 h-5 mr-2" />
                   SKTP Terbit
                 </Badge>
               ) : (
-                <Badge className="bg-amber-500 hover:bg-amber-600 text-lg px-5 py-3 shadow-lg border-2 border-white/30 backdrop-blur-sm">
+                <Badge className="bg-red-500 hover:bg-red-600 text-lg px-5 py-3 shadow-lg border-2 border-white/30 backdrop-blur-sm">
                   <XCircle className="w-5 h-5 mr-2" />
                   SKTP Belum Terbit
                 </Badge>
@@ -310,19 +320,19 @@ export default function GuruDashboard() {
 
         <Tabs defaultValue="profil" className="space-y-6">
           <TabsList className="grid w-full grid-cols-4 bg-white/80 backdrop-blur-sm shadow-lg border-0 p-1">
-            <TabsTrigger value="profil" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white">
+            <TabsTrigger value="profil" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-600 data-[state=active]:to-amber-600 data-[state=active]:text-white">
               <User className="w-4 h-4 mr-2" />
               Profil
             </TabsTrigger>
-            <TabsTrigger value="tunjangan" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white">
+            <TabsTrigger value="tunjangan" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-500 data-[state=active]:to-orange-500 data-[state=active]:text-white">
               <DollarSign className="w-4 h-4 mr-2" />
               Tunjangan
             </TabsTrigger>
-            <TabsTrigger value="rekening" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-rose-500 data-[state=active]:text-white">
+            <TabsTrigger value="rekening" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-amber-500 data-[state=active]:text-white">
               <Landmark className="w-4 h-4 mr-2" />
               Rekening
             </TabsTrigger>
-            <TabsTrigger value="riwayat" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-rose-500 data-[state=active]:to-orange-500 data-[state=active]:text-white">
+            <TabsTrigger value="riwayat" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-600 data-[state=active]:to-red-500 data-[state=active]:text-white">
               <FileText className="w-4 h-4 mr-2" />
               Riwayat
             </TabsTrigger>
@@ -330,8 +340,8 @@ export default function GuruDashboard() {
 
           {/* Profil Tab */}
           <TabsContent value="profil">
-            <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-indigo-50/50 dark:from-slate-800 dark:to-indigo-950/50">
-              <CardHeader className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white">
+            <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-red-50/50 dark:from-slate-800 dark:to-red-950/50">
+              <CardHeader className="bg-gradient-to-r from-red-600 to-amber-500 text-white">
                 <CardTitle className="flex items-center gap-2">
                   <User className="w-5 h-5" />
                   Data Pribadi
@@ -339,36 +349,36 @@ export default function GuruDashboard() {
               </CardHeader>
               <CardContent className="space-y-4 pt-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 rounded-lg border border-blue-100 dark:border-blue-900">
-                    <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">NIK</p>
+                  <div className="space-y-2 p-4 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/30 dark:to-orange-950/30 rounded-lg border border-red-100 dark:border-red-900">
+                    <p className="text-sm text-red-600 dark:text-red-400 font-medium">NIK</p>
                     <p className="font-semibold text-slate-900 dark:text-white">{guruData.nik}</p>
                   </div>
-                  <div className="space-y-2 p-4 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30 rounded-lg border border-purple-100 dark:border-purple-900">
-                    <p className="text-sm text-purple-600 dark:text-purple-400 font-medium">NUPTK</p>
+                  <div className="space-y-2 p-4 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950/30 dark:to-amber-950/30 rounded-lg border border-orange-100 dark:border-orange-900">
+                    <p className="text-sm text-orange-600 dark:text-orange-400 font-medium">NUPTK</p>
                     <p className="font-semibold text-slate-900 dark:text-white">{guruData.nuptk}</p>
                   </div>
-                  <div className="space-y-2 p-4 bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-950/30 dark:to-rose-950/30 rounded-lg border border-pink-100 dark:border-pink-900">
-                    <p className="text-sm text-pink-600 dark:text-pink-400 font-medium">NIP</p>
+                  <div className="space-y-2 p-4 bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-950/30 dark:to-yellow-950/30 rounded-lg border border-amber-100 dark:border-amber-900">
+                    <p className="text-sm text-amber-600 dark:text-amber-400 font-medium">NIP</p>
                     <p className="font-semibold text-slate-900 dark:text-white">{guruData.nip}</p>
                   </div>
-                  <div className="space-y-2 p-4 bg-gradient-to-r from-rose-50 to-orange-50 dark:from-rose-950/30 dark:to-orange-950/30 rounded-lg border border-rose-100 dark:border-rose-900">
-                    <p className="text-sm text-rose-600 dark:text-rose-400 font-medium">Nama</p>
+                  <div className="space-y-2 p-4 bg-gradient-to-r from-red-100 to-orange-100 dark:from-red-950/40 dark:to-orange-950/40 rounded-lg border border-red-200 dark:border-red-800">
+                    <p className="text-sm text-red-700 dark:text-red-400 font-medium">Nama</p>
                     <p className="font-semibold text-slate-900 dark:text-white">{guruData.nama}</p>
                   </div>
-                  <div className="space-y-2 p-4 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950/30 dark:to-amber-950/30 rounded-lg border border-orange-100 dark:border-orange-900">
-                    <p className="text-sm text-orange-600 dark:text-orange-400 font-medium">Pangkat</p>
+                  <div className="space-y-2 p-4 bg-gradient-to-r from-orange-100 to-amber-100 dark:from-orange-950/40 dark:to-amber-950/40 rounded-lg border border-orange-200 dark:border-orange-800">
+                    <p className="text-sm text-orange-700 dark:text-orange-400 font-medium">Pangkat</p>
                     <p className="font-semibold text-slate-900 dark:text-white">{guruData.pangkat}</p>
                   </div>
-                  <div className="space-y-2 p-4 bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-950/30 dark:to-yellow-950/30 rounded-lg border border-amber-100 dark:border-amber-900">
-                    <p className="text-sm text-amber-600 dark:text-amber-400 font-medium">Golongan</p>
+                  <div className="space-y-2 p-4 bg-gradient-to-r from-amber-100 to-yellow-100 dark:from-amber-950/40 dark:to-yellow-950/40 rounded-lg border border-amber-200 dark:border-amber-800">
+                    <p className="text-sm text-amber-700 dark:text-amber-400 font-medium">Golongan</p>
                     <p className="font-semibold text-slate-900 dark:text-white">{guruData.golongan}</p>
                   </div>
-                  <div className="space-y-2 p-4 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 rounded-lg border border-emerald-100 dark:border-emerald-900">
-                    <p className="text-sm text-emerald-600 dark:text-emerald-400 font-medium">Masa Kerja</p>
+                  <div className="space-y-2 p-4 bg-gradient-to-r from-red-100 to-orange-100 dark:from-red-950/40 dark:to-orange-950/40 rounded-lg border border-red-200 dark:border-red-800">
+                    <p className="text-sm text-red-700 dark:text-red-400 font-medium">Masa Kerja</p>
                     <p className="font-semibold text-slate-900 dark:text-white">{guruData.masaKerja} Tahun</p>
                   </div>
-                  <div className="space-y-2 p-4 bg-gradient-to-r from-teal-50 to-cyan-50 dark:from-teal-950/30 dark:to-cyan-950/30 rounded-lg border border-teal-100 dark:border-teal-900">
-                    <p className="text-sm text-teal-600 dark:text-teal-400 font-medium">Satuan Pendidikan</p>
+                  <div className="space-y-2 p-4 bg-gradient-to-r from-orange-100 to-amber-100 dark:from-orange-950/40 dark:to-amber-950/40 rounded-lg border border-orange-200 dark:border-orange-800">
+                    <p className="text-sm text-orange-700 dark:text-orange-400 font-medium">Satuan Pendidikan</p>
                     <p className="font-semibold text-slate-900 dark:text-white">{guruData.satuanPendidikan}</p>
                   </div>
                 </div>
@@ -379,7 +389,7 @@ export default function GuruDashboard() {
               {/* Tunjangan Tab */}
           <TabsContent value="tunjangan">
             <div className="grid gap-6">
-              <Card className="shadow-xl border-0 bg-gradient-to-br from-purple-500 to-pink-500 text-white overflow-hidden relative">
+              <Card className="shadow-xl border-0 bg-gradient-to-br from-red-600 to-orange-500 text-white overflow-hidden relative">
                 <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -translate-y-24 translate-x-24"></div>
                 <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full translate-y-16 -translate-x-16"></div>
                 <CardHeader className="relative z-10">
@@ -420,8 +430,8 @@ export default function GuruDashboard() {
                 </CardContent>
               </Card>
 
-              <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-rose-50/50 dark:from-slate-800 dark:to-rose-950/50">
-                <CardHeader className="bg-gradient-to-r from-rose-500 to-orange-500 text-white">
+              <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-red-50/50 dark:from-slate-800 dark:to-red-950/50">
+                <CardHeader className="bg-gradient-to-r from-orange-500 to-amber-500 text-white">
                   <CardTitle className="flex items-center gap-2">
                     <DollarSign className="w-5 h-5" />
                     Rincian Potongan & Salur Netto
@@ -432,15 +442,15 @@ export default function GuruDashboard() {
                 </CardHeader>
                 <CardContent className="space-y-4 pt-6">
                   <div className="space-y-3">
-                    <div className="flex justify-between items-center p-4 bg-gradient-to-r from-rose-50 to-orange-50 dark:from-rose-950/30 dark:to-orange-950/30 rounded-lg border border-rose-100 dark:border-rose-900">
+                    <div className="flex justify-between items-center p-4 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/30 dark:to-orange-950/30 rounded-lg border border-red-100 dark:border-red-900">
                       <div className="flex items-center gap-2">
-                        <Briefcase className="w-4 h-4 text-rose-600 dark:text-rose-400" />
+                        <Briefcase className="w-4 h-4 text-red-600 dark:text-red-400" />
                         <span className="text-slate-700 dark:text-slate-300">PPH ({guruData.golongan === 'I' || guruData.golongan?.startsWith('I/') ? '0%' :
                                      guruData.golongan === 'II' || guruData.golongan?.startsWith('II/') ? '0%' :
                                      guruData.golongan === 'III' || guruData.golongan?.startsWith('III/') ? '5%' :
                                      guruData.golongan === 'IV' || guruData.golongan?.startsWith('IV/') ? '15%' : '0%'} dari Gaji Pokok)</span>
                       </div>
-                      <span className="font-semibold text-rose-600 dark:text-rose-400">-{formatCurrency(guruData.pph)}</span>
+                      <span className="font-semibold text-red-600 dark:text-red-400">-{formatCurrency(guruData.pph)}</span>
                     </div>
 
                     <div className="flex justify-between items-center p-4 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950/30 dark:to-amber-950/30 rounded-lg border border-orange-100 dark:border-orange-900">
@@ -454,7 +464,7 @@ export default function GuruDashboard() {
 
                   <Separator />
 
-                  <div className="flex justify-between items-center p-5 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl shadow-lg">
+                  <div className="flex justify-between items-center p-5 bg-gradient-to-r from-red-600 to-amber-500 text-white rounded-xl shadow-lg">
                     <span className="text-xl font-bold">Salur Netto</span>
                     <span className="text-3xl font-bold">{formatCurrency(guruData.salurNetto)}</span>
                   </div>
@@ -468,8 +478,8 @@ export default function GuruDashboard() {
 
           {/* Rekening Tab */}
           <TabsContent value="rekening">
-            <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-pink-50/50 dark:from-slate-800 dark:to-pink-950/50">
-              <CardHeader className="bg-gradient-to-r from-pink-500 to-rose-500 text-white">
+            <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-amber-50/50 dark:from-slate-800 dark:to-amber-950/50">
+              <CardHeader className="bg-gradient-to-r from-amber-600 to-orange-600 text-white">
                 <CardTitle className="flex items-center gap-2">
                   <Landmark className="w-5 h-5" />
                   Informasi Rekening
@@ -479,16 +489,16 @@ export default function GuruDashboard() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4 pt-6">
-                <div className="space-y-2 p-4 bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-950/30 dark:to-rose-950/30 rounded-lg border border-pink-100 dark:border-pink-900">
-                  <p className="text-sm text-pink-600 dark:text-pink-400 font-medium">Nama Pemilik Rekening</p>
+                <div className="space-y-2 p-4 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/30 dark:to-orange-950/30 rounded-lg border border-red-100 dark:border-red-900">
+                  <p className="text-sm text-red-600 dark:text-red-400 font-medium">Nama Pemilik Rekening</p>
                   <p className="text-xl font-semibold text-slate-900 dark:text-white">{guruData.namaPemilikRekening}</p>
                 </div>
-                <div className="space-y-2 p-4 bg-gradient-to-r from-rose-50 to-orange-50 dark:from-rose-950/30 dark:to-orange-950/30 rounded-lg border border-rose-100 dark:border-rose-900">
-                  <p className="text-sm text-rose-600 dark:text-rose-400 font-medium">Nomor Rekening</p>
+                <div className="space-y-2 p-4 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950/30 dark:to-amber-950/30 rounded-lg border border-orange-100 dark:border-orange-900">
+                  <p className="text-sm text-orange-600 dark:text-orange-400 font-medium">Nomor Rekening</p>
                   <p className="text-xl font-semibold text-slate-900 dark:text-white font-mono">{guruData.nomorRekening}</p>
                 </div>
-                <div className="space-y-2 p-4 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950/30 dark:to-amber-950/30 rounded-lg border border-orange-100 dark:border-orange-900">
-                  <p className="text-sm text-orange-600 dark:text-orange-400 font-medium">Bank</p>
+                <div className="space-y-2 p-4 bg-gradient-to-r from-amber-100 to-yellow-100 dark:from-amber-950/40 dark:to-yellow-950/40 rounded-lg border border-amber-200 dark:border-amber-800">
+                  <p className="text-sm text-amber-700 dark:text-amber-400 font-medium">Bank</p>
                   <p className="text-xl font-semibold text-slate-900 dark:text-white">{guruData.bank}</p>
                 </div>
               </CardContent>
@@ -497,8 +507,8 @@ export default function GuruDashboard() {
 
           {/* Riwayat Tab */}
           <TabsContent value="riwayat">
-            <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-orange-50/50 dark:from-slate-800 dark:to-orange-950/50">
-              <CardHeader className="bg-gradient-to-r from-orange-500 to-amber-500 text-white">
+            <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-red-50/50 dark:from-slate-800 dark:to-red-950/50">
+              <CardHeader className="bg-gradient-to-r from-red-600 to-orange-500 text-white">
                 <div className="flex justify-between items-start">
                   <div>
                     <CardTitle className="flex items-center gap-2">
@@ -511,7 +521,7 @@ export default function GuruDashboard() {
                   </div>
                   <Dialog open={showPengajuanDialog} onOpenChange={setShowPengajuanDialog}>
                     <DialogTrigger asChild>
-                      <Button className="gap-2 bg-white text-orange-600 hover:bg-orange-50 shadow-lg border-0">
+                      <Button className="gap-2 bg-white text-red-600 hover:bg-red-50 shadow-lg border-0">
                         <Plus className="w-4 h-4" />
                         Ajukan Perubahan
                       </Button>
@@ -817,7 +827,7 @@ export default function GuruDashboard() {
                             (jenisPengajuan === 'GAJI_POKOK' && !formData.dokumen) ||
                             (jenisPengajuan === 'REKENING' && (!formData.dokumen || !formData.alasan))
                           }
-                          className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 shadow-lg"
+                          className="bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-700 hover:to-amber-700 shadow-lg"
                         >
                           {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                           Kirim Pengajuan
@@ -865,7 +875,7 @@ export default function GuruDashboard() {
                     <Button
                       onClick={handleDeletePengajuan}
                       disabled={isDeleting}
-                      className="bg-red-600 hover:bg-red-700"
+                      className="bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700"
                     >
                       {isDeleting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                       Ya, Hapus
@@ -885,7 +895,7 @@ export default function GuruDashboard() {
                     {guruData.pengajuanList.map((pengajuan) => (
                       <div
                         key={pengajuan.id}
-                        className="bg-gradient-to-r from-white to-orange-50 dark:from-slate-800 dark:to-orange-950/30 border border-orange-200 dark:border-orange-800 rounded-lg p-4 hover:shadow-lg transition-all"
+                        className="bg-gradient-to-r from-white to-red-50 dark:from-slate-800 dark:to-red-950/30 border border-red-200 dark:border-red-800 rounded-lg p-4 hover:shadow-lg transition-all"
                       >
                         <div className="flex justify-between items-start mb-2">
                           <div>
