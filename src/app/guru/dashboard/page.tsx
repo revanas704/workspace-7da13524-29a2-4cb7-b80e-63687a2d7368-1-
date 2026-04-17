@@ -669,16 +669,53 @@ export default function GuruDashboard() {
                                   </SelectItem>
                                 </SelectContent>
                               </Select>
-                              <p className="text-xs text-muted-foreground mt-1">
-                                {formData.alasan === 'REKENING_BERMASALAH_DIBLOKIR' && 
-                                  'Rekening tidak aktif, dormant, atau diblokir oleh pihak bank.'}
-                                {formData.alasan === 'KEAMANAN_SCAM_PHISHING' && 
-                                  'Rekening terkena tindak kejahatan perbankan (penipuan, phishing, kartu ATM hilang/dicuri).'}
-                                {formData.alasan === 'KETIDAKSESAUAIAN_DATA' && 
-                                  'Perbedaan nama antara data di SKTP/SKTK dengan nama pemilik di buku rekening/bank.'}
-                                {formData.alasan === 'GURU_MUTASI' && 
-                                  'Perubahan karena perpindahan tugas atau mutasi daerah.'}
-                              </p>
+                              {formData.alasan && (
+                                <div className="mt-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-md space-y-2">
+                                  <p className="text-sm font-medium text-amber-700 dark:text-amber-300">
+                                    {formData.alasan === 'REKENING_BERMASALAH_DIBLOKIR' && 'Rekening Bermasalah/Diblokir/Dormant'}
+                                    {formData.alasan === 'KEAMANAN_SCAM_PHISHING' && 'Keamanan (Scam/Phising/Kartu Hilang)'}
+                                    {formData.alasan === 'KETIDAKSESUAIAN_DATA' && 'Ketidaksesuaian Data (Nama/Nomor)'}
+                                    {formData.alasan === 'GURU_MUTASI' && 'Guru Mutasi (Pindah Tugas)'}
+                                  </p>
+                                  <p className="text-xs text-muted-foreground mb-2">
+                                    {formData.alasan === 'REKENING_BERMASALAH_DIBLOKIR' && 'Rekening tidak aktif, dormant, atau diblokir oleh pihak bank.'}
+                                    {formData.alasan === 'KEAMANAN_SCAM_PHISHING' && 'Rekening terkena tindak kejahatan perbankan (penipuan, phishing, kartu ATM hilang/dicuri).'}
+                                    {formData.alasan === 'KETIDAKSESUAIAN_DATA' && 'Perbedaan nama antara data di SKTP/SKTK dengan nama pemilik di buku rekening/bank.'}
+                                    {formData.alasan === 'GURU_MUTASI' && 'Perubahan karena perpindahan tugas atau mutasi daerah.'}
+                                  </p>
+                                  <div className="border-t pt-2">
+                                    <p className="text-sm font-medium mb-2">Dokumen yang harus diupload:</p>
+                                    <ul className="text-xs space-y-1 ml-4 list-disc">
+                                      {formData.alasan === 'REKENING_BERMASALAH_DIBLOKIR' && (
+                                        <>
+                                          <li>Surat Keterangan Bank: Surat resmi dari bank penyalur yang menyatakan rekening aktif kembali, rekening baru, atau rekening tidak lagi dalam status dormant</li>
+                                          <li>Buku Tabungan/Rekening Koran: Salinan buku tabungan terbaru yang menunjukkan nomor rekening dan nama pemilik yang jelas</li>
+                                        </>
+                                      )}
+                                      {formData.alasan === 'KEAMANAN_SCAM_PHISHING' && (
+                                        <>
+                                          <li>Surat Laporan Kepolisian: Surat kehilangan atau surat laporan resmi tindak kejahatan dari pihak Kepolisian</li>
+                                          <li>Surat Pemblokiran/Pembukaan Blokir Bank: Dokumen dari bank yang menunjukkan bahwa rekening lama telah diblokir akibat tindak kejahatan dan rekening baru telah disiapkan</li>
+                                        </>
+                                      )}
+                                      {formData.alasan === 'KETIDAKSESUAIAN_DATA' && (
+                                        <>
+                                          <li>Buku Tabungan: Salinan halaman depan buku rekening</li>
+                                          <li>KTP/Kartu Keluarga: Dokumen kependudukan untuk membuktikan nama yang benar</li>
+                                          <li>Surat Keterangan Bank/Dukcapil: Jika terjadi perbedaan ejaan yang signifikan, diperlukan surat keterangan dari bank atau Disdukcapil</li>
+                                          <li>SKTP/SKTK: Salinan SKTP yang salah untuk referensi perbaikan</li>
+                                        </>
+                                      )}
+                                      {formData.alasan === 'GURU_MUTASI' && (
+                                        <>
+                                          <li>SK Mutasi/Surat Pindah: SK resmi mutasi dari Dinas Pendidikan atau Badan Kepegawaian Daerah</li>
+                                          <li>Buku Tabungan Rekening Baru: (Jika rekening ikut dimutasi ke bank daerah baru)</li>
+                                        </>
+                                      )}
+                                    </ul>
+                                  </div>
+                                </div>
+                              )}
                             </div>
 
                             <div className="space-y-2">
@@ -696,6 +733,13 @@ export default function GuruDashboard() {
                               <p className="text-xs text-muted-foreground">
                                 Format yang diterima: PDF, JPG, PNG. Maksimal 5MB.
                               </p>
+                              {formData.alasan && (
+                                <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-md">
+                                  <p className="text-xs text-blue-800 dark:text-blue-200 font-medium">
+                                    ℹ️ Pastikan semua dokumen yang disebutkan di atas telah terlampir dalam berkas yang Anda upload
+                                  </p>
+                                </div>
+                              )}
                             </div>
                           </div>
                         )}
