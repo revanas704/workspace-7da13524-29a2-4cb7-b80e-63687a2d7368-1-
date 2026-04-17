@@ -421,23 +421,30 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-amber-50 dark:from-slate-900 dark:via-red-950/20 dark:to-amber-950/20 relative overflow-hidden">
+      {/* Decorative Background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-200/30 dark:bg-red-500/10 rounded-full blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-amber-200/30 dark:bg-amber-500/10 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-orange-200/20 dark:bg-orange-500/5 rounded-full blur-3xl" />
+      </div>
+
       {/* Header */}
-      <header className="bg-white dark:bg-slate-800 shadow-sm border-b sticky top-0 z-10">
+      <header className="bg-gradient-to-r from-red-700 to-amber-600 shadow-lg sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <GraduationCap className="h-8 w-8 text-primary" />
+            <img src="/Kabupaten Blitar(1).png" alt="Logo Blitar" className="h-10 w-10 object-contain" />
             <div>
-              <h1 className="text-xl font-bold">Admin Dashboard</h1>
-              <p className="text-sm text-muted-foreground">Sistem Tunjangan Profesi Guru</p>
+              <h1 className="text-xl font-bold text-white">Admin Dashboard</h1>
+              <p className="text-sm text-red-100">Pemerintah Kabupaten Blitar - Dinas Pendidikan</p>
             </div>
           </div>
           <div className="flex items-center gap-4">
             <div className="text-right">
-              <p className="text-sm font-medium">{session?.user?.username || 'Admin'}</p>
-              <p className="text-xs text-muted-foreground">Administrator</p>
+              <p className="text-sm font-medium text-white">{session?.user?.username || 'Admin'}</p>
+              <p className="text-xs text-red-100">Administrator</p>
             </div>
-            <Button variant="outline" size="icon" onClick={() => signOut({ callbackUrl: '/login' })}>
+            <Button variant="secondary" size="icon" onClick={() => signOut({ callbackUrl: '/login' })} className="bg-white/20 hover:bg-white/30 text-white border-0">
               <LogOut className="h-4 w-4" />
             </Button>
           </div>
@@ -445,66 +452,66 @@ export default function AdminDashboardPage() {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8 relative z-10">
         {/* Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <Card className="shadow-lg">
+          <Card className="shadow-lg border-red-100 bg-gradient-to-br from-red-500 to-red-600 text-white">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Guru</CardTitle>
-              <Users className="h-4 w-4 text-primary" />
+              <CardTitle className="text-sm font-medium text-white">Total Guru</CardTitle>
+              <Users className="h-4 w-4 text-white" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.totalGuru}</div>
-              <p className="text-xs text-muted-foreground">Guru terdaftar</p>
+              <div className="text-2xl font-bold text-white">{stats.totalGuru}</div>
+              <p className="text-xs text-red-100">Guru terdaftar</p>
             </CardContent>
           </Card>
 
-          <Card className="shadow-lg">
+          <Card className="shadow-lg border-amber-100 bg-gradient-to-br from-amber-500 to-amber-600 text-white">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">SKTP Terbit</CardTitle>
-              <CheckCircle className="h-4 w-4 text-green-600" />
+              <CardTitle className="text-sm font-medium text-white">SKTP Terbit</CardTitle>
+              <CheckCircle className="h-4 w-4 text-white" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.sktpTerbit}</div>
-              <p className="text-xs text-muted-foreground">Sudah memiliki SKTP</p>
+              <div className="text-2xl font-bold text-white">{stats.sktpTerbit}</div>
+              <p className="text-xs text-amber-100">Sudah memiliki SKTP</p>
             </CardContent>
           </Card>
 
-          <Card className="shadow-lg">
+          <Card className="shadow-lg border-orange-100 bg-gradient-to-br from-orange-500 to-orange-600 text-white">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">SKTP Belum</CardTitle>
-              <Clock className="h-4 w-4 text-orange-600" />
+              <CardTitle className="text-sm font-medium text-white">SKTP Belum</CardTitle>
+              <Clock className="h-4 w-4 text-white" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.sktpBelum}</div>
-              <p className="text-xs text-muted-foreground">Belum memiliki SKTP</p>
+              <div className="text-2xl font-bold text-white">{stats.sktpBelum}</div>
+              <p className="text-xs text-orange-100">Belum memiliki SKTP</p>
             </CardContent>
           </Card>
 
-          <Card className="shadow-lg">
+          <Card className="shadow-lg border-red-100 bg-gradient-to-br from-red-600 to-orange-500 text-white">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pengajuan Verifikasi</CardTitle>
-              <FileText className="h-4 w-4 text-orange-600" />
+              <CardTitle className="text-sm font-medium text-white">Pengajuan Verifikasi</CardTitle>
+              <FileText className="h-4 w-4 text-white" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.pendingPengajuan}</div>
-              <p className="text-xs text-muted-foreground">Perlu verifikasi</p>
+              <div className="text-2xl font-bold text-white">{stats.pendingPengajuan}</div>
+              <p className="text-xs text-red-100">Perlu verifikasi</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Tabs */}
         <Tabs defaultValue="guru" className="space-y-4">
-          <TabsList className="grid w-full md:w-[400px] grid-cols-2">
-            <TabsTrigger value="guru" className="flex items-center gap-2">
+          <TabsList className="grid w-full md:w-[400px] grid-cols-2 bg-white/50 dark:bg-slate-800/50">
+            <TabsTrigger value="guru" className="flex items-center gap-2 data-[state=active]:bg-red-600 data-[state=active]:text-white">
               <Users className="h-4 w-4" />
               Data Guru
             </TabsTrigger>
-            <TabsTrigger value="verifikasi" className="flex items-center gap-2">
+            <TabsTrigger value="verifikasi" className="flex items-center gap-2 data-[state=active]:bg-red-600 data-[state=active]:text-white">
               <FileText className="h-4 w-4" />
               Verifikasi Pengajuan
               {pengajuan.length > 0 && (
-                <Badge variant="destructive" className="ml-auto">{pengajuan.length}</Badge>
+                <Badge className="ml-auto bg-amber-500 hover:bg-amber-600 text-white border-0">{pengajuan.length}</Badge>
               )}
             </TabsTrigger>
           </TabsList>
@@ -552,7 +559,7 @@ export default function AdminDashboardPage() {
                       <Download className="h-4 w-4" />
                       Export
                     </Button>
-                    <Button onClick={handleAddGuru} className="gap-2">
+                    <Button onClick={handleAddGuru} className="gap-2 bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-700 hover:to-amber-700">
                       <Plus className="h-4 w-4" />
                       Tambah Guru
                     </Button>
@@ -563,15 +570,15 @@ export default function AdminDashboardPage() {
                 <div className="rounded-md border overflow-x-auto max-h-[600px]">
                   <Table>
                     <TableHeader>
-                      <TableRow className="bg-slate-50 dark:bg-slate-800">
-                        <TableHead className="sticky top-0 bg-slate-50 dark:bg-slate-800">No</TableHead>
-                        <TableHead className="sticky top-0 bg-slate-50 dark:bg-slate-800">NIP</TableHead>
-                        <TableHead className="sticky top-0 bg-slate-50 dark:bg-slate-800">Nama</TableHead>
-                        <TableHead className="sticky top-0 bg-slate-50 dark:bg-slate-800">Golongan</TableHead>
-                        <TableHead className="sticky top-0 bg-slate-50 dark:bg-slate-800">Gaji Pokok</TableHead>
-                        <TableHead className="sticky top-0 bg-slate-50 dark:bg-slate-800">Salur Netto</TableHead>
-                        <TableHead className="sticky top-0 bg-slate-50 dark:bg-slate-800">Status</TableHead>
-                        <TableHead className="sticky top-0 bg-slate-50 dark:bg-slate-800 text-right">Aksi</TableHead>
+                      <TableRow className="bg-red-50 dark:bg-red-950/30">
+                        <TableHead className="sticky top-0 bg-red-50 dark:bg-red-950/30">No</TableHead>
+                        <TableHead className="sticky top-0 bg-red-50 dark:bg-red-950/30">NIP</TableHead>
+                        <TableHead className="sticky top-0 bg-red-50 dark:bg-red-950/30">Nama</TableHead>
+                        <TableHead className="sticky top-0 bg-red-50 dark:bg-red-950/30">Golongan</TableHead>
+                        <TableHead className="sticky top-0 bg-red-50 dark:bg-red-950/30">Gaji Pokok</TableHead>
+                        <TableHead className="sticky top-0 bg-red-50 dark:bg-red-950/30">Salur Netto</TableHead>
+                        <TableHead className="sticky top-0 bg-red-50 dark:bg-red-950/30">Status</TableHead>
+                        <TableHead className="sticky top-0 bg-red-50 dark:bg-red-950/30 text-right">Aksi</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -583,7 +590,7 @@ export default function AdminDashboardPage() {
                         </TableRow>
                       ) : (
                         filteredGurus.map((guru, index) => (
-                          <TableRow key={guru.id}>
+                          <TableRow key={guru.id} className="hover:bg-red-50/50 dark:hover:bg-red-950/10">
                             <TableCell>{index + 1}</TableCell>
                             <TableCell className="font-mono text-sm">{guru.nip}</TableCell>
                             <TableCell className="font-medium">{guru.nama}</TableCell>
@@ -593,7 +600,7 @@ export default function AdminDashboardPage() {
                             <TableCell>{getStatusBadge(guru.statusSktp)}</TableCell>
                             <TableCell className="text-right">
                               <div className="flex justify-end gap-2">
-                                <Button variant="ghost" size="icon" onClick={() => handleEditGuru(guru)}>
+                                <Button variant="ghost" size="icon" onClick={() => handleEditGuru(guru)} className="hover:bg-red-100 dark:hover:bg-red-900/20">
                                   <Edit className="h-4 w-4" />
                                 </Button>
                                 <Button variant="ghost" size="icon" onClick={() => handleDeleteGuru(guru)}>
@@ -688,7 +695,7 @@ export default function AdminDashboardPage() {
 
                       return (
                         <Collapsible key={p.id} open={isExpanded} onOpenChange={(open) => setExpandedPengajuanId(open ? p.id : null)}>
-                          <Card className="border-l-4 hover:shadow-md transition-shadow">
+                          <Card className="border-l-4 border-l-red-500 hover:shadow-md transition-shadow">
                             <CollapsibleTrigger asChild>
                               <CardContent className="py-3 cursor-pointer">
                                 <div className="flex items-center justify-between gap-4">
@@ -713,7 +720,7 @@ export default function AdminDashboardPage() {
                                       e.stopPropagation()
                                       handleVerifikasi(p)
                                     }}
-                                    className="gap-1"
+                                    className="gap-1 bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-700 hover:to-amber-700"
                                     size="sm"
                                   >
                                     <CheckCircle className="h-3 w-3" />
@@ -729,7 +736,7 @@ export default function AdminDashboardPage() {
                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                       <p className="text-sm font-medium mb-2">Data Lama:</p>
-                                      <div className="bg-slate-50 dark:bg-slate-800 rounded-md p-3 space-y-1 text-sm">
+                                      <div className="bg-red-50 dark:bg-red-950/20 rounded-md p-3 space-y-1 text-sm">
                                         {dataLama ? (
                                           Object.entries(dataLama)
                                             .filter(([key]) => {
@@ -759,7 +766,7 @@ export default function AdminDashboardPage() {
 
                                     <div>
                                       <p className="text-sm font-medium mb-2">Data Baru:</p>
-                                      <div className="bg-blue-50 dark:bg-blue-900/20 rounded-md p-3 space-y-1 text-sm">
+                                      <div className="bg-amber-50 dark:bg-amber-950/20 rounded-md p-3 space-y-1 text-sm">
                                         {Object.entries(dataBaru)
                                           .filter(([key]) => {
                                             if (p.jenisPengajuan === 'GAJI_POKOK') {
@@ -775,7 +782,7 @@ export default function AdminDashboardPage() {
                                                key === 'pangkat' ? 'Pangkat' :
                                                key === 'masaKerja' ? 'Masa Kerja' : key}:
                                             </span>
-                                            <span className="font-medium text-blue-700 dark:text-blue-300">
+                                            <span className="font-medium text-amber-700 dark:text-amber-300">
                                               {key === 'gajiPokok' ? formatCurrency(Number(value)) : String(value)}
                                             </span>
                                           </div>
@@ -786,17 +793,17 @@ export default function AdminDashboardPage() {
 
                                   {/* Highlight salary difference for GAJI_POKOK */}
                                   {p.jenisPengajuan === 'GAJI_POKOK' && dataLama?.gajiPokok && dataBaru.gajiPokok && (
-                                    <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-md">
+                                    <div className="p-3 bg-red-50 dark:bg-red-950/20 rounded-md">
                                       <p className="text-sm font-medium mb-1">Perubahan Gaji Pokok:</p>
                                       <div className="flex items-center gap-2 text-sm">
                                         <span className="text-slate-600 dark:text-slate-400">
                                           {formatCurrency(Number(dataLama.gajiPokok))}
                                         </span>
-                                        <span className="text-green-600 font-semibold">→</span>
-                                        <span className="text-green-700 dark:text-green-300 font-bold">
+                                        <span className="text-red-600 font-semibold">→</span>
+                                        <span className="text-red-700 dark:text-red-300 font-bold">
                                           {formatCurrency(Number(dataBaru.gajiPokok))}
                                         </span>
-                                        <span className="text-green-600 text-xs font-semibold">
+                                        <span className="text-red-600 text-xs font-semibold">
                                           ({dataBaru.gajiPokok > dataLama.gajiPokok ? '+' : ''}
                                           {formatCurrency(Number(dataBaru.gajiPokok) - Number(dataLama.gajiPokok))})
                                         </span>
