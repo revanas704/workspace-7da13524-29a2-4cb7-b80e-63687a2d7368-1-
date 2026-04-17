@@ -82,49 +82,58 @@ export async function PUT(request: Request) {
       })
 
       if (guru) {
-        // Calculate salary based on the new data
-        const { getGajiPokok, calculatePph, calculatePotonganJkn } = await import('@/lib/salary-calculator')
-        
-        // Use new data if provided, otherwise keep old data
-        const newGolongan = dataBaru.golongan || guru.golongan
-        const newMasaKerja = dataBaru.masaKerja !== undefined ? parseInt(dataBaru.masaKerja) : guru.masaKerja
-        const newPangkat = dataBaru.pangkat || guru.pangkat
-        const newSalurBruto = dataBaru.salurBruto || guru.salurBruto
-
-        // Calculate new gaji pokok based on PP 5 Tahun 2024
-        let newGajiPokok: number
-        if (pengajuan.jenisPengajuan === 'GAJI_POKOK' && dataBaru.gajiPokok) {
-          // If GAJI_POKOK with calculated gajiPokok, use it directly
-          newGajiPokok = dataBaru.gajiPokok
-        } else {
-          // Otherwise calculate based on golongan and masaKerja
-          newGajiPokok = getGajiPokok(newGolongan, newMasaKerja)
+        // For REKENING, only update account fields (do NOT recalculate salary)
+        if (pengajuan.jenisPengajuan === 'REKENING') {
+          await db.guru.update({
+            where: { id: pengajuan.guruId },
+            data: {
+              ...(dataBaru.namaPemilikRekening && { namaPemilikRekening: dataBaru.namaPemilikRekening }),
+              ...(dataBaru.nomorRekening && { nomorRekening: dataBaru.nomorRekening }),
+              ...(dataBaru.bank && { bank: dataBaru.bank }),
+            },
+          })
         }
+        // For GAJI_POKOK, recalculate and update salary
+        else if (pengajuan.jenisPengajuan === 'GAJI_POKOK') {
+          const { getGajiPokok, calculatePph, calculatePotonganJkn } = await import('@/lib/salary-calculator')
 
-        // Calculate PPH and potongan
-        const pph = calculatePph(newGolongan)
-        const potonganJkn = calculatePotonganJkn(newGajiPokok)
-        
-        // Salur Bruto equals Gaji Pokok
-        const newSalurBrutoFinal = newGajiPokok
-        const newSalurNetto = newSalurBrutoFinal - (newGajiPokok * pph) - potonganJkn
+          // Use new data if provided, otherwise keep old data
+          const newGolongan = dataBaru.golongan || guru.golongan
+          const newMasaKerja = dataBaru.masaKerja !== undefined ? parseInt(dataBaru.masaKerja) : guru.masaKerja
+          const newPangkat = dataBaru.pangkat || guru.pangkat
 
-        await db.guru.update({
-          where: { id: pengajuan.guruId },
-          data: {
-            ...(dataBaru.pangkat && { pangkat: dataBaru.pangkat }),
-            ...(dataBaru.golongan && { golongan: dataBaru.golongan }),
-            ...(dataBaru.masaKerja !== undefined && { masaKerja: parseInt(dataBaru.masaKerja) }),
-            ...(dataBaru.namaPemilikRekening && { namaPemilikRekening: dataBaru.namaPemilikRekening }),
-            ...(dataBaru.nomorRekening && { nomorRekening: dataBaru.nomorRekening }),
-            ...(dataBaru.bank && { bank: dataBaru.bank }),
-            gajiPokok: newGajiPokok,
-            salurBruto: newSalurBrutoFinal,
-            pph: newGajiPokok * pph,
-            potonganJkn,
-            salurNetto: newSalurNetto,
-          },
-        })
+          // Calculate new gaji pokok based on PP 5 Tahun 2024
+          let newGajiPokok: number
+          if (dataBaru.gajiPokok) {
+            // If calculated gajiPokok is provided, use it directly
+            newGajiPokok = dataBaru.gajiPokok
+          } else {
+            // Otherwise calculate based on golongan and masaKerja
+            newGajiPokok = getGajiPokok(newGolongan, newMasaKerja)
+          }
+
+          // Calculate PPH and potongan
+          const pph = calculatePph(newGolongan)
+          const potonganJkn = calculatePotonganJkn(newGajiPokok)
+
+          // Salur Bruto equals Gaji Pokok
+          const newSalurBrutoFinal = newGajiPokok
+          const newSalurNetto = newSalurBrutoFinal - (newGajiPokok * pph) - potonganJkn
+
+          await db.guru.update({
+            where: { id: pengajuan.guruId },
+            data: {
+              ...(dataBaru.pangkat && { pangkat: dataBaru.pangkat }),
+              ...(dataBaru.golongan && { golongan: dataBaru.golongan }),
+              ...(dataBaru.masaKerja !== undefined && { masaKerja: parseInt(dataBaru.masaKerja) }),
+              gajiPokok: newGajiPokok,
+              salurBruto: newSalurBrutoFinal,
+              pph: newGajiPokok * pph,
+              potonganJkn,
+              salurNetto: newSalurNetto,
+            },
+          })
+        }
       }
     }
 
