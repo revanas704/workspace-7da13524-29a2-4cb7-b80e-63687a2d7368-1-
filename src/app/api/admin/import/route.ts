@@ -3,6 +3,8 @@ import { getServerSession } from 'next-auth'
 import { read, utils } from 'xlsx'
 import { db } from '@/lib/db'
 import * as bcrypt from 'bcryptjs'
+import { calculateSalaries } from '@/lib/salary-calculator'
+import { getPangkatByGolongan } from '@/lib/gaji-pokok-pp5'
 
 export async function POST(req: NextRequest) {
   try {
@@ -59,50 +61,25 @@ export async function POST(req: NextRequest) {
         // Convert masa kerja to number
         const masaKerja = row['Masa Kerja'] ? Number(row['Masa Kerja']) : 0
 
-        // Calculate gaji pokok (using default values, you can enhance this later)
-        let gajiPokok = 2000000 // Default value
-        let salurBruto = 2000000
-        let pph = 0
-        let potonganJkn = 0
-        let salurNetto = 2000000
+        // Get pangkat and calculate salaries using PP 5 Tahun 2024
+        const golongan = String(row['Golongan'])
+        const pangkat = row['Pangkat'] ? String(row['Pangkat']) : getPangkatByGolongan(golongan) || ''
 
-        // Try to calculate salary if golongan is provided
-        if (row['Golongan']) {
-          const golongan = String(row['Golongan'])
-          
-          // Calculate PPH based on golongan
-          if (golongan === 'I' || golongan.startsWith('I/')) {
-            pph = 0
-          } else if (golongan === 'II' || golongan.startsWith('II/')) {
-            pph = 0
-          } else if (golongan === 'III' || golongan.startsWith('III/')) {
-            pph = gajiPokok * 0.05 // 5%
-          } else if (golongan === 'IV' || golongan.startsWith('IV/')) {
-            pph = gajiPokok * 0.15 // 15%
-          }
-
-          // Calculate JKN deduction (1%)
-          potonganJkn = gajiPokok * 0.01
-
-          // Calculate salur netto
-          salurNetto = gajiPokok - pph - potonganJkn
-        }
+        // Calculate salaries using the proper functions
+        const salaryCalculation = calculateSalaries(pangkat, golongan, masaKerja, 0)
+        const { gajiPokok, pph, potonganJkn, salurNetto } = salaryCalculation
+        const salurBruto = gajiPokok
 
         // Create user for authentication
         const username = String(row['NIP'])
         const password = await bcrypt.hash(username, 10)
 
-        await db.user.create({
+        const newUser = await db.user.create({
           data: {
             username,
             password,
             role: 'GURU',
           }
-        })
-
-        // Get the created user
-        const newUser = await db.user.findFirst({
-          where: { username }
         })
 
         // Create guru record
@@ -112,8 +89,8 @@ export async function POST(req: NextRequest) {
             nuptk: row['NUPTK'] ? String(row['NUPTK']) : '',
             nip: String(row['NIP']),
             nama: String(row['Nama']),
-            pangkat: row['Pangkat'] ? String(row['Pangkat']) : '',
-            golongan: String(row['Golongan']),
+            pangkat,
+            golongan,
             masaKerja,
             namaPemilikRekening: row['Nama Pemilik Rekening'] ? String(row['Nama Pemilik Rekening']) : '',
             nomorRekening: row['Nomor Rekening'] ? String(row['Nomor Rekening']) : '',
@@ -125,13 +102,17 @@ export async function POST(req: NextRequest) {
             potonganJkn,
             salurNetto,
             statusSktp: row['Status SKTP'] ? String(row['Status SKTP']).toUpperCase() : 'BELUM',
-            userId: newUser?.id,
+            user: {
+              connect: {
+                id: newUser.id
+              }
+            }
           }
         })
 
         successCount++
       } catch (error) {
-        errors.push(`Baris ${rowNum}: ${error}`)
+        errors.push(`Baris ${rowNum}: ${error instanceof Error ? error.message : 'Unknown error'}`)
         errorCount++
       }
     }

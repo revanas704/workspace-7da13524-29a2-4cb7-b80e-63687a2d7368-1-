@@ -217,6 +217,15 @@ export default function AdminDashboardPage() {
     }
   }
 
+  const handleDownloadTemplate = async () => {
+    try {
+      window.open('/api/admin/guru/template', '_blank')
+      toast.success('Template sedang diunduh')
+    } catch (error) {
+      toast.error('Gagal mengunduh template')
+    }
+  }
+
   const handleImport = async (e: React.FormEvent) => {
     e.preventDefault()
     
@@ -1299,6 +1308,16 @@ export default function AdminDashboardPage() {
             <DialogDescription>
               Unggah file Excel (.xlsx) untuk mengimpor data guru secara massal
             </DialogDescription>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleDownloadTemplate}
+              className="w-full mt-2 gap-2 border-amber-300 hover:bg-amber-50 dark:border-amber-700 dark:hover:bg-amber-900/20"
+            >
+              <Download className="h-4 w-4" />
+              Download Template Excel
+            </Button>
           </DialogHeader>
           <form onSubmit={handleImport} className="space-y-4">
             <div className="space-y-2">
@@ -1320,17 +1339,14 @@ export default function AdminDashboardPage() {
             </div>
             <div className="bg-amber-50 dark:bg-amber-950/20 p-4 rounded-lg border border-amber-200 dark:border-amber-800">
               <p className="text-sm text-amber-800 dark:text-amber-200 font-medium mb-2">
-                <strong>Template Excel:</strong>
+                <strong>Panduan:</strong>
               </p>
-              <p className="text-xs text-amber-700 dark:text-amber-300 mb-1">
-                Kolom yang diperlukan: NIP, Nama, NIK, NUPTK, Pangkat, Golongan, Masa Kerja (dalam tahun)
-              </p>
-              <p className="text-xs text-amber-700 dark:text-amber-300 mb-1">
-                Satuan Pendidikan, Nama Pemilik Rekening, Nomor Rekening, Bank, Gaji Pokok, Status SKTP
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Pastikan data sesuai dengan format di atas sebelum diimpor
-              </p>
+              <ul className="text-xs text-amber-700 dark:text-amber-300 space-y-1 list-disc list-inside">
+                <li>Download template Excel terlebih dahulu</li>
+                <li>Isi data sesuai format yang telah ditentukan</li>
+                <li>Pastikan NIP bersifat unik (tidak boleh ada duplikat)</li>
+                <li>Status SKTP: isi dengan "TERBIT" atau "BELUM"</li>
+              </ul>
             </div>
             <DialogFooter className="gap-2">
               <Button
