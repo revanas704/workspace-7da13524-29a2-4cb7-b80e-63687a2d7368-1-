@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useSession } from 'next-auth/react'
+import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -84,17 +84,20 @@ export default function GuruDashboard() {
   const [isDeleting, setIsDeleting] = useState(false)
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
+    if (status === 'unauthenticated' || !session) {
       router.push('/login')
     }
-  }, [status, router])
+  }, [status, session, router])
 
   useEffect(() => {
     fetchGuruData()
   }, [status, session])
 
   const handleLogout = async () => {
-    await router.push('/login')
+    await signOut({ 
+      callbackUrl: '/login',
+      redirect: true 
+    })
   }
 
   const handlePengajuanSubmit = async () => {

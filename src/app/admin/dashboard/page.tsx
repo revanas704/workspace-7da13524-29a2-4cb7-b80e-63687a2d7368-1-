@@ -112,11 +112,11 @@ export default function AdminDashboardPage() {
   const [importFile, setImportFile] = useState<File | null>(null)
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
+    if (status === 'unauthenticated' || !session) {
       router.push('/login')
     } else if (status === 'authenticated' && session?.user?.role !== 'ADMIN') {
       router.push('/guru/dashboard')
-    } else if (status === 'authenticated') {
+    } else if (status === 'authenticated' && session?.user?.role === 'ADMIN') {
       fetchData()
     }
   }, [status, session, router])
@@ -495,7 +495,12 @@ export default function AdminDashboardPage() {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => signOut({ callbackUrl: '/login' })}
+              onClick={async () => {
+                await signOut({ 
+                  callbackUrl: '/login',
+                  redirect: true 
+                })
+              }}
               className="text-white hover:bg-white/20"
             >
               <LogOut className="h-4 w-4" />
