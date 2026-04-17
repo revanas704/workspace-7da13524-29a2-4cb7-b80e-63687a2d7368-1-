@@ -5,6 +5,7 @@ import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { formatCurrency } from '@/lib/salary-calculator'
+import { getGajiPokok } from '@/lib/gaji-pokok-pp5'
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -106,6 +107,17 @@ export default function AdminDashboardPage() {
       fetchData()
     }
   }, [status, session, router])
+
+  // Auto fill gajiPokok based on golongan (PP 5 Tahun 2024)
+  useEffect(() => {
+    if (formData.golongan && !isEditing) {
+      const gaji = getGajiPokok(formData.golongan)
+      setFormData((prev) => ({
+        ...prev,
+        gajiPokok: gaji,
+      }))
+    }
+  }, [formData.golongan, isEditing])
 
   const fetchData = async () => {
     setLoading(true)
@@ -493,6 +505,7 @@ export default function AdminDashboardPage() {
                         <TableHead className="sticky top-0 bg-slate-50 dark:bg-slate-800">NIP</TableHead>
                         <TableHead className="sticky top-0 bg-slate-50 dark:bg-slate-800">Nama</TableHead>
                         <TableHead className="sticky top-0 bg-slate-50 dark:bg-slate-800">Golongan</TableHead>
+                        <TableHead className="sticky top-0 bg-slate-50 dark:bg-slate-800">Gaji Pokok</TableHead>
                         <TableHead className="sticky top-0 bg-slate-50 dark:bg-slate-800">Salur Netto</TableHead>
                         <TableHead className="sticky top-0 bg-slate-50 dark:bg-slate-800">Status</TableHead>
                         <TableHead className="sticky top-0 bg-slate-50 dark:bg-slate-800 text-right">Aksi</TableHead>
@@ -512,6 +525,7 @@ export default function AdminDashboardPage() {
                             <TableCell className="font-mono text-sm">{guru.nip}</TableCell>
                             <TableCell className="font-medium">{guru.nama}</TableCell>
                             <TableCell>{guru.golongan}</TableCell>
+                            <TableCell className="font-semibold">{formatCurrency(guru.gajiPokok || 0)}</TableCell>
                             <TableCell className="font-semibold">{formatCurrency(guru.salurNetto)}</TableCell>
                             <TableCell>{getStatusBadge(guru.statusSktp)}</TableCell>
                             <TableCell className="text-right">
@@ -737,6 +751,20 @@ export default function AdminDashboardPage() {
                 value={formData.masaKerja || ''}
                 onChange={(e) => setFormData({ ...formData, masaKerja: parseInt(e.target.value) || 0 })}
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="gajiPokok">Gaji Pokok (Rp)</Label>
+              <Input
+                id="gajiPokok"
+                type="number"
+                value={formData.gajiPokok || ''}
+                onChange={(e) => setFormData({ ...formData, gajiPokok: parseFloat(e.target.value) || 0 })}
+                placeholder="Otomatis terisi berdasarkan golongan (PP 5 Tahun 2024)"
+              />
+              <p className="text-xs text-muted-foreground">
+                Gaji Pokok sesuai PP 5 Tahun 2024. Akan otomatis terisi berdasarkan golongan yang dipilih.
+              </p>
             </div>
 
             <div className="space-y-2">
