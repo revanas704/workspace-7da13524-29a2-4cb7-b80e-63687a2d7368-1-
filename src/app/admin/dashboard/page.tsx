@@ -654,6 +654,29 @@ export default function AdminDashboardPage() {
                                   </div>
                                 </div>
 
+                                {p.dokumenPendukung && (
+                                  <div className="space-y-2">
+                                    <p className="text-sm font-medium">Dokumen Pendukung:</p>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => {
+                                        // Open document in new tab
+                                        const win = window.open()
+                                        if (win) {
+                                          win.document.write(
+                                            `<iframe src="${p.dokumenPendukung}" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`
+                                          )
+                                        }
+                                      }}
+                                      className="gap-2"
+                                    >
+                                      <Download className="h-4 w-4" />
+                                      Lihat Dokumen
+                                    </Button>
+                                  </div>
+                                )}
+
                                 <div className="text-sm text-muted-foreground">
                                   Tanggal Diajukan: {formatDate(p.tanggalDiajukan)}
                                 </div>

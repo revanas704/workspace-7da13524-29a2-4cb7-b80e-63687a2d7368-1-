@@ -27,9 +27,21 @@ import {
   CreditCard,
   Landmark,
   GraduationCap,
-  Plus
+  Plus,
+  Download
 } from 'lucide-react'
 import { formatCurrency } from '@/lib/salary-calculator'
+import { getGajiPokok, getPangkatByGolongan } from '@/lib/gaji-pokok-pp5'
+
+interface PengajuanItem {
+  id: string
+  jenisPengajuan: string
+  status: string
+  tanggalDiajukan: string
+  tanggalVerifikasi?: string
+  catatan?: string
+  dokumenPendukung?: string
+}
 
 interface GuruData {
   id: string
@@ -50,14 +62,7 @@ interface GuruData {
   potonganJkn: number
   salurNetto: number
   statusSktp: string
-  pengajuanList: Array<{
-    id: string
-    jenisPengajuan: string
-    status: string
-    tanggalDiajukan: string
-    tanggalVerifikasi?: string
-    catatan?: string
-  }>
+  pengajuanList: Array<PengajuanItem>
 }
 
 export default function GuruDashboard() {
@@ -87,15 +92,45 @@ export default function GuruDashboard() {
   }
 
   const handlePengajuanSubmit = async () => {
+    // Validation for GAJI_POKOK
+    if (jenisPengajuan === 'GAJI_POKOK') {
+      if (!formData.golongan || formData.masaKerja === undefined || formData.masaKerja === null) {
+        toast.error('Mohon lengkapi Golongan dan Masa Kerja')
+        return
+      }
+      if (!formData.dokumen) {
+        toast.error('Mohon upload SK Berkala / SK Pangkat')
+        return
+      }
+    }
+
+    // Validation for REKENING
+    if (jenisPengajuan === 'REKENING') {
+      if (!formData.namaPemilikRekening || !formData.nomorRekening || !formData.bank) {
+        toast.error('Mohon lengkapi semua data rekening')
+        return
+      }
+    }
+
     setIsSubmitting(true)
     try {
+      // Use FormData for file upload
+      const formDataToSend = new FormData()
+      formDataToSend.append('jenisPengajuan', jenisPengajuan)
+      
+      // Prepare dataBaru (exclude the file object)
+      const dataBaru = { ...formData }
+      delete dataBaru.dokumen
+      formDataToSend.append('dataBaru', JSON.stringify(dataBaru))
+      
+      // Append file if exists
+      if (formData.dokumen) {
+        formDataToSend.append('dokumen', formData.dokumen)
+      }
+
       const response = await fetch('/api/guru/pengajuan', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          jenisPengajuan,
-          dataBaru: formData,
-        }),
+        body: formDataToSend,
       })
 
       if (response.ok) {
@@ -105,7 +140,8 @@ export default function GuruDashboard() {
         setFormData({})
         fetchGuruData()
       } else {
-        toast.error('Gagal mengirim pengajuan')
+        const error = await response.json()
+        toast.error(error.message || 'Gagal mengirim pengajuan')
       }
     } catch (error) {
       toast.error('Terjadi kesalahan')
@@ -413,12 +449,22 @@ export default function GuruDashboard() {
                         </div>
 
                         {jenisPengajuan === 'GAJI_POKOK' && (
-                          <div className="space-y-3">
+                          <div className="space-y-4">
                             <div className="space-y-2">
                               <Label>Golongan Baru</Label>
                               <Select
                                 value={formData.golongan || ''}
-                                onValueChange={(value) => setFormData({ ...formData, golongan: value })}
+                                onValueChange={(value) => {
+                                  const pangkat = getPangkatByGolongan(value)
+                                  const masaKerja = formData.masaKerja || 0
+                                  const gajiPokok = getGajiPokok(value, masaKerja)
+                                  setFormData({ 
+                                    ...formData, 
+                                    golongan: value, 
+                                    pangkat,
+                                    gajiPokok
+                                  })
+                                }}
                               >
                                 <SelectTrigger>
                                   <SelectValue placeholder="Pilih golongan" />
@@ -451,14 +497,63 @@ export default function GuruDashboard() {
                                 </SelectContent>
                               </Select>
                             </div>
+                            
+                            {formData.golongan && (
+                              <div className="space-y-1">
+                                <p className="text-sm text-muted-foreground">Pangkat Baru</p>
+                                <p className="font-semibold text-primary">
+                                  {formData.pangkat || getPangkatByGolongan(formData.golongan)}
+                                </p>
+                              </div>
+                            )}
+
                             <div className="space-y-2">
                               <Label>Masa Kerja Baru (Tahun)</Label>
                               <Input
                                 type="number"
+                                min="0"
+                                max="34"
                                 value={formData.masaKerja || ''}
-                                onChange={(e) => setFormData({ ...formData, masaKerja: parseInt(e.target.value) })}
+                                onChange={(e) => {
+                                  const masaKerja = parseInt(e.target.value) || 0
+                                  const gajiPokok = getGajiPokok(formData.golongan || '', masaKerja)
+                                  setFormData({ 
+                                    ...formData, 
+                                    masaKerja,
+                                    gajiPokok
+                                  })
+                                }}
                                 placeholder="Contoh: 15"
                               />
+                            </div>
+
+                            {formData.golongan && formData.masaKerja !== undefined && (
+                              <div className="space-y-1">
+                                <p className="text-sm text-muted-foreground">Gaji Pokok Baru (PP 5 Tahun 2024)</p>
+                                <p className="text-2xl font-bold text-primary">
+                                  {formData.gajiPokok ? formatCurrency(formData.gajiPokok) : '-'}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  Berdasarkan Golongan {formData.golongan} dan Masa Kerja {formData.masaKerja} Tahun
+                                </p>
+                              </div>
+                            )}
+
+                            <div className="space-y-2">
+                              <Label>Upload SK Berkala / SK Pangkat *</Label>
+                              <Input
+                                type="file"
+                                accept=".pdf,.jpg,.jpeg,.png"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0]
+                                  if (file) {
+                                    setFormData({ ...formData, dokumen: file })
+                                  }
+                                }}
+                              />
+                              <p className="text-xs text-muted-foreground">
+                                Format yang diterima: PDF, JPG, PNG. Maksimal 5MB.
+                              </p>
                             </div>
                           </div>
                         )}
@@ -502,7 +597,11 @@ export default function GuruDashboard() {
                         </Button>
                         <Button
                           onClick={handlePengajuanSubmit}
-                          disabled={!jenisPengajuan || isSubmitting}
+                          disabled={
+                            !jenisPengajuan || 
+                            isSubmitting || 
+                            (jenisPengajuan === 'GAJI_POKOK' && !formData.dokumen)
+                          }
                         >
                           {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                           Kirim Pengajuan
@@ -541,6 +640,27 @@ export default function GuruDashboard() {
                           </div>
                           {getStatusBadge(pengajuan.status)}
                         </div>
+                        {pengajuan.dokumenPendukung && (
+                          <div className="mt-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                // Open document in new tab
+                                const win = window.open()
+                                if (win) {
+                                  win.document.write(
+                                    `<iframe src="${pengajuan.dokumenPendukung}" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`
+                                  )
+                                }
+                              }}
+                              className="gap-2"
+                            >
+                              <Download className="h-4 w-4" />
+                              Lihat Dokumen
+                            </Button>
+                          </div>
+                        )}
                         {pengajuan.catatan && (
                           <div className="mt-2 p-2 bg-slate-50 dark:bg-slate-800 rounded text-sm">
                             <p className="font-semibold">Catatan:</p>
