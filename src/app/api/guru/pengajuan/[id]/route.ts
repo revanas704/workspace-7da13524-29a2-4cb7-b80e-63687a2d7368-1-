@@ -5,16 +5,20 @@ import { db } from '@/lib/db'
 
 export async function DELETE(
   _request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Await params in Next.js 16
+    const { id } = await params
+
     const session = await getServerSession(authOptions)
 
     console.log('DELETE - Session:', {
       hasSession: !!session,
       hasUser: !!session?.user,
       role: session?.user?.role,
-      guruId: session?.user?.guruId
+      guruId: session?.user?.guruId,
+      pengajuanId: id
     })
 
     if (!session?.user) {
@@ -32,7 +36,7 @@ export async function DELETE(
     // Cari pengajuan yang akan dihapus
     const pengajuan = await db.pengajuan.findFirst({
       where: {
-        id: params.id,
+        id: id,
         guruId: session.user.guruId
       }
     })
@@ -42,17 +46,17 @@ export async function DELETE(
     }
 
     console.log('Deleting pengajuan:', {
-      id: params.id,
+      id: id,
       guruId: session.user.guruId,
       found: !!pengajuan
     })
 
     // Hapus pengajuan (boleh untuk semua status termasuk disetujui)
     await db.pengajuan.delete({
-      where: { id: params.id }
+      where: { id: id }
     })
 
-    console.log('Successfully deleted pengajuan:', params.id)
+    console.log('Successfully deleted pengajuan:', id)
 
     return NextResponse.json({
       success: true,
