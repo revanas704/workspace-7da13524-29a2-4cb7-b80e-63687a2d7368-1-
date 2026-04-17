@@ -777,8 +777,8 @@ export default function AdminDashboardPage() {
                     {/* Golongan IV - Pembina */}
                     <SelectItem value="IV/a">IV/a - Pembina</SelectItem>
                     <SelectItem value="IV/b">IV/b - Pembina Pratama</SelectItem>
-                    <SelectItem value="IV/c">IV/c - Pembina Muda</SelectItem>
-                    <SelectItem value="IV/d">IV/d - Pembina Madya</SelectItem>
+                    <SelectItem value="IV/c">IV/c - Pembina Utama Muda</SelectItem>
+                    <SelectItem value="IV/d">IV/d - Pembina Utama Madya</SelectItem>
                     <SelectItem value="IV/e">IV/e - Pembina Utama</SelectItem>
                   </SelectContent>
                 </Select>
