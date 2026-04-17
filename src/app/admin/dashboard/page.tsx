@@ -137,8 +137,8 @@ export default function AdminDashboardPage() {
       guru.nama.toLowerCase().includes(filterSearch.toLowerCase()) ||
       guru.nip.includes(filterSearch)
 
-    const matchGolongan = filterGolongan === '' || guru.golongan === filterGolongan
-    const matchStatus = filterStatus === '' || guru.statusSktp === filterStatus
+    const matchGolongan = filterGolongan === '' || filterGolongan === 'all' || guru.golongan === filterGolongan
+    const matchStatus = filterStatus === '' || filterStatus === 'all' || guru.statusSktp === filterStatus
 
     return matchSearch && matchGolongan && matchStatus
   })
@@ -456,7 +456,7 @@ export default function AdminDashboardPage() {
                         <SelectValue placeholder="Golongan" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Semua</SelectItem>
+                        <SelectItem value="all">Semua</SelectItem>
                         <SelectItem value="III">Gol. III</SelectItem>
                         <SelectItem value="IV">Gol. IV</SelectItem>
                       </SelectContent>
@@ -466,7 +466,7 @@ export default function AdminDashboardPage() {
                         <SelectValue placeholder="Status" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Semua</SelectItem>
+                        <SelectItem value="all">Semua</SelectItem>
                         <SelectItem value="TERBIT">Terbit</SelectItem>
                         <SelectItem value="BELUM">Belum</SelectItem>
                       </SelectContent>
