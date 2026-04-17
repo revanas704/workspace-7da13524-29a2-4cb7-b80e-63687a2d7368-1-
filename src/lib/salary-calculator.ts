@@ -21,6 +21,7 @@ export function calculatePph(golongan: string): number {
   const golonganNumber = golongan.toUpperCase().replace(/[^IV]/g, '')
 
   switch (golonganNumber) {
+    case 'I':
     case 'II':
       return 0 // 0%
     case 'III':

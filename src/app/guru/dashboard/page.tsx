@@ -306,7 +306,10 @@ export default function GuruDashboard() {
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-2">
                         <Briefcase className="w-4 h-4 text-muted-foreground" />
-                        <span>PPH ({guruData.golongan === 'II' ? '0%' : guruData.golongan === 'III' ? '5%' : '15%'} dari Gaji Pokok)</span>
+                        <span>PPH ({guruData.golongan === 'I' || guruData.golongan?.startsWith('I/') ? '0%' : 
+                                     guruData.golongan === 'II' || guruData.golongan?.startsWith('II/') ? '0%' :
+                                     guruData.golongan === 'III' || guruData.golongan?.startsWith('III/') ? '5%' : 
+                                     guruData.golongan === 'IV' || guruData.golongan?.startsWith('IV/') ? '15%' : '0%'} dari Gaji Pokok)</span>
                       </div>
                       <span className="font-semibold text-red-600">-{formatCurrency(guruData.pph)}</span>
                     </div>

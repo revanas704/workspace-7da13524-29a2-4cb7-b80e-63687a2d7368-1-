@@ -5,20 +5,7 @@ import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { formatCurrency, calculatePph, calculatePotonganJkn } from '@/lib/salary-calculator'
-import { getGajiPokok } from '@/lib/gaji-pokok-pp5'
-
-// Mapping Golongan ke Pangkat (PP 5 Tahun 2024)
-const PANGKAT_BY_GOLONGAN: { [key: string]: string } = {
-  'III/a': 'Penata Muda',
-  'III/b': 'Penata Muda Tk.I',
-  'III/c': 'Penata',
-  'III/d': 'Penata Tk.I',
-  'IV/a': 'Pembina',
-  'IV/b': 'Pembina Pratama',
-  'IV/c': 'Pembina Muda',
-  'IV/d': 'Pembina Madya',
-  'IV/e': 'Pembina Utama',
-}
+import { getGajiPokok, getPangkatByGolongan } from '@/lib/gaji-pokok-pp5'
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -124,7 +111,7 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     if (formData.golongan && !isEditing) {
       // Auto fill pangkat based on golongan
-      const pangkat = PANGKAT_BY_GOLONGAN[formData.golongan] || ''
+      const pangkat = getPangkatByGolongan(formData.golongan) || ''
 
       // Auto fill gajiPokok based on golongan and masa kerja
       const masaKerja = formData.masaKerja || 0
@@ -505,6 +492,8 @@ export default function AdminDashboardPage() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">Semua</SelectItem>
+                        <SelectItem value="I">Gol. I</SelectItem>
+                        <SelectItem value="II">Gol. II</SelectItem>
                         <SelectItem value="III">Gol. III</SelectItem>
                         <SelectItem value="IV">Gol. IV</SelectItem>
                       </SelectContent>
@@ -767,15 +756,30 @@ export default function AdminDashboardPage() {
                     <SelectValue placeholder="Pilih Golongan" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="III/a">III/a</SelectItem>
-                    <SelectItem value="III/b">III/b</SelectItem>
-                    <SelectItem value="III/c">III/c</SelectItem>
-                    <SelectItem value="III/d">III/d</SelectItem>
-                    <SelectItem value="IV/a">IV/a</SelectItem>
-                    <SelectItem value="IV/b">IV/b</SelectItem>
-                    <SelectItem value="IV/c">IV/c</SelectItem>
-                    <SelectItem value="IV/d">IV/d</SelectItem>
-                    <SelectItem value="IV/e">IV/e</SelectItem>
+                    {/* Golongan I - Juru */}
+                    <SelectItem value="I/a">I/a - Juru Muda</SelectItem>
+                    <SelectItem value="I/b">I/b - Juru Muda Tingkat I</SelectItem>
+                    <SelectItem value="I/c">I/c - Juru</SelectItem>
+                    <SelectItem value="I/d">I/d - Juru Tingkat I</SelectItem>
+                    
+                    {/* Golongan II - Pengatur */}
+                    <SelectItem value="II/a">II/a - Pengatur Muda</SelectItem>
+                    <SelectItem value="II/b">II/b - Pengatur Muda Tingkat I</SelectItem>
+                    <SelectItem value="II/c">II/c - Pengatur</SelectItem>
+                    <SelectItem value="II/d">II/d - Pengatur Tingkat I</SelectItem>
+                    
+                    {/* Golongan III - Penata */}
+                    <SelectItem value="III/a">III/a - Penata Muda</SelectItem>
+                    <SelectItem value="III/b">III/b - Penata Muda Tingkat I</SelectItem>
+                    <SelectItem value="III/c">III/c - Penata</SelectItem>
+                    <SelectItem value="III/d">III/d - Penata Tingkat I</SelectItem>
+                    
+                    {/* Golongan IV - Pembina */}
+                    <SelectItem value="IV/a">IV/a - Pembina</SelectItem>
+                    <SelectItem value="IV/b">IV/b - Pembina Pratama</SelectItem>
+                    <SelectItem value="IV/c">IV/c - Pembina Muda</SelectItem>
+                    <SelectItem value="IV/d">IV/d - Pembina Madya</SelectItem>
+                    <SelectItem value="IV/e">IV/e - Pembina Utama</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -836,7 +840,10 @@ export default function AdminDashboardPage() {
                     className="bg-muted"
                   />
                   <p className="text-xs text-muted-foreground">
-                    {formData.golongan?.startsWith('III') ? '5%' : formData.golongan?.startsWith('IV') ? '15%' : '0%'} dari Gaji Pokok
+                    {formData.golongan?.startsWith('I') ? '0%' : 
+                     formData.golongan?.startsWith('II') ? '0%' :
+                     formData.golongan?.startsWith('III') ? '5%' : 
+                     formData.golongan?.startsWith('IV') ? '15%' : '0%'} dari Gaji Pokok
                   </p>
                 </div>
 
