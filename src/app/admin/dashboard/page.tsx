@@ -82,8 +82,10 @@ export default function AdminDashboardPage() {
   const [guruDialogOpen, setGuruDialogOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [verifikasiDialogOpen, setVerifikasiDialogOpen] = useState(false)
+  const [documentDialogOpen, setDocumentDialogOpen] = useState(false)
   const [selectedGuru, setSelectedGuru] = useState<Guru | null>(null)
   const [selectedPengajuan, setSelectedPengajuan] = useState<Pengajuan | null>(null)
+  const [selectedDocument, setSelectedDocument] = useState<string | null>(null)
   const [isEditing, setIsEditing] = useState(false)
 
   // Form state
@@ -293,6 +295,11 @@ export default function AdminDashboardPage() {
       catatan: '',
     })
     setVerifikasiDialogOpen(true)
+  }
+
+  const handleViewDocument = (documentUrl: string) => {
+    setSelectedDocument(documentUrl)
+    setDocumentDialogOpen(true)
   }
 
   const handleSubmitVerifikasi = async (e: React.FormEvent) => {
@@ -759,15 +766,7 @@ export default function AdminDashboardPage() {
                                       type="button"
                                       variant="outline"
                                       size="sm"
-                                      onClick={() => {
-                                        // Open document in new tab
-                                        const win = window.open()
-                                        if (win) {
-                                          win.document.write(
-                                            `<iframe src="${p.dokumenPendukung}" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`
-                                          )
-                                        }
-                                      }}
+                                      onClick={() => handleViewDocument(p.dokumenPendukung)}
                                       className="gap-2"
                                     >
                                       <Download className="h-4 w-4" />
@@ -1156,6 +1155,32 @@ export default function AdminDashboardPage() {
               </Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* View Document Dialog */}
+      <Dialog open={documentDialogOpen} onOpenChange={setDocumentDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Lihat Dokumen Pendukung</DialogTitle>
+            <DialogDescription>
+              Dokumen pendukung untuk verifikasi pengajuan
+            </DialogDescription>
+          </DialogHeader>
+          <div className="w-full h-[70vh]">
+            {selectedDocument && (
+              <iframe
+                src={selectedDocument}
+                className="w-full h-full border-0"
+                title="Dokumen Pendukung"
+              />
+            )}
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setDocumentDialogOpen(false)}>
+              Tutup
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
