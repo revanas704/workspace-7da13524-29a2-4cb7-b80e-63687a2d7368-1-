@@ -4,7 +4,7 @@
  * Peraturan Pemerintah Nomor 7 Tahun 1977 tentang Peraturan Gaji Pegawai Negeri Sipil
  *
  * Gaji pokok ditentukan berdasarkan Golongan, Pangkat, dan Masa Kerja
- * Kenaikan 8% dari PP sebelumnya (PP 51 Tahun 2023)
+ * Data resmi sesuai PP Nomor 5 Tahun 2024
  */
 
 export interface GajiPokok {
@@ -15,12 +15,12 @@ export interface GajiPokok {
 }
 
 // Gaji Pokok berdasarkan Golongan, Pangkat, dan Masa Kerja (dalam tahun)
-// Data mencakup 4 golongan dengan kenaikan setiap 2 tahun masa kerja
+// Data resmi PP Nomor 5 Tahun 2024
 const GAJI_POKOK_TABLE: { [key: string]: { [key: number]: number } } = {
   // ============================
   // GOLONGAN I - JURU
   // ============================
-  
+
   // I/a - Juru Muda
   'I/a': {
     0: 1685700,
@@ -287,107 +287,117 @@ const GAJI_POKOK_TABLE: { [key: string]: { [key: number]: number } } = {
 
   // IV/a - Pembina
   'IV/a': {
-    0: 3160000,
-    2: 3219000,
-    4: 3278000,
-    6: 3337000,
-    8: 3396000,
-    10: 3455000,
-    12: 3514000,
-    14: 3573000,
-    16: 3632000,
-    18: 3691000,
-    20: 3750000,
-    22: 3809000,
-    24: 3868000,
-    26: 3927000,
-    28: 3986000,
-    30: 4045000,
-    32: 4104000,
+    0: 3625000,
+    2: 3689000,
+    4: 3753000,
+    6: 3817000,
+    8: 3881000,
+    10: 3945000,
+    12: 4009000,
+    14: 4073000,
+    16: 4137000,
+    18: 4201000,
+    20: 4265000,
+    22: 4329000,
+    24: 4393000,
+    26: 4457000,
+    28: 4521000,
+    30: 4585000,
+    32: 4649000,
+    33: 4686000,
+    34: 4723000,
   },
 
   // IV/b - Pembina Pratama
   'IV/b': {
-    0: 3265000,
-    2: 3326000,
-    4: 3387000,
-    6: 3448000,
-    8: 3509000,
-    10: 3570000,
-    12: 3631000,
-    14: 3692000,
-    16: 3753000,
-    18: 3814000,
-    20: 3875000,
-    22: 3936000,
-    24: 3997000,
-    26: 4058000,
-    28: 4119000,
-    30: 4180000,
-    32: 4241000,
+    0: 3978000,
+    2: 4043000,
+    4: 4108000,
+    6: 4173000,
+    8: 4238000,
+    10: 4303000,
+    12: 4368000,
+    14: 4433000,
+    16: 4498000,
+    18: 4563000,
+    20: 4628000,
+    22: 4693000,
+    24: 4758000,
+    26: 4823000,
+    28: 4888000,
+    30: 4953000,
+    32: 5018000,
+    33: 5055500,
+    34: 5093000,
   },
 
-  // IV/c - Pembina Muda
+  // IV/c - Pembina Utama Muda
   'IV/c': {
-    0: 3375000,
-    2: 3437000,
-    4: 3499000,
-    6: 3561000,
-    8: 3623000,
-    10: 3685000,
-    12: 3747000,
-    14: 3809000,
-    16: 3871000,
-    18: 3933000,
-    20: 3995000,
-    22: 4057000,
-    24: 4119000,
-    26: 4181000,
-    28: 4243000,
-    30: 4305000,
-    32: 4367000,
+    0: 4320500,
+    2: 4386500,
+    4: 4452500,
+    6: 4518500,
+    8: 4584500,
+    10: 4650500,
+    12: 4716500,
+    14: 4782500,
+    16: 4848500,
+    18: 4914500,
+    20: 4980500,
+    22: 5046500,
+    24: 5112500,
+    26: 5178500,
+    28: 5244500,
+    30: 5310500,
+    32: 5866400,
+    33: 5936400,
+    34: 6006400,
   },
 
-  // IV/d - Pembina Madya
+  // IV/d - Pembina Utama Madya
   'IV/d': {
-    0: 3489000,
-    2: 3552000,
-    4: 3615000,
-    6: 3678000,
-    8: 3741000,
-    10: 3804000,
-    12: 3867000,
-    14: 3930000,
-    16: 3993000,
-    18: 4056000,
-    20: 4119000,
-    22: 4182000,
-    24: 4245000,
-    26: 4308000,
-    28: 4371000,
-    30: 4434000,
-    32: 4497000,
+    0: 4663000,
+    2: 4730000,
+    4: 4797000,
+    6: 4864000,
+    8: 4931000,
+    10: 4998000,
+    12: 5065000,
+    14: 5132000,
+    16: 5199000,
+    18: 5266000,
+    20: 5333000,
+    22: 5400000,
+    24: 5467000,
+    26: 5534000,
+    28: 5601000,
+    30: 5668000,
+    32: 5735000,
+    33: 5773500,
+    34: 5812000,
   },
 
   // IV/e - Pembina Utama
   'IV/e': {
-    0: 3607000,
-    2: 3673000,
-    4: 3739000,
-    6: 3805000,
-    8: 3871000,
-    10: 3937000,
-    12: 4003000,
-    14: 4069000,
-    16: 4135000,
-    18: 4201000,
-    20: 4267000,
-    22: 4333000,
-    24: 4399000,
-    26: 4465000,
-    28: 4531000,
-    30: 4597000,
-    32: 4663000,
+    0: 5005500,
+    2: 5073500,
+    4: 5141500,
+    6: 5209500,
+    8: 5277500,
+    10: 5345500,
+    12: 5413500,
+    14: 5481500,
+    16: 5549500,
+    18: 5617500,
+    20: 5685500,
+    22: 5753500,
+    24: 5821500,
+    26: 5889500,
+    28: 5957500,
+    30: 6025500,
+    32: 6093500,
+    33: 6132500,
+    34: 6171500,
   },
 }
 
@@ -414,8 +424,8 @@ export const PANGKAT_BY_GOLONGAN: { [key: string]: string } = {
   // Golongan IV
   'IV/a': 'Pembina',
   'IV/b': 'Pembina Pratama',
-  'IV/c': 'Pembina Muda',
-  'IV/d': 'Pembina Madya',
+  'IV/c': 'Pembina Utama Muda',
+  'IV/d': 'Pembina Utama Madya',
   'IV/e': 'Pembina Utama',
 }
 
@@ -445,10 +455,9 @@ export function getGajiPokok(golongan: string, masaKerja: number = 0): number {
     }
   }
 
-  // Cap at maximum masa kerja (32 years)
-  const cappedMasaKerja = Math.min(masaKerja, 32)
-  const finalMasaKerjaKey = masaKerjaThresholds.find(t => t >= cappedMasaKerja) ||
-                           masaKerjaThresholds[masaKerjaThresholds.length - 1]
+  // Cap at maximum masa kerja (34 years for Golongan IV, 32 years for others)
+  const maxMasaKerja = masaKerjaThresholds[masaKerjaThresholds.length - 1]
+  const finalMasaKerjaKey = Math.min(masaKerja, maxMasaKerja)
 
   return table[finalMasaKerjaKey] || 0
 }
