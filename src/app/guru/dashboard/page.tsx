@@ -106,10 +106,25 @@ export default function GuruDashboard() {
 
     // Validation for REKENING
     if (jenisPengajuan === 'REKENING') {
-      if (!formData.namaPemilikRekening || !formData.nomorRekening || !formData.bank) {
+      if (!formData.namaPemilikRekening || !formData.nomorRekening) {
         toast.error('Mohon lengkapi semua data rekening')
         return
       }
+
+      // Validate nomorRekening length (10-13 digits)
+      const nomorRekeningDigits = formData.nomorRekening.replace(/\D/g, '')
+      if (nomorRekeningDigits.length < 10 || nomorRekeningDigits.length > 13) {
+        toast.error('Nomor rekening harus terdiri dari 10-13 digit angka')
+        return
+      }
+
+      // Set default bank to BPD JAWA TIMUR
+      const finalFormData = {
+        ...formData,
+        bank: formData.bank || 'BPD JAWA TIMUR'
+      }
+      setFormData(finalFormData)
+
       if (!formData.alasan) {
         toast.error('Mohon pilih alasan perubahan')
         return
@@ -597,16 +612,37 @@ export default function GuruDashboard() {
                             <div className="space-y-2">
                               <Label>Nomor Rekening Baru</Label>
                               <Input
+                                type="text"
+                                inputMode="numeric"
                                 value={formData.nomorRekening || ''}
-                                onChange={(e) => setFormData({ ...formData, nomorRekening: e.target.value })}
+                                onChange={(e) => {
+                                  // Only allow numbers
+                                  const value = e.target.value.replace(/\D/g, '')
+                                  setFormData({ ...formData, nomorRekening: value })
+                                }}
+                                placeholder="Masukkan nomor rekening (10-13 digit)"
                               />
+                              <p className="text-xs text-muted-foreground">
+                                Nomor rekening harus terdiri dari 10-13 digit angka
+                              </p>
                             </div>
                             <div className="space-y-2">
-                              <Label>Bank Baru</Label>
-                              <Input
-                                value={formData.bank || ''}
-                                onChange={(e) => setFormData({ ...formData, bank: e.target.value })}
-                              />
+                              <Label>Bank</Label>
+                              <Select
+                                value={formData.bank || 'BPD JAWA TIMUR'}
+                                onValueChange={(value) => setFormData({ ...formData, bank: value })}
+                                defaultValue="BPD JAWA TIMUR"
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Pilih bank" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="BPD JAWA TIMUR">BPD JAWA TIMUR</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <p className="text-xs text-muted-foreground">
+                                Bank yang digunakan untuk pencairan tunjangan profesi
+                              </p>
                             </div>
 
                             <div className="space-y-2">
