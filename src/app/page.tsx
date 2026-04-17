@@ -1,15 +1,50 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { GraduationCap, Shield, TrendingUp, Users, Sparkles } from 'lucide-react'
+import { GraduationCap, Shield, TrendingUp, Users, Sparkles, Clock, Calendar } from 'lucide-react'
 
 export default function Home() {
   const { data: session, status } = useSession()
   const router = useRouter()
+
+  // Real-time date and time
+  const [currentDateTime, setCurrentDateTime] = useState(new Date())
+
+  useEffect(() => {
+    // Update time every second
+    const timer = setInterval(() => {
+      setCurrentDateTime(new Date())
+    }, 1000)
+
+    return () => clearInterval(timer)
+  }, [])
+
+  // Format date in Indonesian
+  const formatDate = (date: Date) => {
+    const options: Intl.DateTimeFormatOptions = {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    }
+    return date.toLocaleDateString('id-ID', options)
+  }
+
+  // Format time
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString('id-ID', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    })
+  }
+
+  // Get current year
+  const currentYear = currentDateTime.getFullYear()
 
   useEffect(() => {
     if (status === 'authenticated') {
@@ -173,7 +208,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="relative z-10 bg-gradient-to-r from-red-800 to-amber-700 text-white mt-auto border-t border-red-700/50">
         <div className="container mx-auto px-4 py-8 text-center">
-          <div className="flex items-center justify-center gap-3 mb-3">
+          <div className="flex items-center justify-center gap-3 mb-4">
             <img
               src="/Kabupaten Blitar(1).png"
               alt="Logo Pemkab Blitar"
@@ -181,8 +216,22 @@ export default function Home() {
             />
             <p className="font-semibold text-lg">Pemerintah Kabupaten Blitar</p>
           </div>
-          <p className="text-sm text-white/90">Dinas Pendidikan</p>
-          <p className="text-xs text-white/70 mt-3">&copy; 2024 SIM Tunjangan Profesi Guru. Semua hak dilindungi.</p>
+          <p className="text-sm text-white/90 mb-4">Dinas Pendidikan</p>
+
+          {/* Real-time Date and Time */}
+          <div className="flex items-center justify-center gap-6 mb-6 bg-white/10 backdrop-blur-sm rounded-xl py-4 px-6 max-w-2xl mx-auto">
+            <div className="flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-amber-200" />
+              <span className="text-sm font-medium">{formatDate(currentDateTime)}</span>
+            </div>
+            <div className="h-6 w-px bg-white/30" />
+            <div className="flex items-center gap-2">
+              <Clock className="w-5 h-5 text-amber-200" />
+              <span className="text-sm font-mono font-medium">{formatTime(currentDateTime)}</span>
+            </div>
+          </div>
+
+          <p className="text-xs text-white/70">&copy; {currentYear} SIM Tunjangan Profesi Guru. Semua hak dilindungi.</p>
         </div>
       </footer>
     </div>

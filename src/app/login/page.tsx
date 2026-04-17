@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Loader2, GraduationCap, ShieldCheck, Sparkles } from 'lucide-react'
+import { Loader2, GraduationCap, ShieldCheck, Sparkles, Clock, Calendar } from 'lucide-react'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -16,6 +16,41 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+
+  // Real-time date and time
+  const [currentDateTime, setCurrentDateTime] = useState(new Date())
+
+  useEffect(() => {
+    // Update time every second
+    const timer = setInterval(() => {
+      setCurrentDateTime(new Date())
+    }, 1000)
+
+    return () => clearInterval(timer)
+  }, [])
+
+  // Format date in Indonesian
+  const formatDate = (date: Date) => {
+    const options: Intl.DateTimeFormatOptions = {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    }
+    return date.toLocaleDateString('id-ID', options)
+  }
+
+  // Format time
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString('id-ID', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    })
+  }
+
+  // Get current year
+  const currentYear = currentDateTime.getFullYear()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -180,8 +215,22 @@ export default function LoginPage() {
             />
             <p className="text-sm font-semibold text-red-800">Pemerintah Kabupaten Blitar</p>
           </div>
-          <p className="text-xs text-slate-600">Dinas Pendidikan</p>
-          <p className="text-xs text-slate-500 mt-1">&copy; 2024 Semua hak dilindungi.</p>
+          <p className="text-xs text-slate-600 mb-3">Dinas Pendidikan</p>
+
+          {/* Real-time Date and Time */}
+          <div className="flex items-center justify-center gap-4 mb-3 bg-gradient-to-r from-red-50 to-amber-50 rounded-lg py-2 px-4">
+            <div className="flex items-center gap-1.5">
+              <Calendar className="w-3.5 h-3.5 text-red-600" />
+              <span className="text-xs font-medium text-slate-700">{formatDate(currentDateTime)}</span>
+            </div>
+            <div className="h-4 w-px bg-slate-300" />
+            <div className="flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5 text-amber-600" />
+              <span className="text-xs font-mono font-medium text-slate-700">{formatTime(currentDateTime)}</span>
+            </div>
+          </div>
+
+          <p className="text-xs text-slate-500">&copy; {currentYear} Semua hak dilindungi.</p>
         </div>
       </div>
 
