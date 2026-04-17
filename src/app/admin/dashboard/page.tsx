@@ -694,6 +694,7 @@ export default function AdminDashboardPage() {
                                   <div className="space-y-2">
                                     <p className="text-sm font-medium">Dokumen Pendukung:</p>
                                     <Button
+                                      type="button"
                                       variant="outline"
                                       size="sm"
                                       onClick={() => {
@@ -720,6 +721,7 @@ export default function AdminDashboardPage() {
 
                               <div className="lg:w-[200px] flex lg:flex-col gap-2">
                                 <Button
+                                  type="button"
                                   onClick={() => handleVerifikasi(p)}
                                   className="flex-1 gap-2"
                                   size="sm"
