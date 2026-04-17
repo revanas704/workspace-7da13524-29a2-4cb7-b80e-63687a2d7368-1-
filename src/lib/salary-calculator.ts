@@ -1,5 +1,5 @@
 // Salary calculation based on PP No. 5 Tahun 2024
-import { getGajiPokok } from './gaji-pokok-pp5'
+import { getGajiPokok as getGajiPokokPP5 } from './gaji-pokok-pp5'
 
 interface SalaryCalculation {
   gajiPokok: number
@@ -13,8 +13,8 @@ export function calculateGajiPokok(
   golongan: string,
   masaKerja: number
 ): number {
-  // Use official gaji pokok from PP 5 Tahun 2024
-  return getGajiPokok(golongan)
+  // Use official gaji pokok from PP 5 Tahun 2024 based on golongan and masa kerja
+  return getGajiPokokPP5(golongan, masaKerja)
 }
 
 export function calculatePph(golongan: string): number {

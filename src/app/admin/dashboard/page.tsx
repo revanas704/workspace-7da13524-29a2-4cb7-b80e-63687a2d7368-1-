@@ -108,16 +108,16 @@ export default function AdminDashboardPage() {
     }
   }, [status, session, router])
 
-  // Auto fill gajiPokok based on golongan (PP 5 Tahun 2024)
+  // Auto fill gajiPokok based on golongan AND masa kerja (PP 5 Tahun 2024)
   useEffect(() => {
-    if (formData.golongan && !isEditing) {
-      const gaji = getGajiPokok(formData.golongan)
+    if (formData.golongan && formData.masaKerja !== undefined && !isEditing) {
+      const gaji = getGajiPokok(formData.golongan, formData.masaKerja)
       setFormData((prev) => ({
         ...prev,
         gajiPokok: gaji,
       }))
     }
-  }, [formData.golongan, isEditing])
+  }, [formData.golongan, formData.masaKerja, isEditing])
 
   const fetchData = async () => {
     setLoading(true)
@@ -760,10 +760,10 @@ export default function AdminDashboardPage() {
                 type="number"
                 value={formData.gajiPokok || ''}
                 onChange={(e) => setFormData({ ...formData, gajiPokok: parseFloat(e.target.value) || 0 })}
-                placeholder="Otomatis terisi berdasarkan golongan (PP 5 Tahun 2024)"
+                placeholder="Otomatis terisi berdasarkan golongan dan masa kerja (PP 5 Tahun 2024)"
               />
               <p className="text-xs text-muted-foreground">
-                Gaji Pokok sesuai PP 5 Tahun 2024. Akan otomatis terisi berdasarkan golongan yang dipilih.
+                Gaji Pokok sesuai PP 5 Tahun 2024. Akan otomatis terisi berdasarkan <strong>Golongan</strong> dan <strong>Masa Kerja</strong> yang dipilih.
               </p>
             </div>
 
