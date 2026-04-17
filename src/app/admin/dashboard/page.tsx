@@ -33,6 +33,7 @@ import {
   GraduationCap,
   Search,
   ChevronDown,
+  Upload,
 } from 'lucide-react'
 
 interface Guru {
@@ -92,6 +93,7 @@ export default function AdminDashboardPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [verifikasiDialogOpen, setVerifikasiDialogOpen] = useState(false)
   const [documentDialogOpen, setDocumentDialogOpen] = useState(false)
+  const [importDialogOpen, setImportDialogOpen] = useState(false)
   const [selectedGuru, setSelectedGuru] = useState<Guru | null>(null)
   const [selectedPengajuan, setSelectedPengajuan] = useState<Pengajuan | null>(null)
   const [selectedDocument, setSelectedDocument] = useState<string | null>(null)
@@ -107,6 +109,7 @@ export default function AdminDashboardPage() {
     catatan: '',
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [importFile, setImportFile] = useState<File | null>(null)
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -211,6 +214,42 @@ export default function AdminDashboardPage() {
       toast.success('Data sedang diekspor')
     } catch (error) {
       toast.error('Gagal mengekspor data')
+    }
+  }
+
+  const handleImport = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!importFile) {
+      toast.error('Silakan pilih file Excel terlebih dahulu')
+      return
+    }
+
+    setIsSubmitting(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', importFile)
+
+      const res = await fetch('/api/admin/import', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        toast.success(`Berhasil mengimpor ${data.count} data guru`)
+        setImportDialogOpen(false)
+        setImportFile(null)
+        fetchData()
+      } else {
+        const error = await res.json()
+        toast.error(error.error || 'Gagal mengimpor data')
+      }
+    } catch (error) {
+      toast.error('Terjadi kesalahan saat mengimpor')
+      console.error(error)
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -563,6 +602,10 @@ export default function AdminDashboardPage() {
                     <Button onClick={handleExport} variant="outline" className="gap-2">
                       <Download className="h-4 w-4" />
                       Export
+                    </Button>
+                    <Button onClick={() => setImportDialogOpen(true)} variant="outline" className="gap-2">
+                      <Upload className="h-4 w-4" />
+                      Import Excel
                     </Button>
                     <Button onClick={handleAddGuru} className="gap-2 bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-700 hover:to-amber-700">
                       <Plus className="h-4 w-4" />
@@ -1245,6 +1288,70 @@ export default function AdminDashboardPage() {
               Tutup
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Import Excel Dialog */}
+      <Dialog open={importDialogOpen} onOpenChange={setImportDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Import Data Guru dari Excel</DialogTitle>
+            <DialogDescription>
+              Unggah file Excel (.xlsx) untuk mengimpor data guru secara massal
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleImport} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="importFile">File Excel</Label>
+              <Input
+                id="importFile"
+                type="file"
+                accept=".xlsx,.xls"
+                onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  if (file) {
+                    setImportFile(file)
+                  }
+                }}
+              />
+              <p className="text-xs text-muted-foreground">
+                Format yang diterima: .xlsx atau .xls
+              </p>
+            </div>
+            <div className="bg-amber-50 dark:bg-amber-950/20 p-4 rounded-lg border border-amber-200 dark:border-amber-800">
+              <p className="text-sm text-amber-800 dark:text-amber-200 font-medium mb-2">
+                <strong>Template Excel:</strong>
+              </p>
+              <p className="text-xs text-amber-700 dark:text-amber-300 mb-1">
+                Kolom yang diperlukan: NIP, Nama, NIK, NUPTK, Pangkat, Golongan, Masa Kerja (dalam tahun)
+              </p>
+              <p className="text-xs text-amber-700 dark:text-amber-300 mb-1">
+                Satuan Pendidikan, Nama Pemilik Rekening, Nomor Rekening, Bank, Gaji Pokok, Status SKTP
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Pastikan data sesuai dengan format di atas sebelum diimpor
+              </p>
+            </div>
+            <DialogFooter className="gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setImportDialogOpen(false)
+                  setImportFile(null)
+                }}
+              >
+                Batal
+              </Button>
+              <Button
+                type="submit"
+                disabled={!importFile || isSubmitting}
+                className="bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-700 hover:to-amber-700"
+              >
+                {isSubmitting ? 'Mengimpor...' : 'Import'}
+              </Button>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
     </div>
