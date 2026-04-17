@@ -7,6 +7,19 @@ import { toast } from 'sonner'
 import { formatCurrency } from '@/lib/salary-calculator'
 import { getGajiPokok } from '@/lib/gaji-pokok-pp5'
 
+// Mapping Golongan ke Pangkat (PP 5 Tahun 2024)
+const PANGKAT_BY_GOLONGAN: { [key: string]: string } = {
+  'III/a': 'Penata Muda',
+  'III/b': 'Penata Muda Tk.I',
+  'III/c': 'Penata',
+  'III/d': 'Penata Tk.I',
+  'IV/a': 'Pembina',
+  'IV/b': 'Pembina Pratama',
+  'IV/c': 'Pembina Muda',
+  'IV/d': 'Pembina Madya',
+  'IV/e': 'Pembina Utama',
+}
+
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -108,12 +121,19 @@ export default function AdminDashboardPage() {
     }
   }, [status, session, router])
 
-  // Auto fill gajiPokok based on golongan AND masa kerja (PP 5 Tahun 2024)
+  // Auto fill pangkat AND gajiPokok based on golongan AND masa kerja (PP 5 Tahun 2024)
   useEffect(() => {
-    if (formData.golongan && formData.masaKerja !== undefined && !isEditing) {
-      const gaji = getGajiPokok(formData.golongan, formData.masaKerja)
+    if (formData.golongan && !isEditing) {
+      // Auto fill pangkat based on golongan
+      const pangkat = PANGKAT_BY_GOLONGAN[formData.golongan] || ''
+
+      // Auto fill gajiPokok based on golongan and masa kerja
+      const masaKerja = formData.masaKerja || 0
+      const gaji = getGajiPokok(formData.golongan, masaKerja)
+
       setFormData((prev) => ({
         ...prev,
+        pangkat,
         gajiPokok: gaji,
       }))
     }
@@ -714,7 +734,11 @@ export default function AdminDashboardPage() {
                   id="pangkat"
                   value={formData.pangkat || ''}
                   onChange={(e) => setFormData({ ...formData, pangkat: e.target.value })}
+                  placeholder="Otomatis terisi berdasarkan golongan"
                 />
+                <p className="text-xs text-muted-foreground">
+                  Otomatis terisi sesuai golongan yang dipilih
+                </p>
               </div>
 
               <div className="space-y-2">
