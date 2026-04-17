@@ -28,7 +28,8 @@ import {
   Landmark,
   GraduationCap,
   Plus,
-  Download
+  Download,
+  Trash2
 } from 'lucide-react'
 import { formatCurrency } from '@/lib/salary-calculator'
 import { getGajiPokok, getPangkatByGolongan } from '@/lib/gaji-pokok-pp5'
@@ -76,6 +77,11 @@ export default function GuruDashboard() {
   const [jenisPengajuan, setJenisPengajuan] = useState('')
   const [formData, setFormData] = useState<any>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // Delete pengajuan dialog state
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [selectedPengajuanToDelete, setSelectedPengajuanToDelete] = useState<PengajuanItem | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -170,6 +176,31 @@ export default function GuruDashboard() {
       toast.error('Terjadi kesalahan')
     } finally {
       setIsSubmitting(false)
+    }
+  }
+
+  const handleDeletePengajuan = async () => {
+    if (!selectedPengajuanToDelete) return
+
+    setIsDeleting(true)
+    try {
+      const response = await fetch(`/api/guru/pengajuan/${selectedPengajuanToDelete.id}`, {
+        method: 'DELETE',
+      })
+
+      if (response.ok) {
+        toast.success('Pengajuan berhasil dihapus')
+        setShowDeleteDialog(false)
+        setSelectedPengajuanToDelete(null)
+        fetchGuruData()
+      } else {
+        const error = await response.json()
+        toast.error(error.message || 'Gagal menghapus pengajuan')
+      }
+    } catch (error) {
+      toast.error('Terjadi kesalahan')
+    } finally {
+      setIsDeleting(false)
     }
   }
 
@@ -798,6 +829,41 @@ export default function GuruDashboard() {
                   </Dialog>
                 </div>
               </CardHeader>
+
+              {/* Delete Confirmation Dialog */}
+              <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+                <DialogContent className="max-w-sm">
+                  <DialogHeader>
+                    <DialogTitle className="text-red-600 flex items-center gap-2">
+                      <Trash2 className="w-5 h-5" />
+                      Hapus Pengajuan
+                    </DialogTitle>
+                    <DialogDescription>
+                      Apakah Anda yakin ingin menghapus pengajuan ini? Tindakan ini tidak dapat dibatalkan.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="flex gap-2 justify-end pt-4">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setShowDeleteDialog(false)
+                        setSelectedPengajuanToDelete(null)
+                      }}
+                    >
+                      Batal
+                    </Button>
+                    <Button
+                      onClick={handleDeletePengajuan}
+                      disabled={isDeleting}
+                      className="bg-red-600 hover:bg-red-700"
+                    >
+                      {isDeleting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                      Ya, Hapus
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+
               <CardContent>
                 {guruData.pengajuanList.length === 0 ? (
                   <div className="text-center py-8 text-slate-600 dark:text-slate-400">
@@ -852,6 +918,22 @@ export default function GuruDashboard() {
                           <div className="mt-2 p-2 bg-slate-50 dark:bg-slate-800 rounded text-sm">
                             <p className="font-semibold">Catatan:</p>
                             <p>{pengajuan.catatan}</p>
+                          </div>
+                        )}
+                        {pengajuan.status === 'PENDING' && (
+                          <div className="mt-3 pt-3 border-t border-orange-200 dark:border-orange-800">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedPengajuanToDelete(pengajuan)
+                                setShowDeleteDialog(true)
+                              }}
+                              className="gap-2 text-red-600 hover:text-red-700 border-red-200 hover:border-red-300 hover:bg-red-50"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                              Hapus
+                            </Button>
                           </div>
                         )}
                       </div>
