@@ -78,15 +78,9 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async redirect({ url, baseUrl }) {
-      // If the URL is relative, prepend base URL
-      if (url.startsWith('/')) {
-        return url
-      }
-      // If URL is on same domain, return it
-      if (url.startsWith(baseUrl)) {
-        return url
-      }
-      // Default to home page
+      if (!url) return baseUrl
+      if (url.startsWith('/')) return url
+      if (url.startsWith(baseUrl)) return url
       return baseUrl
     },
     async jwt({ token, user }) {
@@ -110,5 +104,5 @@ export const authOptions: NextAuthOptions = {
       return session
     },
   },
-  secret: process.env.NEXTAUTH_SECRET || "your-secret-key-change-in-production",
+  secret: process.env.NEXTAUTH_SECRET,
 }
