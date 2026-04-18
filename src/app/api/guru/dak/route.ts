@@ -56,36 +56,72 @@ export async function GET(request: NextRequest) {
         dakPenyaluran: true,
       },
       orderBy: {
-        dakPenyaluran: {
-          createdAt: 'desc',
-        },
+        nama: 'asc',
       },
     })
 
     console.log('Found DAK details:', dakDetails.length)
 
-    // Group by penyaluran to avoid duplicates
+    // Group by penyaluran to avoid duplicates and maintain consistent structure with admin API
     const penyaluranMap = new Map<string, any>()
 
     dakDetails.forEach((detail) => {
-      const penyaluranId = detail.dakPenyaluran.id
+      const penyaluranId = detail.dakPenyaluranId
       if (!penyaluranMap.has(penyaluranId)) {
+        // Create penyaluran entry with all fields from dakPenyaluran
         penyaluranMap.set(penyaluranId, {
-          ...detail.dakPenyaluran,
-          detailPenerima: [], // We'll fill this with details matching this penyaluran
+          id: detail.dakPenyaluran.id,
+          jenis: detail.dakPenyaluran.jenis,
+          kanwil: detail.dakPenyaluran.kanwil,
+          kppn: detail.dakPenyaluran.kppn,
+          pemda: detail.dakPenyaluran.pemda,
+          periode: detail.dakPenyaluran.periode,
+          gelombang: detail.dakPenyaluran.gelombang,
+          salurBruto: detail.dakPenyaluran.salurBruto,
+          potPph: detail.dakPenyaluran.potPph,
+          potJknPns: detail.dakPenyaluran.potJknPns || 0,
+          potJknPppk: detail.dakPenyaluran.potJknPppk || 0,
+          nilaiRekomendasi: detail.dakPenyaluran.nilaiRekomendasi,
+          jumlahPenerima: detail.dakPenyaluran.jumlahPenerima,
+          kirimKeDitPa: detail.dakPenyaluran.kirimKeDitPa,
+          kirimKeKppn: detail.dakPenyaluran.kirimKeKppn,
+          durasiKerja: detail.dakPenyaluran.durasiKerja,
+          bankOperator: detail.dakPenyaluran.bankOperator,
+          spp: detail.dakPenyaluran.spp,
+          sp2d: detail.dakPenyaluran.sp2d,
+          status: detail.dakPenyaluran.status,
+          createdAt: detail.dakPenyaluran.createdAt,
+          updatedAt: detail.dakPenyaluran.updatedAt,
+          detailPenerima: [], // Will be filled with only this guru's details
         })
       }
-      // Add detail to penyaluran
+      // Add this guru's detail to penyaluran
       const penyaluran = penyaluranMap.get(penyaluranId)
       if (penyaluran) {
         penyaluran.detailPenerima.push({
-          ...detail,
-          dakPenyaluran: undefined, // Remove circular reference
+          id: detail.id,
+          dakPenyaluranId: detail.dakPenyaluranId,
+          nip: detail.nip,
+          nama: detail.nama,
+          namaPemilikRekening: detail.namaPemilikRekening,
+          noRekening: detail.noRekening,
+          bank: detail.bank,
+          satdik: detail.satdik,
+          salurBruto: detail.salurBruto,
+          pph: detail.pph,
+          potIjn: detail.potIjn,
+          salurNetto: detail.salurNetto,
+          status: detail.status,
+          createdAt: detail.createdAt,
+          updatedAt: detail.updatedAt,
         })
       }
     })
 
-    const penyaluranList = Array.from(penyaluranMap.values())
+    // Convert to array and sort by createdAt desc to match admin API
+    const penyaluranList = Array.from(penyaluranMap.values()).sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    )
 
     console.log('Returning penyaluran list:', penyaluranList.length)
 
