@@ -8,12 +8,16 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  console.log('=== PATCH /api/dak/penyaluran/[id] received ===')
   try {
     const id = params.id
     const body = await request.json()
     const { status } = body
 
+    console.log('Update request:', { id, status })
+
     if (!status) {
+      console.error('Status tidak diisi')
       return NextResponse.json(
         { error: 'Status harus diisi' },
         { status: 400 }
@@ -23,12 +27,14 @@ export async function PATCH(
     // Validasi status
     const validStatuses = ['UPLOAD_SELESAI', 'DIKIRIM_KE_DJPK', 'DIKIRIM_KE_DITPA', 'SP2D']
     if (!validStatuses.includes(status)) {
+      console.error('Status tidak valid:', status)
       return NextResponse.json(
         { error: 'Status tidak valid' },
         { status: 400 }
       )
     }
 
+    console.log('Attempting to update penyaluran...')
     const penyaluran = await prisma.dAKPenyaluran.update({
       where: { id },
       data: { status },
@@ -37,14 +43,20 @@ export async function PATCH(
       },
     })
 
+    console.log('Successfully updated penyaluran:', penyaluran.id)
+
     return NextResponse.json({
       success: true,
       data: penyaluran,
     })
   } catch (error) {
     console.error('Error updating DAK penyaluran status:', error)
+    if (error instanceof Error) {
+      console.error('Error message:', error.message)
+      console.error('Error stack:', error.stack)
+    }
     return NextResponse.json(
-      { error: 'Gagal mengupdate status penyaluran DAK' },
+      { error: 'Gagal mengupdate status penyaluran DAK', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     )
   }
