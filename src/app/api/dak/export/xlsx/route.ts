@@ -5,56 +5,74 @@ import * as XLSX from 'xlsx'
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const periode = searchParams.get('periode')
-    const gelombang = searchParams.get('gelombang')
+    const id = searchParams.get('id')
 
-    const data = await db.dAKPenyaluran.findMany({
-      where: {
-        ...(periode && periode !== 'ALL' && { periode }),
-        ...(gelombang && gelombang !== 'ALL' && { gelombang: parseInt(gelombang) })
-      },
-      orderBy: [
-        { periode: 'asc' },
-        { gelombang: 'asc' }
-      ]
+    if (!id) {
+      return NextResponse.json(
+        { error: 'ID penyaluran tidak ditemukan' },
+        { status: 400 }
+      )
+    }
+
+    const penyaluran = await db.dAKPenyaluran.findUnique({
+      where: { id },
+      include: { details: true },
     })
 
-    // Transform data for Excel export
-    const exportData = data.map(item => ({
-      'JENIS': item.jenis,
-      'KANWIL': item.kanwil,
-      'KPPN': item.kppn,
-      'PEMDA': item.pemda,
-      'PERIODE': item.periode,
-      'GELOMBANG': item.gelombang,
+    if (!penyaluran) {
+      return NextResponse.json(
+        { error: 'Penyaluran tidak ditemukan' },
+        { status: 404 }
+      )
+    }
+
+    // Prepare data for Excel export
+    const data = penyaluran.details.map((item, index) => ({
+      No: index + 1,
+      NIP: item.nip,
+      NAMA: item.nama,
+      'NAMA PEMILIK REKENING': item.namaPemilikRekening,
+      'NO. REKENING': item.noRekening,
+      BANK: item.bank,
+      SATDIK: item.satdik,
       'SALUR BRUTO': item.salurBruto,
-      'POT. PPH': item.potPph,
-      'POT. JKN PNS': item.potJknPns,
-      'POT. JKN PPPK': item.potJknPppk,
-      'POT. JKN TOTAL': item.potJknPns + item.potJknPppk,
-      'NILAI REKOMENDASI': item.nilaiRekomendasi,
-      'JUMLAH PENERIMA': item.jumlahPenerima,
-      'STATUS': item.status
+      PPH: item.pph,
+      'POT. JKN': item.potIjn,
+      'SALUR NETTO': item.salurNetto,
+      STATUS: item.status,
     }))
 
+    // Create summary rows
+    const summary = [
+      { No: '', NIP: '', NAMA: '', 'NAMA PEMILIK REKENING': '', 'NO. REKENING': '', BANK: '', SATDIK: '', 'SALUR BRUTO': '', PPH: '', 'POT. JKN': '', 'SALUR NETTO': '', STATUS: '' },
+      { No: '', NIP: '', NAMA: '', 'NAMA PEMILIK REKENING': '', 'NO. REKENING': '', BANK: '', SATDIK: '', 'SALUR BRUTO': 'TOTAL', PPH: penyaluran.potPph, 'POT. JKN': penyaluran.potJknPns + penyaluran.potJknPppk, 'SALUR NETTO': penyaluran.nilaiRekomendasi, STATUS: '' },
+    ]
+
+    // Combine data with summary
+    const exportData = [...data, ...summary]
+
+    // Create workbook
     const worksheet = XLSX.utils.json_to_sheet(exportData)
     const workbook = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'DAK Penyaluran')
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'OMSPAN-TKD')
 
+    // Generate buffer
     const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' })
 
-    const filename = `dak-penyaluran-${periode === 'ALL' ? 'semua' : periode}-${new Date().toISOString().split('T')[0]}.xlsx`
+    // Set headers for download
+    const filename = `REKOMENDASI PENYALURAN DAK NON FISIK_${penyaluran.jenis}_${penyaluran.periode}_${penyaluran.gelombang}.xlsx`
 
     return new NextResponse(buffer, {
+      status: 200,
       headers: {
         'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'Content-Disposition': `attachment; filename="${filename}"`
-      }
+        'Content-Disposition': `attachment; filename="${filename}"`,
+      },
     })
   } catch (error) {
-    console.error('Export XLSX error:', error)
+    console.error('Error exporting DAK to Excel:', error)
     return NextResponse.json(
-      { error: 'Failed to export data' },
+      { error: 'Gagal mengekspor data ke Excel' },
       { status: 500 }
     )
   }

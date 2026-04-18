@@ -4,166 +4,189 @@ import { NextRequest, NextResponse } from 'next/server'
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const periode = searchParams.get('periode')
-    const gelombang = searchParams.get('gelombang')
+    const id = searchParams.get('id')
 
-    const data = await db.dAKPenyaluran.findMany({
-      where: {
-        ...(periode && periode !== 'ALL' && { periode }),
-        ...(gelombang && gelombang !== 'ALL' && { gelombang: parseInt(gelombang) })
-      },
-      orderBy: [
-        { periode: 'asc' },
-        { gelombang: 'asc' }
-      ]
-    })
-
-    // Format currency
-    const formatCurrency = (value: number) => {
-      return new Intl.NumberFormat('id-ID').format(value)
+    if (!id) {
+      return NextResponse.json(
+        { error: 'ID penyaluran tidak ditemukan' },
+        { status: 400 }
+      )
     }
 
-    // Generate HTML for PDF
+    const penyaluran = await db.dAKPenyaluran.findUnique({
+      where: { id },
+      include: { details: true },
+    })
+
+    if (!penyaluran) {
+      return NextResponse.json(
+        { error: 'Penyaluran tidak ditemukan' },
+        { status: 404 }
+      )
+    }
+
+    // Create HTML content for PDF
     const html = `
       <!DOCTYPE html>
       <html>
       <head>
         <meta charset="UTF-8">
-        <title>Laporan Penyaluran DAK Non Fisik</title>
         <style>
           body {
             font-family: Arial, sans-serif;
+            margin: 20px;
             font-size: 12px;
-            margin: 0;
-            padding: 20px;
           }
-          h1 {
+          .header {
             text-align: center;
-            color: #991b1b;
-            margin-bottom: 5px;
-          }
-          h2 {
-            text-align: center;
-            color: #333;
-            font-size: 14px;
-            margin-top: 0;
             margin-bottom: 20px;
           }
-          table {
+          .header h1 {
+            font-size: 16px;
+            margin: 0;
+          }
+          .header h2 {
+            font-size: 14px;
+            margin: 5px 0;
+          }
+          .header p {
+            font-size: 11px;
+            margin: 2px 0;
+          }
+          .info-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-bottom: 20px;
           }
-          th {
-            background-color: #991b1b;
-            color: white;
-            padding: 10px;
-            text-align: left;
+          .info-table td {
+            padding: 5px;
+            border: 1px solid #000;
+          }
+          .info-table .label {
             font-weight: bold;
+            background-color: #f0f0f0;
+            width: 30%;
+          }
+          .data-table {
+            width: 100%;
+            border-collapse: collapse;
             font-size: 10px;
           }
-          td {
-            padding: 8px;
-            border: 1px solid #ddd;
-            font-size: 10px;
+          .data-table th {
+            background-color: #f0f0f0;
+            border: 1px solid #000;
+            padding: 5px;
+            text-align: center;
+            font-weight: bold;
           }
-          tr:nth-child(even) {
-            background-color: #f9f9f9;
+          .data-table td {
+            border: 1px solid #000;
+            padding: 4px;
           }
-          .text-right {
+          .data-table .number {
             text-align: right;
           }
-          .text-center {
+          .data-table .center {
             text-align: center;
           }
-          .status-pending {
-            background-color: #dbeafe;
-            color: #1e40af;
-          }
-          .status-process {
-            background-color: #fef3c7;
-            color: #92400e;
-          }
-          .status-done {
-            background-color: #dcfce7;
-            color: #166534;
+          .summary-row {
+            background-color: #f0f0f0;
+            font-weight: bold;
           }
           .footer {
-            margin-top: 30px;
+            margin-top: 20px;
             text-align: center;
             font-size: 10px;
-            color: #666;
-            border-top: 1px solid #ddd;
-            padding-top: 10px;
           }
         </style>
       </head>
       <body>
-        <h1>LAPORAN PENYALURAN DAK NON FISIK</h1>
-        <h2>SIM Tunjangan Profesi Guru - Kabupaten Blitar</h2>
-        <p><strong>Periode:</strong> ${periode === 'ALL' ? 'Semua Periode' : periode}</p>
-        <p><strong>Gelombang:</strong> ${gelombang === 'ALL' ? 'Semua Gelombang' : gelombang}</p>
-        <p><strong>Tanggal Cetak:</strong> ${new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+        <div class="header">
+          <h1>PEMERINTAH KABUPATEN BLITAR</h1>
+          <h1>DINAS PENDIDIKAN</h1>
+          <p>Jalan Jendral Sudirman No. 10 Kanigoro - Blitar</p>
+          <p>Telp: (0342) 802345 - Email: disdik@blitarkab.go.id</p>
+          <hr>
+        </div>
 
-        <table>
+        <h2 style="text-align: center; margin: 20px 0;">REKOMENDASI PENYALURAN DAK NON FISIK<br/>TUNJANGAN PROFESI GURU</h2>
+
+        <table class="info-table">
+          <tr>
+            <td class="label">Jenis Tunjangan</td>
+            <td>${penyaluran.jenis}</td>
+          </tr>
+          <tr>
+            <td class="label">Periode</td>
+            <td>${penyaluran.periode}</td>
+          </tr>
+          <tr>
+            <td class="label">Gelombang</td>
+            <td>${penyaluran.gelombang}</td>
+          </tr>
+          <tr>
+            <td class="label">Status</td>
+            <td>${penyaluran.status}</td>
+          </tr>
+        </table>
+
+        <table class="data-table">
           <thead>
             <tr>
-              <th>No</th>
-              <th>Jenis</th>
-              <th>Kanwil</th>
-              <th>KPPN</th>
-              <th>PEMDA</th>
-              <th>Periode</th>
-              <th>Gelombang</th>
-              <th class="text-right">Salur Bruto</th>
-              <th class="text-right">Pot. PPH</th>
-              <th class="text-right">Pot. JKN</th>
-              <th class="text-right">Nilai Rek.</th>
-              <th class="text-center">Jml Penerima</th>
-              <th>Status</th>
+              <th style="width: 5%;">No</th>
+              <th style="width: 15%;">NIP</th>
+              <th style="width: 20%;">Nama</th>
+              <th style="width: 10%;">Bank</th>
+              <th style="width: 15%;">No. Rekening</th>
+              <th style="width: 12%;">Salur Bruto</th>
+              <th style="width: 8%;">Pot PPH</th>
+              <th style="width: 8%;">Pot JKN</th>
+              <th style="width: 12%;">Salur Netto</th>
             </tr>
           </thead>
           <tbody>
-            ${data.map((item, index) => `
-              <tr>
-                <td>${index + 1}</td>
-                <td>${item.jenis}</td>
-                <td>${item.kanwil}</td>
-                <td>${item.kppn}</td>
-                <td>${item.pemda}</td>
-                <td>${item.periode}</td>
-                <td>${item.gelombang}</td>
-                <td class="text-right">${formatCurrency(item.salurBruto)}</td>
-                <td class="text-right">${formatCurrency(item.potPph)}</td>
-                <td class="text-right">${formatCurrency(item.potJknPns + item.potJknPppk)}</td>
-                <td class="text-right">${formatCurrency(item.nilaiRekomendasi)}</td>
-                <td class="text-center">${item.jumlahPenerima}</td>
-                <td class="${
-                  item.status === 'Sudah SP2D' ? 'status-done' :
-                  item.status === 'Proses Pencairan' ? 'status-process' : 'status-pending'
-                }">${item.status}</td>
-              </tr>
+            ${penyaluran.details.map((item, index) => `
+            <tr>
+              <td class="center">${index + 1}</td>
+              <td>${item.nip}</td>
+              <td>${item.nama}</td>
+              <td>${item.bank || '-'}</td>
+              <td>${item.noRekening}</td>
+              <td class="number">${item.salurBruto.toLocaleString('id-ID')}</td>
+              <td class="number">${item.pph.toLocaleString('id-ID')}</td>
+              <td class="number">${item.potIjn.toLocaleString('id-ID')}</td>
+              <td class="number">${item.salurNetto.toLocaleString('id-ID')}</td>
+            </tr>
             `).join('')}
+            <tr class="summary-row">
+              <td colspan="5" class="center">TOTAL</td>
+              <td class="number">${penyaluran.salurBruto.toLocaleString('id-ID')}</td>
+              <td class="number">${penyaluran.potPph.toLocaleString('id-ID')}</td>
+              <td class="number">${(penyaluran.potJknPns + penyaluran.potJknPppk).toLocaleString('id-ID')}</td>
+              <td class="number">${penyaluran.nilaiRekomendasi.toLocaleString('id-ID')}</td>
+            </tr>
           </tbody>
         </table>
 
         <div class="footer">
-          <p>&copy; ${new Date().getFullYear()} SIM Tunjangan Profesi Guru - Pemerintah Kabupaten Blitar</p>
+          <p>Dicetak pada: ${new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
+          <p>Jumlah Penerima: ${penyaluran.details.length} orang</p>
         </div>
       </body>
       </html>
     `
 
+    // Return HTML for browser to print or save as PDF
     return new NextResponse(html, {
+      status: 200,
       headers: {
         'Content-Type': 'text/html; charset=utf-8',
-        'Content-Disposition': `attachment; filename="dak-penyaluran-${periode === 'ALL' ? 'semua' : periode}-${new Date().toISOString().split('T')[0]}.pdf"`
-      }
+      },
     })
   } catch (error) {
-    console.error('Export PDF error:', error)
+    console.error('Error generating PDF:', error)
     return NextResponse.json(
-      { error: 'Failed to export data' },
+      { error: 'Gagal membuat PDF' },
       { status: 500 }
     )
   }
