@@ -65,6 +65,7 @@ export default function GuruDAKPage() {
   const [loading, setLoading] = useState(true)
   const [dakData, setDakData] = useState<DAKWithDetails[]>([])
   const [search, setSearch] = useState('')
+  const [detailSearch, setDetailSearch] = useState('')
   const [filterStatus, setFilterStatus] = useState('ALL')
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [pagination, setPagination] = useState({
@@ -139,8 +140,8 @@ export default function GuruDAKPage() {
   const filteredDetails = expandedId
     ? dakData.find((d) => d.id === expandedId)?.detailPenerima.filter(
         (detail) =>
-          detail.nama.toLowerCase().includes(search.toLowerCase()) ||
-          detail.nip.includes(search)
+          detail.nama.toLowerCase().includes(detailSearch.toLowerCase()) ||
+          detail.nip.includes(detailSearch)
       ) || []
     : []
 
@@ -292,6 +293,7 @@ export default function GuruDAKPage() {
                           } else {
                             setExpandedId(dak.id)
                             setPagination((prev) => ({ ...prev, currentPage: 1 }))
+                            setDetailSearch('')
                           }
                         }}
                         className="gap-2"
@@ -313,9 +315,9 @@ export default function GuruDAKPage() {
                                 <Input
                                   placeholder="Cari nama atau NIP..."
                                   className="pl-10"
-                                  value={search}
+                                  value={detailSearch}
                                   onChange={(e) => {
-                                    setSearch(e.target.value)
+                                    setDetailSearch(e.target.value)
                                     setPagination((prev) => ({ ...prev, currentPage: 1 }))
                                   }}
                                 />
@@ -360,7 +362,7 @@ export default function GuruDAKPage() {
                                 <TableRow>
                                   <TableCell colSpan={9} className="text-center py-8">
                                     <p className="text-muted-foreground">
-                                      {filteredDetails.length === 0 && search === ''
+                                      {filteredDetails.length === 0 && detailSearch === ''
                                         ? 'Tidak ada detail penerima'
                                         : 'Tidak ada data yang sesuai dengan pencarian'}
                                     </p>
