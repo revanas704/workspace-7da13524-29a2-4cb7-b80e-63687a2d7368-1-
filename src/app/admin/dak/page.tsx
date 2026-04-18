@@ -12,6 +12,24 @@ import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 
 import {
   ArrowLeft,
@@ -23,6 +41,8 @@ import {
   Download,
   Search,
   ChevronDown,
+  Edit,
+  Trash2,
 } from 'lucide-react'
 
 interface DAKPenyaluran {
@@ -66,6 +86,17 @@ export default function AdminDAKPage() {
   const [penyaluranData, setPenyaluranData] = useState<DAKPenyaluran[]>([])
   const [selectedPenyaluran, setSelectedPenyaluran] = useState<DAKPenyaluran | null>(null)
   const [expandedId, setExpandedId] = useState<string | null>(null)
+
+  // Edit Status Dialog state
+  const [editStatusOpen, setEditStatusOpen] = useState(false)
+  const [editStatusId, setEditStatusId] = useState<string | null>(null)
+  const [editStatusValue, setEditStatusValue] = useState('')
+  const [editStatusLoading, setEditStatusLoading] = useState(false)
+
+  // Delete Alert Dialog state
+  const [deleteOpen, setDeleteOpen] = useState(false)
+  const [deleteId, setDeleteId] = useState<string | null>(null)
+  const [deleteLoading, setDeleteLoading] = useState(false)
 
   // Import form state
   const [importForm, setImportForm] = useState({
@@ -191,6 +222,76 @@ export default function AdminDAKPage() {
       toast.success('PDF sedang dibuat')
     } catch (error) {
       toast.error('Gagal membuat PDF')
+    }
+  }
+
+  const handleEditStatus = (id: string, currentStatus: string) => {
+    setEditStatusId(id)
+    setEditStatusValue(currentStatus)
+    setEditStatusOpen(true)
+  }
+
+  const handleSaveStatus = async () => {
+    if (!editStatusId) return
+
+    setEditStatusLoading(true)
+    try {
+      const res = await fetch(`/api/dak/penyaluran/${editStatusId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: editStatusValue }),
+      })
+
+      if (res.ok) {
+        toast.success('Status berhasil diupdate')
+        setEditStatusOpen(false)
+        fetchData()
+      } else {
+        const error = await res.json()
+        toast.error(error.error || 'Gagal mengupdate status')
+      }
+    } catch (error) {
+      toast.error('Terjadi kesalahan saat mengupdate status')
+      console.error(error)
+    } finally {
+      setEditStatusLoading(false)
+    }
+  }
+
+  const handleDelete = (id: string) => {
+    setDeleteId(id)
+    setDeleteOpen(true)
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!deleteId) return
+
+    setDeleteLoading(true)
+    try {
+      const res = await fetch(`/api/dak/penyaluran/${deleteId}`, {
+        method: 'DELETE',
+      })
+
+      if (res.ok) {
+        toast.success('Data penyaluran berhasil dihapus')
+        setDeleteOpen(false)
+        // Also close expanded view if this was the selected penyaluran
+        if (selectedPenyaluran?.id === deleteId) {
+          setSelectedPenyaluran(null)
+          setExpandedId(null)
+        }
+        fetchData()
+      } else {
+        const error = await res.json()
+        toast.error(error.error || 'Gagal menghapus data')
+      }
+    } catch (error) {
+      toast.error('Terjadi kesalahan saat menghapus data')
+      console.error(error)
+    } finally {
+      setDeleteLoading(false)
     }
   }
 
@@ -552,6 +653,24 @@ export default function AdminDAKPage() {
                               <Button
                                 variant="outline"
                                 size="sm"
+                                onClick={() => handleEditStatus(penyaluran.id, penyaluran.status)}
+                                className="gap-1"
+                              >
+                                <Edit className="h-4 w-4" />
+                                Status
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleDelete(penyaluran.id)}
+                                className="gap-1 text-red-600 hover:text-red-700 hover:bg-red-50"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                                Hapus
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
                                 onClick={() => {
                                   if (selectedPenyaluran?.id === penyaluran.id && isExpanded) {
                                     setSelectedPenyaluran(null)
@@ -735,6 +854,91 @@ export default function AdminDAKPage() {
           </CardContent>
         </Card>
       </main>
+
+      {/* Edit Status Dialog */}
+      <Dialog open={editStatusOpen} onOpenChange={setEditStatusOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Status Penyaluran</DialogTitle>
+            <DialogDescription>
+              Ubah status penyaluran DAK ini.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="status">Status</Label>
+              <Select
+                value={editStatusValue}
+                onValueChange={setEditStatusValue}
+              >
+                <SelectTrigger id="status">
+                  <SelectValue placeholder="Pilih status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="UPLOAD_SELESAI">Upload Selesai</SelectItem>
+                  <SelectItem value="DIKIRIM_KE_DJPK">Dikirim Ke DJPK</SelectItem>
+                  <SelectItem value="DIKIRIM_KE_DITPA">Dikirim Ke Dit. PA</SelectItem>
+                  <SelectItem value="SP2D">SP2D</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setEditStatusOpen(false)}
+              disabled={editStatusLoading}
+            >
+              Batal
+            </Button>
+            <Button
+              onClick={handleSaveStatus}
+              disabled={editStatusLoading}
+              className="bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-700 hover:to-amber-700"
+            >
+              {editStatusLoading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Menyimpan...
+                </>
+              ) : (
+                'Simpan'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Alert Dialog */}
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Hapus Data Penyaluran?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tindakan ini akan menghapus data penyaluran dan semua detail penerima terkait secara permanen. Tindakan ini tidak dapat dibatalkan.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteLoading}>
+              Batal
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              disabled={deleteLoading}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {deleteLoading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Menghapus...
+                </>
+              ) : (
+                'Hapus'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

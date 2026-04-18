@@ -91,7 +91,7 @@ model DAKPenyaluran {
 model DAKDetailPenerima {
   id                  String   @id @default(cuid())
   dakPenyaluranId     String
-  dakPenyaluran       DAKPenyaluran @relation(fields: [dakPenyaluranId], references: [id])
+  dakPenyaluran       DAKPenyaluran @relation(fields: [dakPenyaluranId], references: [id], onDelete: Cascade)
   nip                 String
   nama                String
   namaPemilikRekening String
