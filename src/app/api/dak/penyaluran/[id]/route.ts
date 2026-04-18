@@ -12,16 +12,16 @@ if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
 // PATCH - Update status penyaluran
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   console.log('=== PATCH /api/dak/penyaluran/[id] received ===')
-  console.log('Full request URL:', request.url)
-  console.log('Request method:', request.method)
   try {
-    const id = params.id
+    const { id } = await params
     const body = await request.json()
     const { status } = body
 
+    console.log('Full request URL:', request.url)
+    console.log('Request method:', request.method)
     console.log('Update request received:', {
       id,
       status,
@@ -104,10 +104,10 @@ export async function PATCH(
 // DELETE - Hapus penyaluran
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = params.id
+    const { id } = await params
 
     // Prisma akan otomatis menghapus detailPenerima karena relation dengan onDelete: Cascade
     const penyaluran = await prisma.dAKPenyaluran.delete({
