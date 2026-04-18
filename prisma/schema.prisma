@@ -61,3 +61,48 @@ model Pengajuan {
   createdAt           DateTime   @default(now())
   updatedAt           DateTime   @updatedAt
 }
+
+model DAKPenyaluran {
+  id                String   @id @default(cuid())
+  jenis             String   // Jenis tunjangan (TPG/TAMSIL)
+  kanwil            String
+  kppn              String
+  pemda             String
+  periode           String   // Bulan (JANUARI, FEBRUARI, dll)
+  gelombang         Int
+  salurBruto        Float
+  potPph            Float
+  potJknPns         Float
+  potJknPppk        Float
+  nilaiRekomendasi  Float
+  jumlahPenerima    Int
+  kirimKeDitPa      String?
+  kirimKeKppn       String?
+  durasiKerja       Int
+  bankOperator      String
+  spp               String
+  sp2d              String
+  status            String   // "Upload Dokumen", "Proses Pencairan", "Sudah SP2D"
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  detailPenerima    DAKDetailPenerima[]
+}
+
+model DAKDetailPenerima {
+  id                  String   @id @default(cuid())
+  dakPenyaluranId     String
+  dakPenyaluran       DAKPenyaluran @relation(fields: [dakPenyaluranId], references: [id])
+  nip                 String
+  nama                String
+  namaPemilikRekening String
+  noRekening          String
+  bank                String
+  satdik              String
+  salurBruto          Float
+  pph                 Float
+  potIjn              Float
+  salurNetto          Float
+  status              String
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
