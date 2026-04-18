@@ -650,7 +650,7 @@ export default function AdminDAKPage() {
                                 </span>
                                 {getStatusBadge(penyaluran.status)}
                               </div>
-                              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                              <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
                                 <div>
                                   <p className="text-muted-foreground">Salur Bruto</p>
                                   <p className="font-semibold">{formatCurrency(penyaluran.salurBruto)}</p>
@@ -664,8 +664,12 @@ export default function AdminDAKPage() {
                                   <p className="font-semibold text-red-600">{formatCurrency(penyaluran.potPph)}</p>
                                 </div>
                                 <div>
-                                  <p className="text-muted-foreground">Pot JKN (PNS+PPPK)</p>
-                                  <p className="font-semibold text-red-600">{formatCurrency(penyaluran.potJknPns + penyaluran.potJknPppk)}</p>
+                                  <p className="text-muted-foreground">Pot JKN</p>
+                                  <p className="font-semibold text-red-600">{formatCurrency((penyaluran.potJknPns || 0) + (penyaluran.potJknPppk || 0))}</p>
+                                </div>
+                                <div>
+                                  <p className="text-muted-foreground">Jumlah Penerima</p>
+                                  <p className="font-semibold">{penyaluran.jumlahPenerima}</p>
                                 </div>
                               </div>
                             </div>

@@ -265,7 +265,7 @@ export default function GuruDAKPage() {
                           </span>
                           {getStatusBadge(dak.status)}
                         </div>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
                           <div>
                             <p className="text-muted-foreground">Salur Bruto</p>
                             <p className="font-semibold">{formatCurrency(dak.salurBruto)}</p>
@@ -277,6 +277,12 @@ export default function GuruDAKPage() {
                           <div>
                             <p className="text-muted-foreground">Pot PPH</p>
                             <p className="font-semibold text-red-600">{formatCurrency(dak.potPph)}</p>
+                          </div>
+                          <div>
+                            <p className="text-muted-foreground">Pot JKN</p>
+                            <p className="font-semibold text-red-600">
+                              {formatCurrency((dak.potJknPns || 0) + (dak.potJknPppk || 0))}
+                            </p>
                           </div>
                           <div>
                             <p className="text-muted-foreground">Jumlah Penerima</p>
