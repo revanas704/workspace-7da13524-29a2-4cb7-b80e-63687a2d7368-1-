@@ -85,7 +85,9 @@ export default function GuruDashboard() {
   const [isDeleting, setIsDeleting] = useState(false)
 
   useEffect(() => {
-    if (status === 'unauthenticated' || !session) {
+    if (status === 'loading') return
+
+    if (status === 'unauthenticated') {
       router.push('/login')
     }
   }, [status, session, router])

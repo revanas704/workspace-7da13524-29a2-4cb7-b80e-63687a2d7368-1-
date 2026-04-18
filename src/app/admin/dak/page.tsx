@@ -119,7 +119,9 @@ export default function AdminDAKPage() {
   const [searchDetail, setSearchDetail] = useState('')
 
   useEffect(() => {
-    if (status === 'unauthenticated' || !session) {
+    if (status === 'loading') return
+
+    if (status === 'unauthenticated') {
       router.push('/login')
     } else if (status === 'authenticated' && session?.user?.role !== 'ADMIN') {
       router.push('/guru/dashboard')
