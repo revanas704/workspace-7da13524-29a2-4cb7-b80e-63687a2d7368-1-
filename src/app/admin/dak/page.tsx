@@ -234,11 +234,24 @@ export default function AdminDAKPage() {
   }
 
   const handleSaveStatus = async () => {
-    if (!editStatusId) return
+    if (!editStatusId) {
+      console.error('editStatusId is empty')
+      return
+    }
+
+    console.log('handleSaveStatus called:', {
+      editStatusId,
+      editStatusValue,
+      editStatusIdType: typeof editStatusId,
+      editStatusValueType: typeof editStatusValue
+    })
 
     setEditStatusLoading(true)
     try {
-      const res = await fetch(`/api/dak/penyaluran/${editStatusId}`, {
+      const apiUrl = `/api/dak/penyaluran/${editStatusId}`
+      console.log('Calling API:', apiUrl)
+
+      const res = await fetch(apiUrl, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -246,17 +259,23 @@ export default function AdminDAKPage() {
         body: JSON.stringify({ status: editStatusValue }),
       })
 
+      console.log('API Response status:', res.status)
+      console.log('API Response ok:', res.ok)
+
       if (res.ok) {
+        const data = await res.json()
+        console.log('API Response data:', data)
         toast.success('Status berhasil diupdate')
         setEditStatusOpen(false)
         fetchData()
       } else {
         const error = await res.json()
+        console.error('API Error response:', error)
         toast.error(error.error || 'Gagal mengupdate status')
       }
     } catch (error) {
+      console.error('Network/Fetch error:', error)
       toast.error('Terjadi kesalahan saat mengupdate status')
-      console.error(error)
     } finally {
       setEditStatusLoading(false)
     }

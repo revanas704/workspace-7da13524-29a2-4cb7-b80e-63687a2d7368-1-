@@ -15,12 +15,19 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   console.log('=== PATCH /api/dak/penyaluran/[id] received ===')
+  console.log('Full request URL:', request.url)
+  console.log('Request method:', request.method)
   try {
     const id = params.id
     const body = await request.json()
     const { status } = body
 
-    console.log('Update request:', { id, status })
+    console.log('Update request received:', {
+      id,
+      status,
+      idType: typeof id,
+      statusType: typeof status
+    })
 
     if (!status) {
       console.error('Status tidak diisi')
@@ -34,11 +41,31 @@ export async function PATCH(
     const validStatuses = ['UPLOAD_SELESAI', 'DIKIRIM_KE_DJPK', 'DIKIRIM_KE_DITPA', 'SP2D']
     if (!validStatuses.includes(status)) {
       console.error('Status tidak valid:', status)
+      console.error('Valid statuses:', validStatuses)
       return NextResponse.json(
-        { error: 'Status tidak valid' },
+        { error: 'Status tidak valid', validStatuses },
         { status: 400 }
       )
     }
+
+    console.log('Attempting to find penyaluran with id:', id)
+    const existingPenyaluran = await prisma.dAKPenyaluran.findUnique({
+      where: { id }
+    })
+
+    if (!existingPenyaluran) {
+      console.error('Penyaluran tidak ditemukan dengan id:', id)
+      return NextResponse.json(
+        { error: 'Penyaluran tidak ditemukan' },
+        { status: 404 }
+      )
+    }
+
+    console.log('Found penyaluran:', {
+      id: existingPenyaluran.id,
+      currentStatus: existingPenyaluran.status,
+      jenis: existingPenyaluran.jenis
+    })
 
     console.log('Attempting to update penyaluran...')
     const penyaluran = await prisma.dAKPenyaluran.update({
@@ -49,17 +76,23 @@ export async function PATCH(
       },
     })
 
-    console.log('Successfully updated penyaluran:', penyaluran.id)
+    console.log('Successfully updated penyaluran:', {
+      id: penyaluran.id,
+      newStatus: penyaluran.status,
+      jenis: penyaluran.jenis
+    })
 
     return NextResponse.json({
       success: true,
       data: penyaluran,
     })
   } catch (error) {
-    console.error('Error updating DAK penyaluran status:', error)
+    console.error('=== Error updating DAK penyaluran status ===')
+    console.error('Error:', error)
     if (error instanceof Error) {
       console.error('Error message:', error.message)
       console.error('Error stack:', error.stack)
+      console.error('Error name:', error.name)
     }
     return NextResponse.json(
       { error: 'Gagal mengupdate status penyaluran DAK', details: error instanceof Error ? error.message : 'Unknown error' },
