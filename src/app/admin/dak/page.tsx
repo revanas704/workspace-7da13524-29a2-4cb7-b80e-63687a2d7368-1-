@@ -70,9 +70,10 @@ export default function AdminDAKPage() {
   // Import form state
   const [importForm, setImportForm] = useState({
     jenis: 'TPG',
-    periode: '2025',
+    bulan: 'JANUARI',
+    tahun: '2025',
     gelombang: '1',
-    status: 'PENDING',
+    status: 'UPLOAD_SELESAI',
   })
   const [importFile, setImportFile] = useState<File | null>(null)
 
@@ -133,7 +134,7 @@ export default function AdminDAKPage() {
       const formData = new FormData()
       formData.append('file', importFile)
       formData.append('jenis', importForm.jenis)
-      formData.append('periode', importForm.periode)
+      formData.append('periode', `${importForm.bulan} ${importForm.tahun}`)
       formData.append('gelombang', importForm.gelombang)
       formData.append('status', importForm.status)
 
@@ -148,9 +149,10 @@ export default function AdminDAKPage() {
         setImportFile(null)
         setImportForm({
           jenis: 'TPG',
-          periode: '2025',
+          bulan: 'JANUARI',
+          tahun: '2025',
           gelombang: '1',
-          status: 'PENDING',
+          status: 'UPLOAD_SELESAI',
         })
         fetchData()
       } else {
@@ -194,12 +196,14 @@ export default function AdminDAKPage() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'TERBIT':
-        return <Badge className="bg-green-600"><CheckCircle className="w-3 h-3 mr-1" /> TERBIT</Badge>
-      case 'PENDING':
-        return <Badge variant="outline" className="border-orange-500 text-orange-700"><Clock className="w-3 h-3 mr-1" /> PENDING</Badge>
-      case 'DITOLAK':
-        return <Badge variant="destructive"><XCircle className="w-3 h-3 mr-1" /> DITOLAK</Badge>
+      case 'UPLOAD_SELESAI':
+        return <Badge variant="outline" className="border-blue-500 text-blue-700"><CheckCircle className="w-3 h-3 mr-1" /> UPLOAD SELESAI</Badge>
+      case 'DIKIRIM_KE_DJPK':
+        return <Badge variant="outline" className="border-orange-500 text-orange-700"><Clock className="w-3 h-3 mr-1" /> DIKIRIM KE DJPK</Badge>
+      case 'DIKIRIM_KE_DITPA':
+        return <Badge variant="outline" className="border-amber-500 text-amber-700"><Clock className="w-3 h-3 mr-1" /> DIKIRIM KE DIT. PA</Badge>
+      case 'SP2D':
+        return <Badge className="bg-green-600"><CheckCircle className="w-3 h-3 mr-1" /> SP2D</Badge>
       default:
         return <Badge variant="secondary">{status}</Badge>
     }
@@ -301,13 +305,39 @@ export default function AdminDAKPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="periode">Periode</Label>
+                  <Label htmlFor="bulan">Bulan</Label>
+                  <Select
+                    value={importForm.bulan}
+                    onValueChange={(value) => setImportForm({ ...importForm, bulan: value })}
+                  >
+                    <SelectTrigger id="bulan">
+                      <SelectValue placeholder="Pilih bulan" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="JANUARI">Januari</SelectItem>
+                      <SelectItem value="FEBRUARI">Februari</SelectItem>
+                      <SelectItem value="MARET">Maret</SelectItem>
+                      <SelectItem value="APRIL">April</SelectItem>
+                      <SelectItem value="MEI">Mei</SelectItem>
+                      <SelectItem value="JUNI">Juni</SelectItem>
+                      <SelectItem value="JULI">Juli</SelectItem>
+                      <SelectItem value="AGUSTUS">Agustus</SelectItem>
+                      <SelectItem value="SEPTEMBER">September</SelectItem>
+                      <SelectItem value="OKTOBER">Oktober</SelectItem>
+                      <SelectItem value="NOVEMBER">November</SelectItem>
+                      <SelectItem value="DESEMBER">Desember</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="tahun">Tahun</Label>
                   <Input
-                    id="periode"
+                    id="tahun"
                     type="text"
                     placeholder="Contoh: 2025"
-                    value={importForm.periode}
-                    onChange={(e) => setImportForm({ ...importForm, periode: e.target.value })}
+                    value={importForm.tahun}
+                    onChange={(e) => setImportForm({ ...importForm, tahun: e.target.value })}
                   />
                 </div>
 
@@ -321,7 +351,9 @@ export default function AdminDAKPage() {
                     onChange={(e) => setImportForm({ ...importForm, gelombang: e.target.value })}
                   />
                 </div>
+              </div>
 
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="status">Status</Label>
                   <Select
@@ -332,9 +364,10 @@ export default function AdminDAKPage() {
                       <SelectValue placeholder="Pilih status" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="PENDING">PENDING</SelectItem>
-                      <SelectItem value="TERBIT">TERBIT</SelectItem>
-                      <SelectItem value="DITOLAK">DITOLAK</SelectItem>
+                      <SelectItem value="UPLOAD_SELESAI">Upload Selesai</SelectItem>
+                      <SelectItem value="DIKIRIM_KE_DJPK">Dikirim Ke DJPK</SelectItem>
+                      <SelectItem value="DIKIRIM_KE_DITPA">Dikirim Ke Dit. PA</SelectItem>
+                      <SelectItem value="SP2D">SP2D</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -452,9 +485,10 @@ export default function AdminDAKPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="ALL">Semua</SelectItem>
-                    <SelectItem value="TERBIT">TERBIT</SelectItem>
-                    <SelectItem value="PENDING">PENDING</SelectItem>
-                    <SelectItem value="DITOLAK">DITOLAK</SelectItem>
+                    <SelectItem value="UPLOAD_SELESAI">UPLOAD SELESAI</SelectItem>
+                    <SelectItem value="DIKIRIM_KE_DJPK">DIKIRIM KE DJPK</SelectItem>
+                    <SelectItem value="DIKIRIM_KE_DITPA">DIKIRIM KE DIT. PA</SelectItem>
+                    <SelectItem value="SP2D">SP2D</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
