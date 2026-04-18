@@ -71,6 +71,7 @@ export const authOptions: NextAuthOptions = {
   ],
   session: {
     strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   pages: {
     signIn: "/login",
@@ -98,11 +99,13 @@ export const authOptions: NextAuthOptions = {
       return token
     },
     async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.id
-        session.user.username = token.username
-        session.user.role = token.role
-        session.user.guruId = token.guruId
+      if (token) {
+        session.user = {
+          id: token.id,
+          username: token.username,
+          role: token.role,
+          guruId: token.guruId,
+        }
       }
       return session
     },
