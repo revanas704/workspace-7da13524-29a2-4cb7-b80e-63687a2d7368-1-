@@ -1,5 +1,7 @@
-import { db } from '@/lib/db'
+import { PrismaClient } from '@prisma/client'
 import { NextRequest, NextResponse } from 'next/server'
+
+const prisma = new PrismaClient()
 
 // GET - Get detail penerima by penyaluran ID
 export async function GET(
@@ -7,7 +9,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const detailData = await db.dAKDetailPenerima.findMany({
+    const detailData = await prisma.dAKDetailPenerima.findMany({
       where: {
         dakPenyaluranId: params.id
       },

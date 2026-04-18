@@ -1,6 +1,8 @@
-import { db } from '@/lib/db'
+import { PrismaClient } from '@prisma/client'
 import { NextRequest, NextResponse } from 'next/server'
 import * as XLSX from 'xlsx'
+
+const prisma = new PrismaClient()
 
 export async function GET(request: NextRequest) {
   try {
@@ -14,7 +16,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const penyaluran = await db.dAKPenyaluran.findUnique({
+    const penyaluran = await prisma.dAKPenyaluran.findUnique({
       where: { id },
       include: { details: true },
     })

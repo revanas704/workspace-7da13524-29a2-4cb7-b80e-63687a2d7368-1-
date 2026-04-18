@@ -1,6 +1,8 @@
-import { db } from '@/lib/db'
+import { PrismaClient } from '@prisma/client'
 import { NextRequest, NextResponse } from 'next/server'
 import * as XLSX from 'xlsx'
+
+const prisma = new PrismaClient()
 
 export async function GET(request: NextRequest) {
   try {
@@ -20,7 +22,7 @@ export async function GET(request: NextRequest) {
       where.status = status
     }
 
-    const data = await db.dAKPenyaluran.findMany({
+    const data = await prisma.dAKPenyaluran.findMany({
       where,
       include: {
         details: true,
@@ -107,7 +109,7 @@ export async function POST(request: NextRequest) {
     totalNilaiRekomendasi = totalSalurBruto - totalPotPPH - totalPotJKN
 
     // Create penyaluran record
-    const penyaluran = await db.dAKPenyaluran.create({
+    const penyaluran = await prisma.dAKPenyaluran.create({
       data: {
         jenis,
         periode,
