@@ -29,7 +29,8 @@ import {
   GraduationCap,
   Plus,
   Download,
-  Trash2
+  Trash2,
+  FileSpreadsheet
 } from 'lucide-react'
 import { formatCurrency } from '@/lib/salary-calculator'
 import { getGajiPokok, getPangkatByGolongan } from '@/lib/gaji-pokok-pp5'
@@ -324,7 +325,7 @@ export default function GuruDashboard() {
         </Card>
 
         <Tabs defaultValue="profil" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 bg-white/80 backdrop-blur-sm shadow-lg border-0 p-1">
+          <TabsList className="grid w-full grid-cols-5 bg-white/80 backdrop-blur-sm shadow-lg border-0 p-1">
             <TabsTrigger value="profil" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-600 data-[state=active]:to-amber-600 data-[state=active]:text-white">
               <User className="w-4 h-4 mr-2" />
               Profil
@@ -340,6 +341,10 @@ export default function GuruDashboard() {
             <TabsTrigger value="riwayat" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-600 data-[state=active]:to-red-500 data-[state=active]:text-white">
               <FileText className="w-4 h-4 mr-2" />
               Riwayat
+            </TabsTrigger>
+            <TabsTrigger value="dak" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-700 data-[state=active]:to-amber-700 data-[state=active]:text-white">
+              <FileSpreadsheet className="w-4 h-4 mr-2" />
+              DAK Non Fisik
             </TabsTrigger>
           </TabsList>
 
@@ -987,6 +992,48 @@ export default function GuruDashboard() {
                     ))}
                   </div>
                 )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* DAK Tab */}
+          <TabsContent value="dak">
+            <Card className="shadow-xl border-0 bg-gradient-to-br from-red-600 to-amber-500 text-white overflow-hidden relative">
+              <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -translate-y-24 translate-x-24"></div>
+              <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full translate-y-16 -translate-x-16"></div>
+              <CardHeader className="relative z-10">
+                <CardTitle className="flex items-center gap-3 text-2xl">
+                  <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                    <FileSpreadsheet className="w-6 h-6" />
+                  </div>
+                  DAK Non Fisik
+                </CardTitle>
+                <CardDescription className="text-white/90 text-base mt-2">
+                  Dana Alokasi Khusus Non Fisik - Penyaluran Tunjangan Profesi
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="relative z-10 pt-6">
+                <Button
+                  onClick={() => router.push('/guru/dak')}
+                  className="w-full bg-white text-red-600 hover:bg-red-50 text-lg py-6 shadow-xl border-0"
+                >
+                  <FileSpreadsheet className="w-5 h-5 mr-3" />
+                  Lihat Data Penyaluran DAK
+                </Button>
+                <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="p-4 bg-white/20 backdrop-blur-sm rounded-xl border border-white/30">
+                    <p className="text-sm text-white/90 mb-1">Dana Tunjangan Profesi</p>
+                    <p className="text-xl font-bold text-white">TPG ASN Daerah</p>
+                  </div>
+                  <div className="p-4 bg-white/20 backdrop-blur-sm rounded-xl border border-white/30">
+                    <p className="text-sm text-white/90 mb-1">Dana Tambahan Penghasilan</p>
+                    <p className="text-xl font-bold text-white">TAMSIL ASN Daerah</p>
+                  </div>
+                  <div className="p-4 bg-white/20 backdrop-blur-sm rounded-xl border border-white/30">
+                    <p className="text-sm text-white/90 mb-1">Pemberkasan</p>
+                    <p className="text-xl font-bold text-white">Periode & Gelombang</p>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

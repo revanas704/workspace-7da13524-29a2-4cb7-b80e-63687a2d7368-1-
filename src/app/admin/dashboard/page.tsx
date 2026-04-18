@@ -34,6 +34,7 @@ import {
   Search,
   ChevronDown,
   Upload,
+  FileSpreadsheet,
 } from 'lucide-react'
 
 interface Guru {
@@ -560,7 +561,7 @@ export default function AdminDashboardPage() {
 
         {/* Tabs */}
         <Tabs defaultValue="guru" className="space-y-4">
-          <TabsList className="grid w-full md:w-[400px] grid-cols-2 bg-white/50 dark:bg-slate-800/50">
+          <TabsList className="grid w-full md:w-[600px] grid-cols-3 bg-white/50 dark:bg-slate-800/50">
             <TabsTrigger value="guru" className="flex items-center gap-2 data-[state=active]:bg-red-600 data-[state=active]:text-white">
               <Users className="h-4 w-4" />
               Data Guru
@@ -571,6 +572,10 @@ export default function AdminDashboardPage() {
               {pengajuan.length > 0 && (
                 <Badge className="ml-auto bg-amber-500 hover:bg-amber-600 text-white border-0">{pengajuan.length}</Badge>
               )}
+            </TabsTrigger>
+            <TabsTrigger value="dak" className="flex items-center gap-2 data-[state=active]:bg-red-600 data-[state=active]:text-white">
+              <FileSpreadsheet className="h-4 w-4" />
+              DAK Non Fisik
             </TabsTrigger>
           </TabsList>
 
@@ -921,6 +926,102 @@ export default function AdminDashboardPage() {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* DAK Non Fisik Tab */}
+          <TabsContent value="dak">
+            <div className="grid gap-6">
+              <Card className="shadow-xl border-0 bg-gradient-to-br from-red-600 to-amber-500 text-white overflow-hidden relative">
+                <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -translate-y-24 translate-x-24"></div>
+                <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full translate-y-16 -translate-x-16"></div>
+                <CardHeader className="relative z-10">
+                  <CardTitle className="flex items-center gap-3 text-2xl">
+                    <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                      <FileSpreadsheet className="w-6 h-6" />
+                    </div>
+                    DAK Non Fisik
+                  </CardTitle>
+                  <CardDescription className="text-white/90 text-base mt-2">
+                    Dana Alokasi Khusus Non Fisik - Penyaluran Tunjangan Profesi
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="relative z-10 pt-6">
+                  <Button
+                    onClick={() => router.push('/admin/dak')}
+                    className="w-full bg-white text-red-600 hover:bg-red-50 text-lg py-6 shadow-xl border-0"
+                  >
+                    <FileSpreadsheet className="w-5 h-5 mr-3" />
+                    Kelola Data Penyaluran DAK
+                  </Button>
+                  <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="p-4 bg-white/20 backdrop-blur-sm rounded-xl border border-white/30">
+                      <p className="text-sm text-white/90 mb-1">Dana Tunjangan Profesi</p>
+                      <p className="text-xl font-bold text-white">TPG ASN Daerah</p>
+                    </div>
+                    <div className="p-4 bg-white/20 backdrop-blur-sm rounded-xl border border-white/30">
+                      <p className="text-sm text-white/90 mb-1">Dana Tambahan Penghasilan</p>
+                      <p className="text-xl font-bold text-white">TAMSIL ASN Daerah</p>
+                    </div>
+                    <div className="p-4 bg-white/20 backdrop-blur-sm rounded-xl border border-white/30">
+                      <p className="text-sm text-white/90 mb-1">Pemberkasan</p>
+                      <p className="text-xl font-bold text-white">Periode & Gelombang</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-red-50/50 dark:from-slate-800 dark:to-red-950/50">
+                <CardHeader className="bg-gradient-to-r from-amber-600 to-orange-600 text-white">
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="w-5 h-5" />
+                    Fitur Menu DAK
+                  </CardTitle>
+                  <CardDescription className="text-white/90">
+                    Fungsi-fungsi yang tersedia di menu DAK Non Fisik
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4 pt-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex items-start gap-3 p-4 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/30 dark:to-orange-950/30 rounded-lg border border-red-100 dark:border-red-900">
+                      <div className="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0">
+                        <Upload className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-slate-900 dark:text-white">Import Data</p>
+                        <p className="text-sm text-slate-600 dark:text-slate-400">Upload file Excel untuk import data penyaluran</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3 p-4 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950/30 dark:to-amber-950/30 rounded-lg border border-orange-100 dark:border-orange-900">
+                      <div className="w-10 h-10 bg-orange-600 rounded-full flex items-center justify-center flex-shrink-0">
+                        <Users className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-slate-900 dark:text-white">Kelola Data</p>
+                        <p className="text-sm text-slate-600 dark:text-slate-400">View, edit, dan delete data penyaluran</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3 p-4 bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-950/30 dark:to-yellow-950/30 rounded-lg border border-amber-100 dark:border-amber-900">
+                      <div className="w-10 h-10 bg-amber-600 rounded-full flex items-center justify-center flex-shrink-0">
+                        <FileText className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-slate-900 dark:text-white">Lihat Detail Penerima</p>
+                        <p className="text-sm text-slate-600 dark:text-slate-400">Cek daftar penerima dengan pagination & search</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3 p-4 bg-gradient-to-r from-red-100 to-orange-100 dark:from-red-950/40 dark:to-orange-950/40 rounded-lg border border-red-200 dark:border-red-800">
+                      <div className="w-10 h-10 bg-red-700 rounded-full flex items-center justify-center flex-shrink-0">
+                        <Download className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-slate-900 dark:text-white">Export Data</p>
+                        <p className="text-sm text-slate-600 dark:text-slate-400">Download Excel & PDF laporan penyaluran</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
         </Tabs>
       </main>
