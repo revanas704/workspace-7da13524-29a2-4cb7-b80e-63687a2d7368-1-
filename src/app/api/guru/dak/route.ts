@@ -69,6 +69,7 @@ export async function GET(request: NextRequest) {
       const penyaluranId = detail.dakPenyaluranId
       if (!penyaluranMap.has(penyaluranId)) {
         // Create penyaluran entry with all fields from dakPenyaluran
+        // BUT calculate totals only for this guru, not all recipients
         penyaluranMap.set(penyaluranId, {
           id: detail.dakPenyaluran.id,
           jenis: detail.dakPenyaluran.jenis,
@@ -77,12 +78,12 @@ export async function GET(request: NextRequest) {
           pemda: detail.dakPenyaluran.pemda,
           periode: detail.dakPenyaluran.periode,
           gelombang: detail.dakPenyaluran.gelombang,
-          salurBruto: detail.dakPenyaluran.salurBruto,
-          potPph: detail.dakPenyaluran.potPph,
-          potJknPns: detail.dakPenyaluran.potJknPns || 0,
-          potJknPppk: detail.dakPenyaluran.potJknPppk || 0,
-          nilaiRekomendasi: detail.dakPenyaluran.nilaiRekomendasi,
-          jumlahPenerima: detail.dakPenyaluran.jumlahPenerima,
+          salurBruto: detail.salurBruto, // Only this guru's salurBruto
+          potPph: detail.pph, // Only this guru's potPph
+          potJknPns: detail.potIjn, // Only this guru's potIjn
+          potJknPppk: 0, // Not used at individual level
+          nilaiRekomendasi: detail.salurNetto, // Only this guru's salurNetto
+          jumlahPenerima: 1, // Only this guru
           kirimKeDitPa: detail.dakPenyaluran.kirimKeDitPa,
           kirimKeKppn: detail.dakPenyaluran.kirimKeKppn,
           durasiKerja: detail.dakPenyaluran.durasiKerja,
