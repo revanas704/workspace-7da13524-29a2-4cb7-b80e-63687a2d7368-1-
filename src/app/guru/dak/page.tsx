@@ -69,7 +69,7 @@ export default function GuruDAKPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [pagination, setPagination] = useState({
     currentPage: 1,
-    itemsPerPage: 10,
+    itemsPerPage: 10 as number | 'ALL',
   })
 
   useEffect(() => {
@@ -145,10 +145,18 @@ export default function GuruDAKPage() {
     : []
 
   // Pagination
-  const totalPages = Math.ceil(filteredDetails.length / pagination.itemsPerPage)
-  const startIndex = (pagination.currentPage - 1) * pagination.itemsPerPage
-  const endIndex = startIndex + pagination.itemsPerPage
-  const paginatedDetails = filteredDetails.slice(startIndex, endIndex)
+  const totalPages = typeof pagination.itemsPerPage === 'number'
+    ? Math.ceil(filteredDetails.length / pagination.itemsPerPage)
+    : 1
+  const startIndex = typeof pagination.itemsPerPage === 'number'
+    ? (pagination.currentPage - 1) * pagination.itemsPerPage
+    : 0
+  const endIndex = typeof pagination.itemsPerPage === 'number'
+    ? startIndex + pagination.itemsPerPage
+    : filteredDetails.length
+  const paginatedDetails = pagination.itemsPerPage === 'ALL'
+    ? filteredDetails
+    : filteredDetails.slice(startIndex, endIndex)
 
   if (loading || status === 'loading') {
     return (
@@ -283,7 +291,7 @@ export default function GuruDAKPage() {
                             setExpandedId(null)
                           } else {
                             setExpandedId(dak.id)
-                            setPagination({ currentPage: 1, itemsPerPage: 10 })
+                            setPagination((prev) => ({ ...prev, currentPage: 1 }))
                           }
                         }}
                         className="gap-2"
@@ -295,6 +303,43 @@ export default function GuruDAKPage() {
                     {/* Detail Table */}
                     {isExpanded && (
                       <div className="mt-4 pt-4 border-t">
+                        {/* Detail Header with Pagination Controls */}
+                        <div className="mb-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                          <div>
+                            <h4 className="font-semibold mb-3">Daftar Penerima ({filteredDetails.length} penerima)</h4>
+                            <div className="flex gap-4 flex-wrap">
+                              <div className="relative flex-1 min-w-[200px]">
+                                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                  placeholder="Cari nama atau NIP..."
+                                  className="pl-10"
+                                  value={search}
+                                  onChange={(e) => {
+                                    setSearch(e.target.value)
+                                    setPagination((prev) => ({ ...prev, currentPage: 1 }))
+                                  }}
+                                />
+                              </div>
+                              <Select
+                                value={pagination.itemsPerPage.toString()}
+                                onValueChange={(value) => {
+                                  const newItemsPerPage = value === 'ALL' ? 'ALL' : parseInt(value)
+                                  setPagination((prev) => ({ ...prev, itemsPerPage: newItemsPerPage, currentPage: 1 }))
+                                }}
+                              >
+                                <SelectTrigger className="w-[180px]">
+                                  <SelectValue placeholder="Pilih" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="10">10 data</SelectItem>
+                                  <SelectItem value="50">50 data</SelectItem>
+                                  <SelectItem value="100">100 data</SelectItem>
+                                  <SelectItem value="ALL">Semua</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                        </div>
                         <div className="rounded-md border overflow-x-auto max-h-96 overflow-y-auto">
                           <Table>
                             <TableHeader>
@@ -349,7 +394,7 @@ export default function GuruDAKPage() {
                         </div>
 
                         {/* Pagination */}
-                        {totalPages > 1 && (
+                        {pagination.itemsPerPage !== 'ALL' && totalPages > 1 && (
                           <div className="flex items-center justify-between mt-4">
                             <p className="text-sm text-muted-foreground">
                               Menampilkan {startIndex + 1} - {Math.min(endIndex, filteredDetails.length)} dari {filteredDetails.length} data
