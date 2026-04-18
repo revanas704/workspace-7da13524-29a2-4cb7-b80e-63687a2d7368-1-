@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
 
     const penyaluran = await prisma.dAKPenyaluran.findUnique({
       where: { id },
-      include: { details: true },
+      include: { detailPenerima: true },
     })
 
     if (!penyaluran) {
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Prepare data for Excel export
-    const data = penyaluran.details.map((item, index) => ({
+    const data = penyaluran.detailPenerima.map((item, index) => ({
       No: index + 1,
       NIP: item.nip,
       NAMA: item.nama,

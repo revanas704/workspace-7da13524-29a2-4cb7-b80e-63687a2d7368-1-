@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
 
     const penyaluran = await prisma.dAKPenyaluran.findUnique({
       where: { id },
-      include: { details: true },
+      include: { detailPenerima: true },
     })
 
     if (!penyaluran) {
@@ -147,7 +147,7 @@ export async function GET(request: NextRequest) {
             </tr>
           </thead>
           <tbody>
-            ${penyaluran.details.map((item, index) => `
+            ${penyaluran.detailPenerima.map((item, index) => `
             <tr>
               <td class="center">${index + 1}</td>
               <td>${item.nip}</td>
@@ -172,7 +172,7 @@ export async function GET(request: NextRequest) {
 
         <div class="footer">
           <p>Dicetak pada: ${new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
-          <p>Jumlah Penerima: ${penyaluran.details.length} orang</p>
+          <p>Jumlah Penerima: ${penyaluran.detailPenerima.length} orang</p>
         </div>
       </body>
       </html>

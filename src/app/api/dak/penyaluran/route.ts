@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     const data = await prisma.dAKPenyaluran.findMany({
       where,
       include: {
-        details: true,
+        detailPenerima: true,
       },
       orderBy: [
         { periode: 'desc' },
@@ -128,7 +128,7 @@ export async function POST(request: NextRequest) {
         bankOperator: '',
         spp: '',
         sp2d: '',
-        details: {
+        detailPenerima: {
           create: penerimaData.map((item) => ({
             nip: item.nip,
             nama: item.nama,
@@ -145,7 +145,7 @@ export async function POST(request: NextRequest) {
         },
       },
       include: {
-        details: true,
+        detailPenerima: true,
       },
     })
 

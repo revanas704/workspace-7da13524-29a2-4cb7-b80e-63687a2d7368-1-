@@ -39,7 +39,7 @@ interface DAKPenyaluran {
   jumlahPenerima: number
   createdAt: string
   updatedAt: string
-  details: DAKDetailPenerima[]
+  detailPenerima: DAKDetailPenerima[]
 }
 
 interface DAKDetailPenerima {
@@ -217,7 +217,7 @@ export default function AdminDAKPage() {
     }).format(amount)
   }
 
-  const filteredRecipients = selectedPenyaluran?.details?.filter(item =>
+  const filteredRecipients = selectedPenyaluran?.detailPenerima?.filter(item =>
     item.nama.toLowerCase().includes(searchDetail.toLowerCase()) ||
     item.nip.includes(searchDetail)
   ) || []
