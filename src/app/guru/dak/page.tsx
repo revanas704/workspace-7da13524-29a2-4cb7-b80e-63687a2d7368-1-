@@ -171,19 +171,19 @@ export default function GuruDAKPage() {
     <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-amber-50 dark:from-slate-900 dark:via-red-950/20 dark:to-amber-950/20">
       {/* Header */}
       <header className="bg-gradient-to-r from-red-700 to-amber-600 shadow-lg sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-4 py-3">
           <div className="flex items-center gap-4">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => router.push('/guru/dashboard')}
-              className="text-white hover:bg-white/20"
+              className="text-white hover:bg-white/20 flex-shrink-0"
             >
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <div className="flex-1">
-              <h1 className="text-xl font-bold text-white">DAK Non Fisik</h1>
-              <p className="text-sm text-red-100">Penyaluran Tunjangan Profesi Guru</p>
+            <div className="flex-1 min-w-0">
+              <h1 className="text-xl font-bold text-white truncate">DAK Non Fisik</h1>
+              <p className="text-sm text-red-100 truncate">Penyaluran Tunjangan Profesi Guru</p>
             </div>
           </div>
         </div>
@@ -313,10 +313,10 @@ export default function GuruDAKPage() {
                       <div className="mt-4 pt-4 border-t">
                         {/* Detail Header with Pagination Controls */}
                         <div className="mb-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                          <div>
+                          <div className="flex-1 min-w-0">
                             <h4 className="font-semibold mb-3">Daftar Penerima ({filteredDetails.length} penerima)</h4>
                             <div className="flex gap-4 flex-wrap">
-                              <div className="relative flex-1 min-w-[200px]">
+                              <div className="relative flex-1 min-w-[250px]">
                                 <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                                 <Input
                                   placeholder="Cari nama atau NIP..."
@@ -348,25 +348,26 @@ export default function GuruDAKPage() {
                             </div>
                           </div>
                         </div>
-                        <div className="rounded-md border overflow-x-auto max-h-96 overflow-y-auto">
-                          <Table>
-                            <TableHeader>
-                              <TableRow className="bg-red-50 dark:bg-red-950/30 sticky top-0">
-                                <TableHead className="sticky top-0 bg-red-50 dark:bg-red-950/30">No</TableHead>
-                                <TableHead className="sticky top-0 bg-red-50 dark:bg-red-950/30">NIP</TableHead>
-                                <TableHead className="sticky top-0 bg-red-50 dark:bg-red-950/30">Nama</TableHead>
-                                <TableHead className="sticky top-0 bg-red-50 dark:bg-red-950/30">Bank</TableHead>
-                                <TableHead className="sticky top-0 bg-red-50 dark:bg-red-950/30">No. Rekening</TableHead>
-                                <TableHead className="sticky top-0 bg-red-50 dark:bg-red-950/30 text-right">Salur Bruto</TableHead>
-                                <TableHead className="sticky top-0 bg-red-50 dark:bg-red-950/30 text-right">Pot PPH</TableHead>
-                                <TableHead className="sticky top-0 bg-red-50 dark:bg-red-950/30 text-right">Pot JKN</TableHead>
-                                <TableHead className="sticky top-0 bg-red-50 dark:bg-red-950/30 text-right">Nilai Diterima</TableHead>
-                              </TableRow>
-                            </TableHeader>
+                        <div className="rounded-md border overflow-hidden">
+                          <div className="overflow-x-auto max-h-[500px] overflow-y-auto">
+                            <Table>
+                              <TableHeader>
+                                <TableRow className="bg-red-50 dark:bg-red-950/30">
+                                  <TableHead className="w-16 text-center whitespace-nowrap">No</TableHead>
+                                  <TableHead className="w-32 whitespace-nowrap">NIP</TableHead>
+                                  <TableHead className="w-48 whitespace-nowrap">Nama</TableHead>
+                                  <TableHead className="w-28 whitespace-nowrap">Bank</TableHead>
+                                  <TableHead className="w-36 whitespace-nowrap">No. Rekening</TableHead>
+                                  <TableHead className="w-40 whitespace-nowrap text-right">Salur Bruto</TableHead>
+                                  <TableHead className="w-36 whitespace-nowrap text-right">Pot PPH</TableHead>
+                                  <TableHead className="w-36 whitespace-nowrap text-right">Pot JKN</TableHead>
+                                  <TableHead className="w-40 whitespace-nowrap text-right">Nilai Diterima</TableHead>
+                                </TableRow>
+                              </TableHeader>
                             <TableBody>
                               {paginatedDetails.length === 0 ? (
                                 <TableRow>
-                                  <TableCell colSpan={9} className="text-center py-8">
+                                  <TableCell colSpan={9} className="text-center py-12">
                                     <p className="text-muted-foreground">
                                       {filteredDetails.length === 0 && detailSearch === ''
                                         ? 'Tidak ada detail penerima'
@@ -377,21 +378,21 @@ export default function GuruDAKPage() {
                               ) : (
                                 paginatedDetails.map((item, index) => (
                                   <TableRow key={item.id} className="hover:bg-red-50/50 dark:hover:bg-red-950/10">
-                                    <TableCell>{startIndex + index + 1}</TableCell>
-                                    <TableCell className="font-mono text-sm">{item.nip}</TableCell>
-                                    <TableCell className="font-medium">{item.nama}</TableCell>
-                                    <TableCell>{item.bank || '-'}</TableCell>
-                                    <TableCell className="font-mono text-sm">{item.noRekening}</TableCell>
-                                    <TableCell className="text-right font-semibold">
+                                    <TableCell className="text-center">{startIndex + index + 1}</TableCell>
+                                    <TableCell className="font-mono text-xs whitespace-nowrap">{item.nip}</TableCell>
+                                    <TableCell className="font-medium whitespace-nowrap">{item.nama}</TableCell>
+                                    <TableCell className="whitespace-nowrap">{item.bank || '-'}</TableCell>
+                                    <TableCell className="font-mono text-xs whitespace-nowrap">{item.noRekening}</TableCell>
+                                    <TableCell className="text-right font-semibold whitespace-nowrap">
                                       {formatCurrency(item.salurBruto)}
                                     </TableCell>
-                                    <TableCell className="text-right text-red-600">
+                                    <TableCell className="text-right text-red-600 whitespace-nowrap">
                                       {formatCurrency(item.pph)}
                                     </TableCell>
-                                    <TableCell className="text-right text-red-600">
+                                    <TableCell className="text-right text-red-600 whitespace-nowrap">
                                       {formatCurrency(item.potIjn)}
                                     </TableCell>
-                                    <TableCell className="text-right font-semibold text-green-600">
+                                    <TableCell className="text-right font-semibold text-green-600 whitespace-nowrap">
                                       {formatCurrency(item.salurNetto)}
                                     </TableCell>
                                   </TableRow>
@@ -403,11 +404,11 @@ export default function GuruDAKPage() {
 
                         {/* Pagination */}
                         {pagination.itemsPerPage !== 'ALL' && totalPages > 1 && (
-                          <div className="flex items-center justify-between mt-4">
+                          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-6 p-4 bg-gray-50 dark:bg-gray-900/30 rounded-md border">
                             <p className="text-sm text-muted-foreground">
                               Menampilkan {startIndex + 1} - {Math.min(endIndex, filteredDetails.length)} dari {filteredDetails.length} data
                             </p>
-                            <div className="flex gap-2">
+                            <div className="flex items-center gap-2 flex-wrap">
                               <Button
                                 variant="outline"
                                 size="sm"
@@ -416,9 +417,11 @@ export default function GuruDAKPage() {
                               >
                                 Sebelumnya
                               </Button>
-                              <span className="flex items-center px-2 text-sm">
-                                Halaman {pagination.currentPage} dari {totalPages}
-                              </span>
+                              <div className="flex items-center gap-1 px-3 py-1 bg-white dark:bg-gray-800 rounded-md border">
+                                <span className="text-sm font-medium">
+                                  Halaman {pagination.currentPage} dari {totalPages}
+                                </span>
+                              </div>
                               <Button
                                 variant="outline"
                                 size="sm"
@@ -430,6 +433,7 @@ export default function GuruDAKPage() {
                             </div>
                           </div>
                         )}
+                        </div>
                       </div>
                     )}
                   </CardContent>
